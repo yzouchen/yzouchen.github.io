@@ -164,7 +164,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><strong>Title:</strong> An Empirical Guide to the Behavior and Use of Scalable Persistent Memory</p>
+        <hr>
+<p><strong>Title:</strong> An Empirical Guide to the Behavior and Use of Scalable Persistent Memory</p>
 <p><strong>Source:</strong> FAST ’20</p>
 <p><strong>School:</strong> UCSD</p>
 <hr>
@@ -175,83 +176,9 @@
 <p>过去的NVM都是基于模拟，且对特性假设其是一个更慢的、non-volatile的DRAM（字节寻址＋non-volatile）。这样简单的假设影响多方面：模拟方法（专用硬件平台、模拟机制、挖掘NUMA影响）。</p>
 <p>本文挖掘Optane DIMM更多特性（access size/access type/pattern/concurrency），从micro/macro level对比DRAM/模拟的NVM。</p>
 <p><font color="red">行文：基础特征测试 ——  提出几点guideline  ——  并且将这些方法应用于现有的NVM-aware的应用上，验证其性能提升。</font></p>
-<ul>
-<li>Typical Latency</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">测试方法：</span><br><span class="line">	测量Read: 8字节随机或顺序内存访问（load指令）的平均时延（每个load后有一个mfence，保证消除Cache、乱序的影响）</span><br><span class="line">	测量write：8字节store访问 + clwb + mfence; / ntstore + mfence</span><br><span class="line">结论：</span><br><span class="line">	Optane读延迟2-3倍高于DRAM：介质原因</span><br><span class="line">	Optane的顺序/随机读延时gap更大：Optane XPBuffer的结果（随机读在不同次buf里，顺序读在同一次buf里）</span><br><span class="line">	Optane的写延迟和DRAM差不多，因为只要存到ADR at iMC 中九算存完了，所以延迟和dram区别不大</span><br><span class="line">	写开销：ntstore &gt; clwb</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>Tail Latency</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">定义：Worst-case behavior, critically affect response times</span><br><span class="line">实验：单线程向一个hotspot区域（变大小）写入20 million次64-byte。</span><br><span class="line">结论：Hotspot size小时有一些100x的大延迟，size增大尾延迟减少，尾延迟出现次数少0.006%，猜测是wear-leveling or thermal concerns（磨损均衡/发热）</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>Bandwidth</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Optane的读写gap(2.9x)大于DRAM(1.3x)，写比读要费时的更多</span><br><span class="line">Optane性能不随线程增加单调增长</span><br><span class="line">Optane对小于256B的随机访问，性能差</span><br><span class="line">interleave模式能加速性能，但是在访问size为4KB的时候出现一个性能下降，可能是因为iMC竞争</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>Guidelines</strong></p>
-<p><strong>1. Avoid random accesses smaller than 256 B</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">引入EWR(Effective Write Ratio) = 想要写的bytes(iMC)/介质写的bytes</span><br><span class="line">	(理解为写放大的倒数)</span><br><span class="line">EWR小于1代表多余写，EWR也可能大于1，因为XPBuffer有合并写的可能</span><br><span class="line">EWR与带宽强相关</span><br><span class="line">因为XPBuffer有合并写的功能，所以对人iMC的Cacheline一次只能64B，但影响效率的到底还是以256B为参考(介质访问粒度)</span><br><span class="line">XPBuffer大小为16kB = 256B * 64</span><br></pre></td></tr></table></figure>
-
-<p>所以其实有两个层次的建议限制：<br>（1）尽量大于256B，避免小于一个Optane介质粒度的访问<br>（2）尽量小于16KB，避免跨度大于XPBuffer大小的访问</p>
-<p>XPBuffer 为局部性铺垫！局部性可能比强行要求256B更重要！</p>
-<p><strong>2.Use non-temporal stores(ntstore) when possible for large transfers, and control cache evictions.</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">小数据写入用store+clwb</span><br><span class="line">大数据写入用ntstore（不经过内存直接写到nvm里）</span><br><span class="line"></span><br><span class="line">实验里有个点:&quot;Our bandwidth test used six threads as it gives good results for all instructions.&quot; 改八片后会有什么变化吗</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><strong>3.Limit the number of concurrent threads accessing an Optane DIMM.</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">多线程访问同一个Optane DIMM</span><br><span class="line">1.XPBuffer的竞争:增加eviction，降低EWR</span><br><span class="line">2.iMC竞争：总线程数固定，每个线程访问N块NVM，N增大，每个NVM的带宽降低，但EWR接近1，说明不是Buffer竞争，是iMC竞争。因为OptaneDIMM慢，导致WPQ队列慢，就 阻塞了。</span><br></pre></td></tr></table></figure>
-
-<p><strong>4.Avoid NUMA accesses (especially read-modify-writesequences).</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">多线程对跨node的NUMA访问影响很大，带宽骤降</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<p><strong>Details / Background</strong> </p>
-<blockquote>
-<p>解释一些专有名词、指令</p>
-</blockquote>
-<ul>
-<li><p>iMC：集成内存控制器，控制DRAM/NVM访问</p>
-</li>
-<li><p>NUMA：cpu+自己管理的内存=node  ，跨node访问–&gt;NUMA</p>
-</li>
-<li><p>Optane NVM mode： <strong>Figure 1(a)</strong></p>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Memory Mode：视作内存，可以让DRAM作其cache（此时为直接映射）</span><br><span class="line">AppDirect Mode：视作NVM</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>写回/持久化流程：<font color="red"><strong>Figure 1(b)</strong></font></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">（1）先从CPU写入iMC中的读写等待队列（RPQs/WPQs），这时就已经进入了ADR域(asynchronous DRAM refresh)，而后iMC通过DDR-T接口和64byte的cacheline与Optane交互(DDR4接口共享但协议不同)。</span><br><span class="line">（2）到达Optane DIMM的数据先到XPController中（XPBuffer），到这里就相当于已经持久化了，3D-XPoint的访问粒度为256byte，即XPLine为256B，控制器会进行一些写合并、磨损均衡、地址映射的活。</span><br></pre></td></tr></table></figure>
-
-
-<ul>
-<li>interleaved 模式： **Figure 1(c)**可以跨channel，最小交织粒度为4KB，保证单页在同一个Optane上</li>
-<li>ISA 支持：解决指令重排带来的store在持久化过程中的各种问题</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(1) clflush/clflushopt(weaker ordering constraints): flush cache lines back to memory</span><br><span class="line">(2) clwb: write back (but not evict) cache lines</span><br><span class="line">(3) ntstore: non-temporal stores to bypass the cache hierarchy and write directly to memory</span><br><span class="line">(4) sfence: 前面的都是非阻塞的，sfence用于确保前面操作完成、已持久化</span><br></pre></td></tr></table></figure>
-
-
-
-<hr>
-<p><strong>Discussion</strong></p>
-<blockquote>
-<p>摘自原文Discussion部分</p>
-</blockquote>
-<ul>
-<li><p>本文只是讨论了App Direct mode，没讨论Memory Mode</p>
-</li>
-<li><p>The size of the XPBuffer and iMC’s WPQ might change in future implementations which would limit the importance of minimizing concurrent threads and reduce the importance of the 256 B write granularity.</p>
-</li>
-<li><p>256B这个最小访问粒度基本不可能再小了，因为相变存储器就这样，否则存储密度下降</p>
-</li>
-</ul>
-
+        
+          <a class="article-more-a" href="/2022/01/22/An-Empirical-Guide-to-the-Behavior-and-Use-of-Scalable-Persistent-Memory/#more">more >></a>
+        
       
 
       
