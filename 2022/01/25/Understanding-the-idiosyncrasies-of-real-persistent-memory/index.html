@@ -22,13 +22,13 @@
 
   <meta name="description" content="Title: Understanding the Idiosyncrasies of Real Persistent Memory Source: VLDB’2020 School: The Ohio State University   note by yzouchen 20220116   注：由于FAST’20那篇Empirical Guide已经写的比较完善，本文的论文笔记对于重复的部分不">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Understanding-the-idiosyncrasies-of-real-persistent-memory">
+<meta property="og:title" content="Understanding the idiosyncrasies of real persistent memory">
 <meta property="og:url" content="http://yzouchen.github.io/2022/01/25/Understanding-the-idiosyncrasies-of-real-persistent-memory/index.html">
 <meta property="og:site_name" content="Yizou Chen&#39;s Blog">
 <meta property="og:description" content="Title: Understanding the Idiosyncrasies of Real Persistent Memory Source: VLDB’2020 School: The Ohio State University   note by yzouchen 20220116   注：由于FAST’20那篇Empirical Guide已经写的比较完善，本文的论文笔记对于重复的部分不">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-01-25T13:42:11.000Z">
-<meta property="article:modified_time" content="2022-01-25T13:44:50.450Z">
+<meta property="article:modified_time" content="2022-02-11T11:55:03.876Z">
 <meta property="article:author" content="Yizou Chen">
 <meta property="article:tag" content="Papers">
 <meta property="article:tag" content="PMem">
@@ -47,7 +47,7 @@
   };
 </script>
 
-  <title>Understanding-the-idiosyncrasies-of-real-persistent-memory | Yizou Chen's Blog</title>
+  <title>Understanding the idiosyncrasies of real persistent memory | Yizou Chen's Blog</title>
   
 
 
@@ -180,7 +180,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Understanding-the-idiosyncrasies-of-real-persistent-memory
+          Understanding the idiosyncrasies of real persistent memory
         </h1>
 
         <div class="post-meta">
@@ -189,10 +189,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-01-25 21:42:11 / 修改时间：21:44:50" itemprop="dateCreated datePublished" datetime="2022-01-25T21:42:11+08:00">2022-01-25</time>
+              <time title="创建时间：2022-01-25 21:42:11" itemprop="dateCreated datePublished" datetime="2022-01-25T21:42:11+08:00">2022-01-25</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-11 19:55:03" itemprop="dateModified" datetime="2022-02-11T19:55:03+08:00">2022-02-11</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -242,17 +248,15 @@
 <blockquote>
 <p>注：由于FAST’20那篇Empirical Guide已经写的比较完善，本文的论文笔记对于重复的部分不再赘述，只关注差异性地方和写作/实验思路的不同</p>
 </blockquote>
-<h5 id="0-Abstract"><a href="#0-Abstract" class="headerlink" title="0. Abstract"></a>0. Abstract</h5><p>DCPMM的特性与底层介质3D-XPoint相关，未来有新介质作为PMEM怎么办？本文做的（也是需要做的）是指导系统性设计，并且与PMEM技术/内部结构无关</p>
+<h4 id="0-Abstract"><a href="#0-Abstract" class="headerlink" title="0. Abstract"></a>0. Abstract</h4><p>DCPMM的特性与底层介质3D-XPoint相关，未来有新介质作为PMEM怎么办？本文做的（也是需要做的）是指导系统性设计，并且与PMEM技术/内部结构无关</p>
 <p>本文使用PMIdioBench对真实NVM作评测，并通过两个case study指导NVM系统设计工作：第一项研究指导使用PMEM的NUMA系统的数据放置。第二项研究指导使用eADR和ADR的PMEM系统的无锁数据结构的设计。</p>
-<span id="more"></span>
-
 <blockquote>
 <p>Moreover, Intel is planning to release the next generation of DCPMM with improvements to the architecture and memory technology </p>
 <p>Intel. 2019. 2019 Annual Report. <a target="_blank" rel="noopener" href="https://annualreport.intc.com/Y2019/default.aspx">https://annualreport.intc.com/Y2019/default.aspx</a> (accessed Dec. 2020).</p>
 </blockquote>
-<h5 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1.Introduction"></a>1.Introduction</h5><p>本文的主要动机是：”Are DCPMM characteristics and guidelines applicable to<br>other PMEM technologies?”—-DCPMM的特性和guidelines能不能适用于其他PMEM技术（基于其他存储介质技术）</p>
+<h4 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1.Introduction"></a>1.Introduction</h4><p>本文的主要动机是：”Are DCPMM characteristics and guidelines applicable to<br>other PMEM technologies?”—-DCPMM的特性和guidelines能不能适用于其他PMEM技术（基于其他存储介质技术）</p>
 <p>因为DCPMM的有些特性是与内部架构和存储技术相关的，不能应用到其他存储技术上，result in a highly specialized system。本文想找PMEM特征的root cause以及各个root cause的影响程度。通过分析DCPMM和DRAM的性能差异 / 分析硬件计数器找出root cause。两个case study见<strong>0.</strong></p>
-<h5 id="2-PMEM-Background"><a href="#2-PMEM-Background" class="headerlink" title="2. PMEM Background"></a>2. PMEM Background</h5><p><strong>Figure1、Figure2</strong></p>
+<h4 id="2-PMEM-Background"><a href="#2-PMEM-Background" class="headerlink" title="2. PMEM Background"></a>2. PMEM Background</h4><p><strong>Figure1、Figure2</strong></p>
 <ul>
 <li><p>last level cache(LLC)是被一个CPU内多个core共享（而reg/store buffer/L1L2cache不是?）</p>
 </li>
@@ -271,7 +275,7 @@
 <li><p>内部：XPBuffer+XPPrefetcher。</p>
 </li>
 </ul>
-<h5 id="3-PROPOSED-MODUS-OPERANDI-提出的工作方法"><a href="#3-PROPOSED-MODUS-OPERANDI-提出的工作方法" class="headerlink" title="3.PROPOSED MODUS OPERANDI 提出的工作方法"></a>3.PROPOSED MODUS OPERANDI 提出的工作方法</h5><p><strong>Table1</strong>  列出DCPMM的一些特征——如果该特征的root cause在其他PMEM上不存在就不适用</p>
+<h4 id="3-PROPOSED-MODUS-OPERANDI-提出的工作方法"><a href="#3-PROPOSED-MODUS-OPERANDI-提出的工作方法" class="headerlink" title="3.PROPOSED MODUS OPERANDI 提出的工作方法"></a>3.PROPOSED MODUS OPERANDI 提出的工作方法</h4><p><strong>Table1</strong>  列出DCPMM的一些特征——如果该特征的root cause在其他PMEM上不存在就不适用</p>
 <p><strong>Table2</strong>列出PMEM类型（硬件特征，非互斥）——以找到/描述硬件组成/设计层面的root cause</p>
 <p>为了确定root cause 提出两种技术方法：</p>
 <ul>
@@ -286,9 +290,7 @@
 <p><strong>3.1</strong>PMIdioBench</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在不同场景、线程数、access size下衡量PM访问的latency/bandwidth，可以禁止cache prefetching。</span><br><span class="line">还包括两个工具来帮助识别性能异常背后的主要原因和瓶颈：一个检查相关硬件计数器和显示有用的指标(如EWR,EBR和RWR)，另一个是生成基准跟踪和收集信息的flame graph。</span><br><span class="line">限制：(1)PMIdioBench只包含DCPMM观察到的特性的针对性实验，如果测试的新PMEM有一些之前没有的独特特性就不行了。(2)要求PMEM硬件计数器在cache lines粒度上可用</span><br></pre></td></tr></table></figure>
 
-
-
-<h5 id="4-特征分类"><a href="#4-特征分类" class="headerlink" title="4. 特征分类"></a>4. 特征分类</h5><ol>
+<h4 id="4-特征分类"><a href="#4-特征分类" class="headerlink" title="4. 特征分类"></a>4. 特征分类</h4><ol>
 <li><p>load/p-store latency不对称性:<strong>Figure3a</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">以往的研究只考虑了PMEM的直接时延，这并不能反映应用感知到的时延。</span><br><span class="line">在本研究中，我们测量缓存的时延，揭示PMEM时延不对称性。</span><br><span class="line">大概感觉是：FAST那篇中读写延迟测量没考虑cache命中率，可能带来bug，这里把这个bug完善了一下，更缜密。</span><br><span class="line">对图的解读：我感觉就是PMEM读和DRAM有个gap，然后cache命中率上去了就在cache里找，这个gap就没用上，到最后就差不多了</span><br><span class="line">建议：Therefore, there is benefit in avoiding unnecessary p-stores and keeping relevant data in cache.</span><br></pre></td></tr></table></figure></li>
 <li><p>load/p-store 带宽不对称性:<strong>Figure3b Figure3c Figure3d</strong></p>
@@ -308,7 +310,7 @@
 <li><p>P-stores are read-modify-write transactions</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(1)重复写non-temporal到相同的XPLine，衡量EWR和RWR，结果都接近1(没有大于1)。这说明DCPMM会立刻写XPLine到介质上，即使XPBuffer不满。</span><br><span class="line">(2)即使写完整的256B XPLine，写也会被拆成64B cache-line 因为DDR-T使用cacheline粒度。导致每个内部存储都需要read-modify-write事务。</span><br><span class="line">综上，XPBuffer没有有效使用。</span><br><span class="line">有待改进：</span><br><span class="line">(1)对有高时间局部性的负载，可以在XPBuffer中保留完整的written line以提高命中率</span><br><span class="line">(2)控制器发现往同一XPLine的连续写后，不应该从介质读数据，防止read-modify-writes。</span><br></pre></td></tr></table></figure></li>
 </ol>
-<h5 id="5-CASE-STUDY-–-NUMA-AWARE-DATA-PLACEMENT-WITH-MONGODB"><a href="#5-CASE-STUDY-–-NUMA-AWARE-DATA-PLACEMENT-WITH-MONGODB" class="headerlink" title="5.  CASE STUDY – NUMA-AWARE DATA PLACEMENT WITH MONGODB"></a>5.  CASE STUDY – NUMA-AWARE DATA PLACEMENT WITH MONGODB</h5><blockquote>
+<h4 id="5-CASE-STUDY-–-NUMA-AWARE-DATA-PLACEMENT-WITH-MONGODB"><a href="#5-CASE-STUDY-–-NUMA-AWARE-DATA-PLACEMENT-WITH-MONGODB" class="headerlink" title="5.  CASE STUDY – NUMA-AWARE DATA PLACEMENT WITH MONGODB"></a>5.  CASE STUDY – NUMA-AWARE DATA PLACEMENT WITH MONGODB</h4><blockquote>
 <p>这里只考虑将数据结构全部放在local/remote NUMA PMEM上，一个 数据结构跨NUMA node的情况暂不考虑。</p>
 <p>目标是指导持久化数据结构的放置来最小化性能影响并最大化设备利用率。（这两点中，全放在local性能最好，然而分布在NUMA nodes中可以最大化设备利用率和性能隔离）</p>
 <p>做的过程是：遍历所有可能的placement scenarios，找表现最好的那个分析，据此给出guideline</p>
@@ -317,7 +319,7 @@
 <p>实验中把MongoDB的server daemon 固定到NUMA node 0，YCSB client 线程固定到NUMA node 1。将RS和index分别放在两个NUMA节点，产生4种可能情况。比较性能，’record store’配置可以性能好同时最大化设备利用率。</p>
 <p>为了进一步知道原因，分析这两个数据结构的两个指标：EWR和EBR。RS两个指标都低——统计访问粒度，有较多小写入——poor EBR/EWR的数据结构应该被放在local NUMA node。</p>
 <p>鉴于EWR不是所有PMEM都适用，最终建议：把高EBR的数据结构放在remote NUMA node。</p>
-<h5 id="6-CASE-STUDY-–-DESIGNING-PERSISTENT-LOCK-FREE-DATA-STRUCTURES"><a href="#6-CASE-STUDY-–-DESIGNING-PERSISTENT-LOCK-FREE-DATA-STRUCTURES" class="headerlink" title="6. CASE STUDY – DESIGNING PERSISTENT LOCK-FREE DATA STRUCTURES"></a>6. CASE STUDY – DESIGNING PERSISTENT LOCK-FREE DATA STRUCTURES</h5><blockquote>
+<h4 id="6-CASE-STUDY-–-DESIGNING-PERSISTENT-LOCK-FREE-DATA-STRUCTURES"><a href="#6-CASE-STUDY-–-DESIGNING-PERSISTENT-LOCK-FREE-DATA-STRUCTURES" class="headerlink" title="6. CASE STUDY – DESIGNING PERSISTENT LOCK-FREE DATA STRUCTURES"></a>6. CASE STUDY – DESIGNING PERSISTENT LOCK-FREE DATA STRUCTURES</h4><blockquote>
 <p>首先讨论persistent lock-free data structure(PLFS)设计的挑战</p>
 <p>而后提出两种PLFS（ring buffer and linkedlist）的设计与评价。</p>
 <p>目的有两个：（1）说明eADR和ADR在PLFS设计上有区别，不通用，特别是在强更新负载上，ADR中好的数据结构不能在eADR中表现好。（2）比较PLFS设计技术selecting an appropriate technique can significantly impact performance and should be done considering the workload IO pattern and persistence mode.</p>
@@ -340,9 +342,7 @@
 <p>小声bb：所以这些Case Study跟前面234的有什么关系？？？</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. PMEM transaction代价高，尽量少用。可以用per-thread logging、dirty-bit设计来避免PMEM事务。前者适合read-heavy负载，后者适合update-heavy负载，有时候PMEM事务无法避免。</span><br><span class="line">2. 基于ADR的设计不一定适合eADR。为了获得eADR最优性能，尽量立刻持久化所有可见操作，这样更适合update-heavy负载。</span><br></pre></td></tr></table></figure>
 
-
-
-<h5 id="7-Discussion"><a href="#7-Discussion" class="headerlink" title="7.Discussion"></a>7.Discussion</h5><p>7.1 ISA Support</p>
+<h4 id="7-Discussion"><a href="#7-Discussion" class="headerlink" title="7.Discussion"></a>7.Discussion</h4><p>7.1 ISA Support</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">持久化指令分为3类：1.cache-flash  2.write back(Clwb)  3.nt-store</span><br><span class="line">	1,2需要数据在cache中，3绕过cache。</span><br><span class="line">	1使得cache中所有行失效，把dirty data写到PM</span><br><span class="line">	2同样功能，但是不会使cache line失效，性能高一点，通过不需要随后把cache行重新读回来、增加cache命中率</span><br><span class="line">	3绕过cache结构，带宽更高，但延迟也更高。适用于大量IO或者具有低时间局部性的数据。</span><br><span class="line">	总的来说，2应该更好，1只应该在flushed data不会再次被读时使用，因为1降低了cache命中率，影响了性能</span><br><span class="line">	Clwb写回指令是ISA的一部分，但是目前的行为与cflush一样，因此没法测其性能提升，当clwb可行时可以用于后续研究。</span><br></pre></td></tr></table></figure>
 
 <p>7.2 Persistence Mode</p>
@@ -450,7 +450,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#0-Abstract"><span class="nav-number">1.</span> <span class="nav-text">0. Abstract</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#1-Introduction"><span class="nav-number">2.</span> <span class="nav-text">1.Introduction</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-PMEM-Background"><span class="nav-number">3.</span> <span class="nav-text">2. PMEM Background</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-PROPOSED-MODUS-OPERANDI-%E6%8F%90%E5%87%BA%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">3.PROPOSED MODUS OPERANDI 提出的工作方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E7%89%B9%E5%BE%81%E5%88%86%E7%B1%BB"><span class="nav-number">5.</span> <span class="nav-text">4. 特征分类</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-CASE-STUDY-%E2%80%93-NUMA-AWARE-DATA-PLACEMENT-WITH-MONGODB"><span class="nav-number">6.</span> <span class="nav-text">5.  CASE STUDY – NUMA-AWARE DATA PLACEMENT WITH MONGODB</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-CASE-STUDY-%E2%80%93-DESIGNING-PERSISTENT-LOCK-FREE-DATA-STRUCTURES"><span class="nav-number">7.</span> <span class="nav-text">6. CASE STUDY – DESIGNING PERSISTENT LOCK-FREE DATA STRUCTURES</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7-Discussion"><span class="nav-number">8.</span> <span class="nav-text">7.Discussion</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#0-Abstract"><span class="nav-number">1.</span> <span class="nav-text">0. Abstract</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Introduction"><span class="nav-number">2.</span> <span class="nav-text">1.Introduction</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-PMEM-Background"><span class="nav-number">3.</span> <span class="nav-text">2. PMEM Background</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-PROPOSED-MODUS-OPERANDI-%E6%8F%90%E5%87%BA%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E6%B3%95"><span class="nav-number">4.</span> <span class="nav-text">3.PROPOSED MODUS OPERANDI 提出的工作方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E7%89%B9%E5%BE%81%E5%88%86%E7%B1%BB"><span class="nav-number">5.</span> <span class="nav-text">4. 特征分类</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-CASE-STUDY-%E2%80%93-NUMA-AWARE-DATA-PLACEMENT-WITH-MONGODB"><span class="nav-number">6.</span> <span class="nav-text">5.  CASE STUDY – NUMA-AWARE DATA PLACEMENT WITH MONGODB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-CASE-STUDY-%E2%80%93-DESIGNING-PERSISTENT-LOCK-FREE-DATA-STRUCTURES"><span class="nav-number">7.</span> <span class="nav-text">6. CASE STUDY – DESIGNING PERSISTENT LOCK-FREE DATA STRUCTURES</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-Discussion"><span class="nav-number">8.</span> <span class="nav-text">7.Discussion</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -464,14 +464,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -521,7 +521,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">20k</span>
+    <span title="站点总字数">26k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>

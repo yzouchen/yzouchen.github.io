@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文记录上手Intel Optane DC Persistent Memory Module的一些背景">
+<meta property="og:type" content="article">
+<meta property="og:title" content="上手PMem">
+<meta property="og:url" content="http://yzouchen.github.io/2022/02/11/%E4%B8%8A%E6%89%8BPMem/index.html">
+<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:description" content="本文记录上手Intel Optane DC Persistent Memory Module的一些背景">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yzouchen.github.io/2022/02/11/%E4%B8%8A%E6%89%8BPMem/Figure1.JPG">
+<meta property="article:published_time" content="2022-02-11T11:54:32.000Z">
+<meta property="article:modified_time" content="2022-02-12T14:13:04.715Z">
+<meta property="article:author" content="Yizou Chen">
+<meta property="article:tag" content="PMem">
+<meta property="article:tag" content="科研笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yzouchen.github.io/2022/02/11/%E4%B8%8A%E6%89%8BPMem/Figure1.JPG">
+
+<link rel="canonical" href="http://yzouchen.github.io/2022/02/11/%E4%B8%8A%E6%89%8BPMem/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>上手PMem | Yizou Chen's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yzouchen.github.io/2022/02/11/%E4%B8%8A%E6%89%8BPMem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yizou Chen's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          上手PMem
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-02-11 19:54:32" itemprop="dateCreated datePublished" datetime="2022-02-11T19:54:32+08:00">2022-02-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-12 22:13:04" itemprop="dateModified" datetime="2022-02-12T22:13:04+08:00">2022-02-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">科研笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/PMem/" itemprop="url" rel="index"><span itemprop="name">PMem</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.9k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>本文记录上手Intel Optane DC Persistent Memory Module的一些背景</p>
+</blockquote>
+<span id="more"></span>
+
+<blockquote>
+<p>先挖坑，慢慢填哈哈哈。</p>
+</blockquote>
+<p>首先，说明/记录一个PMem较权威的资源出处：<a target="_blank" rel="noopener" href="https://pmem.io/">PMem.io</a>。Github User Name为<code>PMem</code>(Libraries and Examples for Persistent Memory Programming)。网站内含主流PMem软件与文档。其中 -&gt; Learn -&gt; Docs 为Persistent Memory Document，内含三部分：Getting Started Guide、IPMCTL User Guide、NDCTL User Guide，将在下文逐一展开。</p>
+<p>本文每章下均注明原文链接，翻译部分带有主观色彩</p>
+<h1 id="快速上手Intel-Optane-DC-PMM"><a href="#快速上手Intel-Optane-DC-PMM" class="headerlink" title="快速上手Intel Optane DC PMM"></a>快速上手Intel Optane DC PMM</h1><blockquote>
+<p>相当于后面几章的简约版，快速上手</p>
+</blockquote>
+<h2 id="Part-1-Persistent-Memory-Provisioning-Introduction"><a href="#Part-1-Persistent-Memory-Provisioning-Introduction" class="headerlink" title="Part 1 Persistent Memory Provisioning Introduction"></a>Part 1 Persistent Memory Provisioning Introduction</h2><p>参考自：<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Intel的Optane DC Persistent Memory支持两种模式：Memory Mode 和 App Direct Mode(，Mixed Mode)。</p>
+<p>详情<a target="_blank" rel="noopener" href="https://itpeernetwork.intel.com/intel-optane-dc-persistent-memory-operating-modes/#gs.n77o95">Intel® Optane™ DC Persistent Memory Operating Modes Explained - IT Peer Network</a></p>
+<ul>
+<li><p><strong>IPMCTL</strong>是intel官方创建并维护的用于配置和管理Optane DCPMM的开源实用程序，用于管理Region。</p>
+</li>
+<li><p><strong>NDCTL</strong>是非易失性设备控制，用于管理Namespace。</p>
+</li>
+</ul>
+<h3 id="持久性内存相关概念"><a href="#持久性内存相关概念" class="headerlink" title="持久性内存相关概念"></a>持久性内存相关概念</h3><h4 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h4><p>Region是指一组一个或多个NVDIMM，也称为交错集，可以以n路交织或非交织的方式创建Region。 在Intel Optane DC PMM上，只能使用 ipmctl 创建或更改区域。</p>
+<p>支持的Region有三种：PMEM，BLK和NVDIMM，Region可以划分为一个或多个namespace（命名空间）。</p>
+<ul>
+<li><p>PMEM：持久化内存设备允许字节可寻址访问。</p>
+</li>
+<li><p>BLK：块设备就像传统的存储设备一样允许扇区原子性。</p>
+</li>
+<li><p>NVDIMM：这些设备可以同时支持PMEM和BLK模式访问。</p>
+</li>
+</ul>
+<blockquote>
+<p>我的理解是，Region就像一个物理磁盘，而其namespace就相当于物理磁盘通过分区划分为多个逻辑磁盘</p>
+</blockquote>
+<h4 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h4><p>Namespace用于定义一个连续寻址的非易失性存储器，其概念类似于硬盘分区，SCSI逻辑单元（LUN）或NVM Express命名空间。 它是持久性存储器的单元，在/dev中作为可用于I/O的设备出现。 英特尔建议使用<strong>非易失性设备控制（ndctl）</strong>为Linux操作系统创建名称空间。</p>
+<h4 id="DAX"><a href="#DAX" class="headerlink" title="DAX"></a>DAX</h4><p>直接访问（DAX）是一种允许应用程序直接从CPU（通过加载和存储）访问持久性介质的机制，绕过传统的I/O堆栈（页面缓存和块层）。</p>
+<h3 id="Namespace-Types"><a href="#Namespace-Types" class="headerlink" title="Namespace Types"></a>Namespace Types</h3><ul>
+<li>Filesystem-DAX(FSDAX)</li>
+<li>Device DAX(DEVDAX)</li>
+<li>Sector</li>
+<li>Raw</li>
+</ul>
+<h3 id="PMem-Provisioning-Overview"><a href="#PMem-Provisioning-Overview" class="headerlink" title="PMem Provisioning Overview"></a>PMem Provisioning Overview</h3><p>使用PMem的准备工作分两步（Memory Mode只需第一步，AppDirect Mode执行下述两步）</p>
+<ol>
+<li>配置Goal(Region)：在这一步骤中，goal会被识别并存储在PMem modules中，并在下次重启时应用。有三种模式：Memory Mode, App Direct mode, or mixed mode.Goal可以通过以下两者之一的方法设置。<ul>
+<li>Bios设置</li>
+<li>操作系统实用程序：<strong>IPMCTL</strong></li>
+</ul>
+</li>
+<li>配置Namespaces：只有App Direct Mode需要。这是 OS-specific 操作。<ul>
+<li>Linux: <strong>ndctl</strong> utility</li>
+<li>Windows: Powershell</li>
+</ul>
+</li>
+</ol>
+<h3 id="IPMCTL工具"><a href="#IPMCTL工具" class="headerlink" title="IPMCTL工具"></a>IPMCTL工具</h3><p>Ipmctl可以从统一可扩展固件接口（UEFI）shell或操作系统中的终端窗口启动。 两个版本的ipmctl都支持相同的功能，通过从命令行运行<code>ipmctl help 或者 man ipmctl</code>，可以看到完整的命令列表。Linux和Windows环境下的Commands相同。</p>
+<blockquote>
+<p>具体在后面的<strong>Part 2</strong>中介绍</p>
+</blockquote>
+<h3 id="NDCTL工具"><a href="#NDCTL工具" class="headerlink" title="NDCTL工具"></a>NDCTL工具</h3><blockquote>
+<p> 因为是OS(Linux)专用，在后面的<strong>Part 2</strong>中介绍</p>
+</blockquote>
+<h3 id="Appendixes"><a href="#Appendixes" class="headerlink" title="Appendixes"></a>Appendixes</h3><h4 id="Appendix-A-Provisioning常问问题"><a href="#Appendix-A-Provisioning常问问题" class="headerlink" title="Appendix A: Provisioning常问问题"></a>Appendix A: Provisioning常问问题</h4><p>见<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
+<h4 id="Appendix-B-ipmctl-指令列表"><a href="#Appendix-B-ipmctl-指令列表" class="headerlink" title="Appendix B: ipmctl 指令列表"></a>Appendix B: ipmctl 指令列表</h4><p><img src="/2022/02/11/%E4%B8%8A%E6%89%8BPMem/Figure1.JPG" alt="ipmctl指令列表"></p>
+<h4 id="Appendix-C-配置-管理"><a href="#Appendix-C-配置-管理" class="headerlink" title="Appendix C: 配置 - 管理"></a>Appendix C: 配置 - 管理</h4><h5 id="修改配置了的Goal"><a href="#修改配置了的Goal" class="headerlink" title="修改配置了的Goal"></a>修改配置了的Goal</h5><p>创建新的goal时，ipmctl会检查NVDIMMs是否已经配置了，会提示在创建新的goal之前要先delete旧的goal。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl create -goal MemoryMode=100</span></span><br><span class="line"></span><br><span class="line">Create region configuration goal failed: Error (115) - A requested DIMM already has a configured goal. Delete this existing goal before creating a new one</span><br></pre></td></tr></table></figure>
+
+<h5 id="删除配置"><a href="#删除配置" class="headerlink" title="删除配置"></a>删除配置</h5><p>配置新的goal前要删除旧的goal。为了删除namespace，需要使用<strong>ndctl</strong>来管理，详见Part 2。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl delete -goal</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Dump-转储-当前Goal"><a href="#Dump-转储-当前Goal" class="headerlink" title="Dump(转储)当前Goal"></a>Dump(转储)当前Goal</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl dump -destination testfile -system -config</span></span><br><span class="line">Successfully dumped system configuration to file: testfile</span><br></pre></td></tr></table></figure>
+
+<h5 id="基于配置文件创建Goal"><a href="#基于配置文件创建Goal" class="headerlink" title="基于配置文件创建Goal"></a>基于配置文件创建Goal</h5><p>Goals可以基于配置文件配置，也可以存储当前配置为一个文件，这使得相同配置可以被应用于不同系统/复用于同一系统。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 将转储到testfile中</span></span><br><span class="line">ipmctl dump -destination testfile -system -config</span><br><span class="line"><span class="meta">#</span><span class="bash"> 从myPath或testfile中载入配置</span></span><br><span class="line">ipmctl load -source myPath/testfile –goal</span><br></pre></td></tr></table></figure>
+
+<h5 id="检查模式修改"><a href="#检查模式修改" class="headerlink" title="检查模式修改"></a>检查模式修改</h5><p>注：配置后需要reboot</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipmctl show –memoryresources</span><br></pre></td></tr></table></figure>
+
+<h5 id="Show-Regions"><a href="#Show-Regions" class="headerlink" title="Show Regions"></a>Show Regions</h5><p>模式从Memory Mode修改为App Direct Mode时，重启后每个socket会创建一个Region。</p>
+<p>模式从App Direct Mode修改为Memory Mode时，重启后不会创建有Region。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipmctl show -region</span><br></pre></td></tr></table></figure>
+
+<h4 id="Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode"><a href="#Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode" class="headerlink" title="Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)"></a>Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)</h4><p>见<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
+<h2 id="Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory"><a href="#Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory" class="headerlink" title="Part 2 Linux Provisioning for Intel Optane Persistent Memory"></a>Part 2 Linux Provisioning for Intel Optane Persistent Memory</h2><blockquote>
+<p>基于Linux OS环境介绍，Windows用的少，详见Intel QSG Part3</p>
+</blockquote>
+<p>参考自：<a target="_blank" rel="noopener" href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-part2-linux-provisioning-with-optane-pmem.html">QSG Part 2 Provisioning with Intel® Optane™ PMEM - Linux*</a></p>
+<h3 id="Linux-Support-for-Intel-Optane-Persistent-Memory"><a href="#Linux-Support-for-Intel-Optane-Persistent-Memory" class="headerlink" title="Linux Support for Intel Optane Persistent Memory"></a>Linux Support for Intel Optane Persistent Memory</h3><h4 id="Kernel-Support"><a href="#Kernel-Support" class="headerlink" title="Kernel Support"></a>Kernel Support</h4><p>The Linux NVDIMM/PMem drivers are enabled by default, starting with Linux mainline kernel 4.2. We recommend mainline kernel version 4.19 or later to deliver Reliability, Availability and Serviceability (RAS) features required by the Persistent Memory Development Kit (PMDK).  </p>
+<h4 id="Custom-Kernel-Support"><a href="#Custom-Kernel-Support" class="headerlink" title="Custom Kernel Support"></a>Custom Kernel Support</h4><p>自定义Kernel Support</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">egrep -i &quot;zone_device|hugepage|nfit|nvdimm|pmem|_nd_|btt|dax|memory_hotplug&quot; /boot/config-$(uname -r)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Software-Non-volatile-Device-Control-NDCTL"><a href="#Software-Non-volatile-Device-Control-NDCTL" class="headerlink" title="Software: Non-volatile Device Control (NDCTL)"></a>Software: Non-volatile Device Control (NDCTL)</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo [apt|dnf|yum|zypper] install ndctl libndctl6 libndctl-dev</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查是否已经安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> ndctl</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Software-IPMCTL"><a href="#Software-IPMCTL" class="headerlink" title="Software: IPMCTL"></a>Software: IPMCTL</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo [apt|dnf|yum|zypper] install ipmctl</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查是否已经安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> ipmctl</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Tutorial-PMem预备"><a href="#Tutorial-PMem预备" class="headerlink" title="Tutorial: PMem预备"></a>Tutorial: PMem预备</h3><h4 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h4><ul>
+<li>Intel Optane DC PMem Modules</li>
+<li>ipmctl</li>
+<li>ndctl</li>
+</ul>
+<h4 id="Step1-PMem-Discovery"><a href="#Step1-PMem-Discovery" class="headerlink" title="Step1: PMem Discovery"></a>Step1: PMem Discovery</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -dimm</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -topology</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -memoryresources</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Step2-Determine-a-Configuration-Goal"><a href="#Step2-Determine-a-Configuration-Goal" class="headerlink" title="Step2: Determine a Configuration Goal"></a>Step2: Determine a Configuration Goal</h4><p>决定要配置成什么模式</p>
+<h4 id="Step-3-Configure-your-Platform"><a href="#Step-3-Configure-your-Platform" class="headerlink" title="Step 3: Configure your Platform"></a>Step 3: Configure your Platform</h4><p>所有配置后都需要重启一下才能生效。</p>
+<h5 id="Memory-Mode"><a href="#Memory-Mode" class="headerlink" title="Memory Mode"></a>Memory Mode</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal memorymode=100</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="App-Direct"><a href="#App-Direct" class="headerlink" title="App Direct"></a>App Direct</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal persistentmemorytype=appdirect</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Mixed-Mode"><a href="#Mixed-Mode" class="headerlink" title="Mixed Mode"></a>Mixed Mode</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 以60%PMem容量设置为MemoryMode为例</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal Memorymode=60</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces"><a href="#Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces" class="headerlink" title="Step 4: Provisioning of Intel Optane Persistent Memory Namespaces"></a>Step 4: Provisioning of Intel Optane Persistent Memory Namespaces</h4><h5 id="预备条件"><a href="#预备条件" class="headerlink" title="预备条件"></a>预备条件</h5><p>AppDirect Mode/Mixed Mode</p>
+<h5 id="Tutorial-如何创建namespace"><a href="#Tutorial-如何创建namespace" class="headerlink" title="Tutorial: 如何创建namespace"></a>Tutorial: 如何创建namespace</h5><ol>
+<li>首先需要确定我们是要配置系统全部的PMem容量还是其中的一部分。<ul>
+<li>如果要对全部region创建单一namespace，直接使用：<code>sudo ndctl create-namespace</code></li>
+<li>如果只用到PMem容量的一部分，则指令如：<code>sudo ndctll create-namespace -m fsdax -s 54G</code>这个指令的参数解释如下：<ul>
+<li>Argument Details<ul>
+<li>fsdax: Namespace mode</li>
+<li>54G: capacity(G!=GiB)</li>
+</ul>
+</li>
+<li>Argument Results<ul>
+<li>创建了一个新的<code>/dev/pmem&#123;X[.Y]&#125;</code>设备</li>
+<li>X.Y代表这是第X个Region上的第Y个namespace</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>输入指令<code>ls -l /dev/pmem*</code>来确定namespace成功被创建</li>
+<li>（略）使用指令<code> ndctl create-namespace -n &quot;MyApp&quot;</code>将namespace标记为”MyApp”</li>
+<li>使用指令<code>sudo ndctl create-namespace</code>来指定剩余全部PMem容量为一个namespace</li>
+<li>使用指令<code>ndctl list -N</code>列出全部创建的namespace</li>
+<li>使用指令如<code>mkfs.ext4 -f /dev/pmem1</code>来创建文件系统并挂载到PMem设备上</li>
+<li>使用指令如<code> mkdir /mnt/myPMem</code>来创造挂载点</li>
+<li>使用指令如<code>mount -o dax /dev/pmem1 /mnt/myPMem </code>来挂载文件系统，通过<code>-o dax</code>选项。</li>
+</ol>
+<h3 id="Appendix-如何将PMem恢复出厂设置"><a href="#Appendix-如何将PMem恢复出厂设置" class="headerlink" title="Appendix: 如何将PMem恢复出厂设置"></a>Appendix: 如何将PMem恢复出厂设置</h3><h4 id="Quick-Method"><a href="#Quick-Method" class="headerlink" title="Quick Method"></a>Quick Method</h4><ol>
+<li><code>sudo ndctl destroy-namespace -f all </code></li>
+<li>OS&gt; <code>ipmctl delete -f -dimm -pcd&#39;</code><ol>
+<li>Deletes the Goal aka PCD (Platform Config Data) </li>
+</ol>
+</li>
+<li>Reboot the system</li>
+</ol>
+<h4 id="Long-Method"><a href="#Long-Method" class="headerlink" title="Long Method"></a>Long Method</h4><ol>
+<li>sudo登录</li>
+<li><code>ndctl list -N</code>: Get a list of namespaces</li>
+<li>Unmount the file system from the namespace needing to be removed</li>
+<li><code>ndctl disable-namespace</code>: Disable namespaces (repeat steps for all namespaces required)</li>
+<li><code>ndctl destroy-namespace</code></li>
+<li><code>ipmctl delete -f -dimm -pcd</code>: Delete the Goal aka PCD (Platform Config Data)</li>
+<li>Reboot</li>
+</ol>
+<h1 id="Getting-Started-Guide"><a href="#Getting-Started-Guide" class="headerlink" title="Getting Started Guide"></a>Getting Started Guide</h1><p>参考自：<a target="_blank" rel="noopener" href="https://docs.pmem.io/persistent-memory/getting-started-guide">Getting Started Guide - Persistent Memory Documentation (pmem.io)</a></p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="PMem综述"><a href="#PMem综述" class="headerlink" title="PMem综述"></a>PMem综述</h3><p>Persistent Memory(Non-Volatile Memory)出现的背景是：CPU一直越来越快，core/thread数也越来越多，尽力维持Moore定律，但是DRAM和传统非易失性存储(NAND SSDs， HDD)的容量、价格、速度进步缓慢，成为系统和应用性能的瓶颈。</p>
+<p>PMem位于存储结构中DRAM和NAND SSD之间，容量比DRAM大，性能比SSD好，应用可以像对DRAM访问那样访问PMem，<em>消除了在内存和存储器之间来回分页数据块的需要。</em>(?)</p>
+<h3 id="PMem对application-developers意味着什么？"><a href="#PMem对application-developers意味着什么？" class="headerlink" title="PMem对application developers意味着什么？"></a>PMem对application developers意味着什么？</h3><ul>
+<li>数据的持久性<ul>
+<li>数据需要flush后才能持久化，一直以来都是这样，但flush的问题过去没被programmers重视。虽然调用标准API也可以work，但更多种的flush，(where the application flushes stores from the CPU caches directly, instead of calling into the kernel, is also possible.</li>
+<li>CPUs有乱序执行和cache访问/刷回</li>
+</ul>
+</li>
+<li>数据的一致性<ul>
+<li>PMem可以使得8-byte store to pmem是powerfail atomic。对传统的保证一致性方法（transactions/logging/recovery）带来变革。</li>
+</ul>
+</li>
+<li>内存泄露<ul>
+<li>对传统持久化存储来说，重启不会改变内存泄露，泄露了的内容重启还是泄露。对目前的易失性内存，重启后会释放掉泄露的内存。</li>
+</ul>
+</li>
+<li>字节级寻址</li>
+<li>Error Handling</li>
+</ul>
+<h1 id="IPMCTL-User-Guide"><a href="#IPMCTL-User-Guide" class="headerlink" title="IPMCTL User Guide"></a>IPMCTL User Guide</h1><p>参考自：<a target="_blank" rel="noopener" href="https://docs.pmem.io/ipmctl-user-guide">IPMCTL User Guide - IPMCTL User Guide (pmem.io)</a></p>
+<h1 id="NDCTL-User-Guide"><a href="#NDCTL-User-Guide" class="headerlink" title="NDCTL User Guide"></a>NDCTL User Guide</h1><p>参考自：<a target="_blank" rel="noopener" href="https://docs.pmem.io/ndctl-user-guide">NDCTL User Guide - NDCTL User Guide (pmem.io)</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PMem/" rel="tag"># PMem</a>
+              <a href="/tags/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/" rel="tag"># 科研笔记</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/" rel="prev" title="科研数据管理">
+      <i class="fa fa-chevron-left"></i> 科研数据管理
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8BIntel-Optane-DC-PMM"><span class="nav-number">1.</span> <span class="nav-text">快速上手Intel Optane DC PMM</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Part-1-Persistent-Memory-Provisioning-Introduction"><span class="nav-number">1.1.</span> <span class="nav-text">Part 1 Persistent Memory Provisioning Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E6%80%A7%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.2.</span> <span class="nav-text">持久性内存相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Region"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">Region</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Namespace"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">Namespace</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DAX"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">DAX</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Namespace-Types"><span class="nav-number">1.1.3.</span> <span class="nav-text">Namespace Types</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PMem-Provisioning-Overview"><span class="nav-number">1.1.4.</span> <span class="nav-text">PMem Provisioning Overview</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IPMCTL%E5%B7%A5%E5%85%B7"><span class="nav-number">1.1.5.</span> <span class="nav-text">IPMCTL工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NDCTL%E5%B7%A5%E5%85%B7"><span class="nav-number">1.1.6.</span> <span class="nav-text">NDCTL工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendixes"><span class="nav-number">1.1.7.</span> <span class="nav-text">Appendixes</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Appendix-A-Provisioning%E5%B8%B8%E9%97%AE%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.7.1.</span> <span class="nav-text">Appendix A: Provisioning常问问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Appendix-B-ipmctl-%E6%8C%87%E4%BB%A4%E5%88%97%E8%A1%A8"><span class="nav-number">1.1.7.2.</span> <span class="nav-text">Appendix B: ipmctl 指令列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Appendix-C-%E9%85%8D%E7%BD%AE-%E7%AE%A1%E7%90%86"><span class="nav-number">1.1.7.3.</span> <span class="nav-text">Appendix C: 配置 - 管理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E4%BA%86%E7%9A%84Goal"><span class="nav-number">1.1.7.3.1.</span> <span class="nav-text">修改配置了的Goal</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.7.3.2.</span> <span class="nav-text">删除配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Dump-%E8%BD%AC%E5%82%A8-%E5%BD%93%E5%89%8DGoal"><span class="nav-number">1.1.7.3.3.</span> <span class="nav-text">Dump(转储)当前Goal</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%88%9B%E5%BB%BAGoal"><span class="nav-number">1.1.7.3.4.</span> <span class="nav-text">基于配置文件创建Goal</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E6%A8%A1%E5%BC%8F%E4%BF%AE%E6%94%B9"><span class="nav-number">1.1.7.3.5.</span> <span class="nav-text">检查模式修改</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Show-Regions"><span class="nav-number">1.1.7.3.6.</span> <span class="nav-text">Show Regions</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode"><span class="nav-number">1.1.7.4.</span> <span class="nav-text">Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory"><span class="nav-number">1.2.</span> <span class="nav-text">Part 2 Linux Provisioning for Intel Optane Persistent Memory</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux-Support-for-Intel-Optane-Persistent-Memory"><span class="nav-number">1.2.1.</span> <span class="nav-text">Linux Support for Intel Optane Persistent Memory</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Kernel-Support"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Kernel Support</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Custom-Kernel-Support"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">Custom Kernel Support</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Software-Non-volatile-Device-Control-NDCTL"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">Software: Non-volatile Device Control (NDCTL)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Software-IPMCTL"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">Software: IPMCTL</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tutorial-PMem%E9%A2%84%E5%A4%87"><span class="nav-number">1.2.2.</span> <span class="nav-text">Tutorial: PMem预备</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Prerequisites"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Prerequisites</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step1-PMem-Discovery"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">Step1: PMem Discovery</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step2-Determine-a-Configuration-Goal"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">Step2: Determine a Configuration Goal</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-3-Configure-your-Platform"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">Step 3: Configure your Platform</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Memory-Mode"><span class="nav-number">1.2.2.4.1.</span> <span class="nav-text">Memory Mode</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#App-Direct"><span class="nav-number">1.2.2.4.2.</span> <span class="nav-text">App Direct</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Mixed-Mode"><span class="nav-number">1.2.2.4.3.</span> <span class="nav-text">Mixed Mode</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces"><span class="nav-number">1.2.2.5.</span> <span class="nav-text">Step 4: Provisioning of Intel Optane Persistent Memory Namespaces</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A2%84%E5%A4%87%E6%9D%A1%E4%BB%B6"><span class="nav-number">1.2.2.5.1.</span> <span class="nav-text">预备条件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Tutorial-%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BAnamespace"><span class="nav-number">1.2.2.5.2.</span> <span class="nav-text">Tutorial: 如何创建namespace</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Appendix-%E5%A6%82%E4%BD%95%E5%B0%86PMem%E6%81%A2%E5%A4%8D%E5%87%BA%E5%8E%82%E8%AE%BE%E7%BD%AE"><span class="nav-number">1.2.3.</span> <span class="nav-text">Appendix: 如何将PMem恢复出厂设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Quick-Method"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">Quick Method</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Long-Method"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">Long Method</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Getting-Started-Guide"><span class="nav-number">2.</span> <span class="nav-text">Getting Started Guide</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">2.1.</span> <span class="nav-text">Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PMem%E7%BB%BC%E8%BF%B0"><span class="nav-number">2.1.1.</span> <span class="nav-text">PMem综述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PMem%E5%AF%B9application-developers%E6%84%8F%E5%91%B3%E7%9D%80%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.2.</span> <span class="nav-text">PMem对application developers意味着什么？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPMCTL-User-Guide"><span class="nav-number">3.</span> <span class="nav-text">IPMCTL User Guide</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#NDCTL-User-Guide"><span class="nav-number">4.</span> <span class="nav-text">NDCTL User Guide</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/yzouchen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;yzouchen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yizouchen@gmail.com" title="E-Mail → mailto:yizouchen@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">26k</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<script>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
+
+
+
+
+  
+
+  
+
+</body>
+</html>
