@@ -20,22 +20,21 @@
     var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="本文整理自SJTU-IPADS-Tutorial第八讲-科研数据管理，后续增加自己的一些笔记">
+  <meta name="description" content="PMIdioBench: 测试PMem系统性能工具。 文章发表于VLDB’20: Understanding the idiosyncrasies of real persistent memory 本文记录配置及使用PMIdioBench的过程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="科研数据管理">
-<meta property="og:url" content="http://yzouchen.github.io/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:title" content="上手PMIdioBench">
+<meta property="og:url" content="http://yzouchen.github.io/2022/02/13/%E4%B8%8A%E6%89%8BPMIdioBench/index.html">
 <meta property="og:site_name" content="Yizou Chen&#39;s Blog">
-<meta property="og:description" content="本文整理自SJTU-IPADS-Tutorial第八讲-科研数据管理，后续增加自己的一些笔记">
+<meta property="og:description" content="PMIdioBench: 测试PMem系统性能工具。 文章发表于VLDB’20: Understanding the idiosyncrasies of real persistent memory 本文记录配置及使用PMIdioBench的过程">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://yzouchen.github.io/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/Figure1.JPG">
-<meta property="article:published_time" content="2022-02-04T08:04:17.000Z">
-<meta property="article:modified_time" content="2022-02-11T11:56:50.376Z">
+<meta property="article:published_time" content="2022-02-13T06:33:16.000Z">
+<meta property="article:modified_time" content="2022-02-15T03:13:44.235Z">
 <meta property="article:author" content="Yizou Chen">
+<meta property="article:tag" content="PMem">
 <meta property="article:tag" content="科研笔记">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://yzouchen.github.io/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/Figure1.JPG">
 
-<link rel="canonical" href="http://yzouchen.github.io/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
+<link rel="canonical" href="http://yzouchen.github.io/2022/02/13/%E4%B8%8A%E6%89%8BPMIdioBench/">
 
 
 <script id="page-configurations">
@@ -48,7 +47,7 @@
   };
 </script>
 
-  <title>科研数据管理 | Yizou Chen's Blog</title>
+  <title>上手PMIdioBench | Yizou Chen's Blog</title>
   
 
 
@@ -168,7 +167,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yzouchen.github.io/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="http://yzouchen.github.io/2022/02/13/%E4%B8%8A%E6%89%8BPMIdioBench/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -181,7 +180,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          科研数据管理
+          上手PMIdioBench
         </h1>
 
         <div class="post-meta">
@@ -191,14 +190,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2022-02-04 16:04:17" itemprop="dateCreated datePublished" datetime="2022-02-04T16:04:17+08:00">2022-02-04</time>
+              <time title="创建时间：2022-02-13 14:33:16" itemprop="dateCreated datePublished" datetime="2022-02-13T14:33:16+08:00">2022-02-13</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-02-11 19:56:50" itemprop="dateModified" datetime="2022-02-11T19:56:50+08:00">2022-02-11</time>
+                <time title="修改时间：2022-02-15 11:13:44" itemprop="dateModified" datetime="2022-02-15T11:13:44+08:00">2022-02-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -207,6 +206,10 @@
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">科研笔记</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/PMem/" itemprop="url" rel="index"><span itemprop="name">PMem</span></a>
                 </span>
             </span>
 
@@ -223,7 +226,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>424</span>
+              <span>1.8k</span>
             </span>
 
         </div>
@@ -235,42 +238,68 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <blockquote>
-<p>本文整理自SJTU-IPADS-Tutorial第八讲-科研数据管理，后续增加自己的一些笔记</p>
-</blockquote>
+        <p>PMIdioBench: 测试PMem系统性能工具。</p>
+<p>文章发表于VLDB’20: Understanding the idiosyncrasies of real persistent memory</p>
+<p>本文记录配置及使用PMIdioBench的过程</p>
 <span id="more"></span>
 
-<h4 id="Systems-Benchmarking-Crimes"><a href="#Systems-Benchmarking-Crimes" class="headerlink" title="Systems Benchmarking Crimes"></a>Systems Benchmarking Crimes</h4><p><a target="_blank" rel="noopener" href="https://www.cse.unsw.edu.au/~gernot/benchmarking-crimes.html">Gernot’s List of Systems Benchmarking Crimes (unsw.edu.au)</a></p>
-<p><img src="/2022/02/04/%E7%A7%91%E7%A0%94%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/Figure1.JPG" alt="Systems Benchmarking Crimes Contents"></p>
-<hr>
-<h4 id="Data-presentation"><a href="#Data-presentation" class="headerlink" title="Data presentation"></a>Data presentation</h4><h5 id="图"><a href="#图" class="headerlink" title="图"></a>图</h5><ul>
-<li>注意<ul>
-<li>Title要有描述和强调，能看图知道的就看图知道（标题里把内容说差不多了）</li>
-<li>Y轴尽量从0开始</li>
-<li>注意单位（对数？）</li>
-</ul>
-</li>
-<li>Tools<ul>
-<li>Excel</li>
-<li>GNUPlot：<a target="_blank" rel="noopener" href="http://www.gnuplot.info/">gnuplot homepage</a>，<a target="_blank" rel="noopener" href="http://gnuplot.sourceforge.net/demo_5.4/">Demos for gnuplot</a></li>
-<li>Python+matplotlib</li>
-</ul>
-</li>
-<li>图表类型<ul>
-<li>柱状图</li>
-<li>折线图：可拓展性、连续性、时间线、throughput-latency</li>
-<li>箱线图：max、min、median</li>
-</ul>
-</li>
-</ul>
-<h5 id="表"><a href="#表" class="headerlink" title="表"></a>表</h5><p>主要用于定性展示，勾勾叉叉，哭脸笑脸。</p>
-<hr>
-<h4 id="Artifact-Evaluation-AE"><a href="#Artifact-Evaluation-AE" class="headerlink" title="Artifact Evaluation(AE)"></a>Artifact Evaluation(AE)</h4><ul>
-<li><p>组织一些人对源代码和数据进行检验，暂时不是必要，不会影响文章accept</p>
-</li>
-<li><p>三个章：1.开源  2.测试能跑通  3.测试数据可复现</p>
-</li>
-</ul>
+<p>Github仓库：<a target="_blank" rel="noopener" href="https://github.com/padsys/PMIdioBench">padsys/PMIdioBench</a>PMIdioBench主要代码在<code>PMIdioBench/Bench/</code>目录下。</p>
+<p>论文原文：<a target="_blank" rel="noopener" href="https://dl.acm.org/doi/abs/10.14778/3436905.3436921">Understanding the idiosyncrasies of real persistent memory</a></p>
+<blockquote>
+<p>安装环境为CentOS 7，kernel为3.10.0</p>
+<p>如果用的CentOS 8，估计能省去很多包版本的问题</p>
+</blockquote>
+<h1 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h1><ol>
+<li>pmdk: Github: <a target="_blank" rel="noopener" href="https://github.com/pmem/pmdk">pmdk</a></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> autconf</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install autoconf</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> git://anongit.freedesktop.org/pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./autogen.sh	<span class="comment"># 检查依赖</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错 没有libtoolize</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> --&gt; 需要安装libtool</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libtool</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 再次运行./autogen.sh 前面的错误过了，再报glib版本过低</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pkg-config依赖于glib，但是glib也依赖于pkg-config，所以增加一个参数再运行：</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./autogen.sh --with-internal-glib</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 过啦，显示：Now <span class="built_in">type</span> <span class="string">&#x27;make&#x27;</span> to compile pkg-config.</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装ndctl库</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install -y ndctl*</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装pmdk</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/pmem/pmdk.git</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错没有 libdaxctl-dev/libdaxctl-devel/daxctl-devel</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 就挺神奇，检查，安装过的是daxctl-libs-65-5.el7.x86_64，不是前面提到的任一个</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install daxctl*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libpmem*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install pandoc</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span>		</span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错rdma/fabric.h: 没有那个文件或目录</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libfabric*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make		<span class="comment"># 编译终于通过了</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install doxygen</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo make install		<span class="comment"># 这个没有root权限过不了</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查pmdk是否安装成功</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> src/<span class="built_in">test</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make <span class="built_in">test</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cp testconfig.sh.example testconfig.sh</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./RUNTESTS</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 一直PASS，ok?</span></span><br><span class="line"><span class="meta">#</span><span class="bash">./RUNTESTS obj_critnib_mt -s TEST0 -t all -f pmem</span></span><br><span class="line"><span class="meta">#</span><span class="bash">obj_critnib_mt/TEST0: PMEM_FS_DIR is not <span class="built_in">set</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">RUNTESTS: stopping: obj_critnib_mt/TEST0 failed, TEST=all FS=pmem BUILD=debug</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 先忽略。。没指定FS，似乎没问题。</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>libpmemobj++</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libpmemobj++-devel</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>MongoDB with PMSE commit d8372274a9b3f18dbceb0cfcc0caa496b5940789</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://github.com/pmem/pmse">pmse</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/pmem/pmse/commit/d8372274a9b3f18dbceb0cfcc0caa496b5940789">pmse要求的commit</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/mongodb/mongo">mongodb/mongo: The MongoDB Database</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shirukai/article/details/82152214">CentOS下安装MongoDB</a></p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 先安装mongodb</span></span><br><span class="line">sudo dnf install libcurl-devel</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<ol start="4">
+<li>Java</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install jre/java-1.8.0-openjdk			#jre</span><br><span class="line">sudo yum install java-1.8.0-openjdk-devel		#jdk</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>fio</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install fio</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>YCSB</li>
+</ol>
+<ol start="7">
+<li>Intel VTune Profiler</li>
+</ol>
+<ol start="8">
+<li>FlameGraph</li>
+</ol>
+<ol start="9">
+<li>ipmctl</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install</span><br></pre></td></tr></table></figure>
+
+
+
 
     </div>
 
@@ -280,6 +309,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
+              <a href="/tags/PMem/" rel="tag"># PMem</a>
               <a href="/tags/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/" rel="tag"># 科研笔记</a>
           </div>
 
@@ -289,12 +319,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/01/25/Understanding-the-idiosyncrasies-of-real-persistent-memory/" rel="prev" title="Understanding the idiosyncrasies of real persistent memory">
-      <i class="fa fa-chevron-left"></i> Understanding the idiosyncrasies of real persistent memory
+    <a href="/2022/02/11/%E4%B8%8A%E6%89%8BPMem/" rel="prev" title="上手PMem">
+      <i class="fa fa-chevron-left"></i> 上手PMem
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/02/11/%E4%B8%8A%E6%89%8BPMem/" rel="next" title="上手PMem">
-      上手PMem <i class="fa fa-chevron-right"></i>
+    <a href="/2022/02/14/Linux%E5%AE%89%E8%A3%85%E7%A8%8B%E5%BA%8F/" rel="next" title="Linux安装程序">
+      Linux安装程序 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -354,7 +384,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Systems-Benchmarking-Crimes"><span class="nav-number">1.</span> <span class="nav-text">Systems Benchmarking Crimes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Data-presentation"><span class="nav-number">2.</span> <span class="nav-text">Data presentation</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9B%BE"><span class="nav-number">2.1.</span> <span class="nav-text">图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A1%A8"><span class="nav-number">2.2.</span> <span class="nav-text">表</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Artifact-Evaluation-AE"><span class="nav-number">3.</span> <span class="nav-text">Artifact Evaluation(AE)</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Prerequisites"><span class="nav-number">1.</span> <span class="nav-text">Prerequisites</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
