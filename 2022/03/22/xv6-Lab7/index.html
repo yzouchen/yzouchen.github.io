@@ -17,17 +17,19 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="本实验通过内存分配为例，学习锁的使用，重新设计锁以增加并行性。">
+<meta property="og:type" content="article">
 <meta property="og:title" content="xv6 Lab7 Lock">
 <meta property="og:url" content="http://yzouchen.github.io/2022/03/22/xv6-Lab7/index.html">
-<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:site_name" content="Yizou CHEN&#39;s Blog">
+<meta property="og:description" content="本实验通过内存分配为例，学习锁的使用，重新设计锁以增加并行性。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-03-22T10:34:51.000Z">
-<meta property="article:modified_time" content="2022-03-22T10:39:56.156Z">
-<meta property="article:author" content="Yizou Chen">
+<meta property="article:modified_time" content="2022-03-25T09:51:05.284Z">
+<meta property="article:author" content="Yizou CHEN">
 <meta property="article:tag" content="xv6">
 <meta name="twitter:card" content="summary">
 
@@ -44,7 +46,7 @@
   };
 </script>
 
-  <title>xv6 Lab7 Lock | Yizou Chen's Blog</title>
+  <title>xv6 Lab7 Lock | Yizou CHEN's Blog</title>
   
 
 
@@ -95,13 +97,14 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <h1 class="site-title">Yizou CHEN's Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -136,11 +139,38 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -168,12 +198,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -186,10 +216,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:51 / 修改时间：18:39:56" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:51+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:51" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:51+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 17:51:05" itemprop="dateModified" datetime="2022-03-25T17:51:05+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -217,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>2.7k</span>
             </span>
 
         </div>
@@ -229,7 +265,57 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <p>本实验通过内存分配为例，学习锁的使用，重新设计锁以增加并行性。</p>
+<span id="more"></span>
+
+<p>官方实验指导书：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/labs/lock.html">Lab: locks (mit.edu)</a></p>
+<p>我的代码：2019版<a target="_blank" rel="noopener" href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/lock">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at lock (github.com)</a></p>
+<p>​            或：2020版<a target="_blank" rel="noopener" href="https://github.com/yzouchen/xv6_2020fall/tree/lock">yzouchen/xv6_2020fall at lock (github.com)</a></p>
+<p>本文基本是我从2020版的实验报告上copy的，细节与2020版github上的对应。</p>
+<p>分为两部分，分别是Memory Allocator和Buffer Cache</p>
+<h3 id="Memory-Allocator"><a href="#Memory-Allocator" class="headerlink" title="Memory Allocator"></a>Memory Allocator</h3><ol>
+<li>将freelist转化成per CPU的freelist，设置结构体kmem型的数组kmems[NCPU]</li>
+<li>根据实验指导书增加assemble_get_cpuid()函数在cpuid()前后调用push_off()和pop_off()</li>
+<li> Kinit()初始化中，除了将每个锁都初始化外，因为要将每个块初始均分到每个freelist里，我们需要重构kinit()中调用的freerange()和kfree()函数，但为了防止其他地方调用了上述两个函数，我并没有直接在这两个函数上改，而是仿照他们，添加init_freerange()和init_kfree()。</li>
+<li> Init_freerange()函数与freerange()基本一致，只是需要调用的是init_kfree()函数，且需要通过一个循环计数（NCPU循环）给init_kfree()传参。</li>
+<li> Init_kfree()与kfree()的修改在于，获得/释放锁是需要修改成传参cpu_id对应的锁，添加进的freelist也是如此对应的freelist。</li>
+<li> Kalloc()函数修改了获得/释放锁以及对freelist的操作，都要改成对应cpu_id对应的锁/freelist。同时因为per CPU freelist的局限性，未完全利用memory，故在freelist为空时，还需要增加steal()从其他cpu对应的freelist中窃取内存块。</li>
+<li> 在steal()的设计中。首先，在窃取对象选择上，为了避免重复从一个cpu的freelist中窃取，我采用的是从(cpu_id+1)%NCPU freelist开始搜索。窃取搜索时，需要获取/释放对应队列的锁，如果freelist非空，则窃取之，将对应freelist首的内存块从freelist中取出并返回。</li>
+</ol>
+<h3 id="Buffer-Cache"><a href="#Buffer-Cache" class="headerlink" title="Buffer Cache"></a>Buffer Cache</h3><ol>
+<li>设计简单哈希映射，即对素数13取余，从而将buf近似分成13个hash桶。NBUCKET=13，get_hash_value()由key得hash值。</li>
+<li>将bcache的lock转化成一个per bucket 的 lock数组，buf head也是转化成per bucket 的head数组。</li>
+<li>而后就是对bio.c逐个函数修改lock/head为对应hash值对应的lock/head，因为这个操作重复多次且简单，不多赘述。</li>
+<li>初始化时（binit），与内存分配器类似地将可用空间（buf）均匀分配每个bucket中。</li>
+<li>主要是bget()的修改，如下。首先取块号做hash映射取哈希值，在对应bucket中查找，若已经cache住，则直接返回地址，若没有cache住，则利用前向指针prev逐个查找是否有块应用引用计数为0，则可LRU淘汰出buffer cache，将此块的空间返回用于载入目标块。若上述两步都失败，则需要从其他bucket中窃取一个块用来放到这个bucket中来缓存目标块，窃取的逻辑与内存分配器中的窃取基本一致，不再赘述。</li>
+<li>对brelse()函数，其实原本的释放逻辑就很清晰了，主要是要注意将其插入头部的prev中，方便提升LRU查找效率，其他的就是将lock/head改成块号对应哈希值的对应lock/head项。</li>
+</ol>
+<h3 id="附"><a href="#附" class="headerlink" title="附"></a>附</h3><p><strong>HITsz实验的一些简答题，助理解</strong></p>
+<ol>
+<li>内存分配器</li>
+</ol>
+<p>a. 什么是内存分配器？它的作用是？</p>
+<p>答：就如同其名字一样，分配管理内存，给上层提供一个使用、释放内存的接口，上层只需要关心虚拟地址，对内存分配器发出请求（调用）即kalloc()或kfree()。将内存管理工作封装在内（通过freelist链表实现）。</p>
+<p>b. 内存分配器的数据结构是什么？它有哪些操作（函数），分别完成了什么功能？</p>
+<p>答：核心数据结构是由空闲物理页组成的链表freelist，空闲页链表与一个与其对应的自旋锁组合在一个结构体kmem里。链表的每个元素是一个指向下一个空闲页地址的指针，由于空闲页本身空闲，故将其认为是一个指针元素，信息也有效，无额外开销。</p>
+<p>​    kfree()函数用于释放以所给参数为首地址的物理内存页。</p>
+<p>​    kalloc()函数用于分配一个空闲物理内存页，返回页首地址</p>
+<p>​    kinit()函数完成内存空闲初始化</p>
+<p>​    freerange()函数将指定首位地址的一段地址空间，分页，去页首地址调用kfree()</p>
+<p>c. 为什么指导书提及的优化方法可以提升性能？</p>
+<p>答：（1）每个CPU/进程不会同时使用过多的内存，当其中大部分CPU只需要获取少量内存即可满足时，这个方法才会真正减少冲突情况。即使用内存范围小，则并发冲突不严重。</p>
+<p>（2）上面说法也可以解释为，实际上内存里同时存在诸多空闲页，不必要多个CPU争夺第一个空闲页，可以各自判断使用预先给他分配的那部分内存。有提前预分配的思想。</p>
+<ol start="2">
+<li>磁盘缓存</li>
+</ol>
+<p>a. 什么是磁盘缓存？它的作用是？</p>
+<p>答：磁盘缓存是将磁盘内的数据缓存在内存中。</p>
+<p>作用是平衡CPU/cache与磁盘间速度的不平衡，其中间缓冲作用。</p>
+<p>b. buf结构体为什么有prev和next两个成员，而不是只保留其中一个？请从这样做的优点分析（提示：结合通过这两种指针遍历链表的具体场景进行思考）。</p>
+<p>答：因为实际需求需要双向查找。使用next指针是为了查找目的块是否已经在内存缓存中来使用，而使用prev指针是为了进行LRU替换，换出找到的磁盘块，双向链表可以便于LRU和查找上发挥时间局部性，提升查找效率。</p>
+<p>c. 为什么哈希表可以提升磁盘缓存的性能？可以使用内存分配器的优化方法优化磁盘缓存吗？请说明原因。</p>
+<p>答：哈希表之所以能提升磁盘缓存的性能，是因为这样我们检索数据（块号）时，不需要从头开始扫描所有的块号一一比对，只需要在对应哈希桶内查找即可高命中率查找到，提升查找效率（包括查找对应块数据和查找空闲块两部分）。</p>
+<p>不能用内存分配器的优化方法优化磁盘缓存，即不能将各个CPU使用情况分开，因为磁盘缓存存在多CPU使用同一块数据的情况（体现在引用计数上），如果各个CPU分开可能会出现同一个磁盘块在内存中多次缓存，造成内存资源浪费。</p>
 
     </div>
 
@@ -313,12 +399,13 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Memory-Allocator"><span class="nav-number">1.</span> <span class="nav-text">Memory Allocator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Buffer-Cache"><span class="nav-number">2.</span> <span class="nav-text">Buffer Cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%84"><span class="nav-number">3.</span> <span class="nav-text">附</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <p class="site-author-name" itemprop="name">Yizou CHEN</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -378,12 +465,12 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+  <span class="author" itemprop="copyrightHolder">Yizou CHEN</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">56k</span>
+    <span title="站点总字数">86k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -442,6 +529,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

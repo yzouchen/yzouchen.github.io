@@ -17,17 +17,19 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="xv6中文件系统相关">
+<meta property="og:type" content="article">
 <meta property="og:title" content="xv6 Lab8 File System">
 <meta property="og:url" content="http://yzouchen.github.io/2022/03/22/xv6-Lab8/index.html">
-<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:site_name" content="Yizou CHEN&#39;s Blog">
+<meta property="og:description" content="xv6中文件系统相关">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-03-22T10:34:57.000Z">
-<meta property="article:modified_time" content="2022-03-22T10:40:37.868Z">
-<meta property="article:author" content="Yizou Chen">
+<meta property="article:modified_time" content="2022-03-25T14:05:56.645Z">
+<meta property="article:author" content="Yizou CHEN">
 <meta property="article:tag" content="xv6">
 <meta name="twitter:card" content="summary">
 
@@ -44,7 +46,7 @@
   };
 </script>
 
-  <title>xv6 Lab8 File System | Yizou Chen's Blog</title>
+  <title>xv6 Lab8 File System | Yizou CHEN's Blog</title>
   
 
 
@@ -95,13 +97,14 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <h1 class="site-title">Yizou CHEN's Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -136,11 +139,38 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -168,12 +198,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -186,10 +216,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:57 / 修改时间：18:40:37" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:57+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:57" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:57+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 22:05:56" itemprop="dateModified" datetime="2022-03-25T22:05:56+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -217,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>5.1k</span>
             </span>
 
         </div>
@@ -229,7 +265,86 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <p>xv6中文件系统相关</p>
+<span id="more"></span>
+
+<p>官方实验指导书：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/labs/fs.html">Lab: file system (mit.edu)</a></p>
+<p>我的代码：<a target="_blank" rel="noopener" href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/fs">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at fs (github.com)</a></p>
+<p>需要提前学习xv6 Book第七章文件系统部分<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/xv6/book-riscv-rev0.pdf">xv6 Book</a></p>
+<p>本次实验主要需要完成两个部分：</p>
+<ul>
+<li>为inode添加一个多级索引，使之能够支持分配更大的文件；</li>
+<li>学会如何创建symbol link软链接</li>
+</ul>
+<h3 id="Large-files"><a href="#Large-files" class="headerlink" title="Large files"></a>Large files</h3><p>​        xv6原本的inode有12个直接索引和一个一级索引，最大只能支持12+256=258个数据块（块大小为1K，索引指针大小为4B）。想要支持更大的文件，方法就是，改变inode结构为11个直接索引+1个一级索引+1个二级索引。需要注意的是，在xv6中有两种类型的inode，其中一个是存在磁盘中的inode（dinode），另一种是缓存在内存中的inode，在对inode结构进行修改的时候需要修改这两处。</p>
+<p>首先修改参数NDIRECT以及相关联的各种参数。</p>
+<p>再在bmap()中实现对二级索引查找到的块的处理。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Inode content</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// The content (data) associated with each inode is stored</span></span><br><span class="line"><span class="comment">// in blocks on the disk. The first NDIRECT block numbers</span></span><br><span class="line"><span class="comment">// are listed in ip-&gt;addrs[].  The next NINDIRECT blocks are</span></span><br><span class="line"><span class="comment">// listed in block ip-&gt;addrs[NDIRECT].</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Return the disk block address of the nth block in inode ip.</span></span><br><span class="line"><span class="comment">// If there is no such block, bmap allocates one.</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> uint</span></span><br><span class="line"><span class="function"><span class="title">bmap</span><span class="params">(struct inode *ip, uint bn)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  uint addr, *a;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">buf</span> *<span class="title">bp</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(bn &lt; NDIRECT)&#123;</span><br><span class="line">    <span class="keyword">if</span>((addr = ip-&gt;addrs[bn]) == <span class="number">0</span>)</span><br><span class="line">      ip-&gt;addrs[bn] = addr = balloc(ip-&gt;dev);</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">  &#125;</span><br><span class="line">  bn -= NDIRECT;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(bn &lt; NINDIRECT)&#123;</span><br><span class="line">    <span class="comment">// Load indirect block, allocating if necessary.</span></span><br><span class="line">    <span class="keyword">if</span>((addr = ip-&gt;addrs[NDIRECT]) == <span class="number">0</span>)</span><br><span class="line">      ip-&gt;addrs[NDIRECT] = addr = balloc(ip-&gt;dev);</span><br><span class="line">    bp = bread(ip-&gt;dev, addr);</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">if</span>((addr = a[bn]) == <span class="number">0</span>)&#123;</span><br><span class="line">      a[bn] = addr = balloc(ip-&gt;dev);</span><br><span class="line">      log_write(bp);</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//level 2</span></span><br><span class="line">  <span class="keyword">else</span>&#123;</span><br><span class="line">    bn -= NINDIRECT;</span><br><span class="line">    <span class="comment">//check if indirect of indirect exist? allocate if necessary </span></span><br><span class="line">    uint addr_of_indirect_2;</span><br><span class="line">    <span class="keyword">if</span>((addr_of_indirect_2 = ip-&gt;addrs[NDIRECT+<span class="number">1</span>]) == <span class="number">0</span>)&#123;</span><br><span class="line">      ip-&gt;addrs[NDIRECT+<span class="number">1</span>] = addr_of_indirect_2 = balloc(ip-&gt;dev);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//read the higher lever of 2-level-indirect</span></span><br><span class="line">    bp = bread(ip-&gt;dev,addr_of_indirect_2);</span><br><span class="line">    a = (uint*)bp -&gt; data;</span><br><span class="line">    uint Index_of_indirect = bn/NINDIRECT;</span><br><span class="line">    <span class="comment">//or same from here?</span></span><br><span class="line">    <span class="keyword">if</span>((addr = a[Index_of_indirect]) == <span class="number">0</span>)&#123;</span><br><span class="line">      a[Index_of_indirect] = addr = balloc(ip-&gt;dev);</span><br><span class="line">      log_write(bp);</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    <span class="comment">//again(same as level 1)</span></span><br><span class="line">    bp = bread(ip-&gt;dev,a[Index_of_indirect]);</span><br><span class="line">    <span class="keyword">int</span> Index_lastlevel = bn % NINDIRECT;</span><br><span class="line">    a = (uint*)bp-&gt;data;</span><br><span class="line">    <span class="keyword">if</span>((addr = a[Index_lastlevel]) == <span class="number">0</span>)&#123;</span><br><span class="line">      a[Index_lastlevel] = addr = balloc(ip-&gt;dev);</span><br><span class="line">      log_write(bp);</span><br><span class="line">    &#125;</span><br><span class="line">    brelse(bp);</span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  panic(<span class="string">&quot;bmap: out of range&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再修改itrunc()以释放inode下所有的数据块。</p>
+<blockquote>
+<p>写这个的时候发现，我当初做的时候好像没改itrunc()，但也过了，这个不难，就自行体会了。</p>
+</blockquote>
+<h3 id="Symbolic-links"><a href="#Symbolic-links" class="headerlink" title="Symbolic links"></a>Symbolic links</h3><p>首先，软连接是什么，和硬连接有什么区别？</p>
+<ul>
+<li>硬链接： 与普通文件没什么不同，<code>inode</code> 都指向同一个文件在硬盘中的区块。<strong>与原文件共用同一个inode</strong></li>
+<li>软链接： 保存了其代表的文件的绝对路径，是另外一种文件，在硬盘上有独立的区块，访问时替换自身路径。<strong>文件类型都不同了！</strong></li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/dde6a01c4094">5分钟让你明白“软链接”和“硬链接”的区别 - 简书 (jianshu.com)</a></p>
+<p>HINTS：</p>
+<blockquote>
+<ol>
+<li>First, create a new system call number for symlink, add an entry to user/usys.pl, user/user.h, and implement an empty sys_symlink.</li>
+<li>Add a new file type (<code>T_SYMLINK</code>) to kernel/stat.h to represent a symbolic link.</li>
+<li>Add a new flag to kernel/fcntl.h, (<code>O_NOFOLLOW</code>), that can be used with the <code>open</code> system call. Note that flags passed to <code>open</code> are combined using a bitwise OR operator, so your new flag should not overlap with any existing flags. This will let you compile user/symlinktest.c once you add it to the Makefile.</li>
+<li>Implement the <code>symlink(target, path)</code> system call to create a new symbolic link at path that refers to target. Note that target does not need to exist for the system call to succeed. You will need to choose somewhere to store the target path of a symbolic link, for example, in the inode’s data blocks.</li>
+<li>Modify the <code>open</code> system call to handle the case where the path refers to a symbolic link. If the file does not exist, <code>open</code> must fail. When a process specifies <code>O_NOFOLLOW</code> in the flags to <code>open</code>, <code>open</code> should open the symlink (and not follow the symbolic link).</li>
+<li>If the linked file is also a symbolic link, you must recursively follow it until a non-link file is reached. If the links form a cycle, you must return an error code. You may approximate this by returning an error code if the depth of links reaches some threshold (e.g., 10).</li>
+<li>Other system calls (e.g., link and unlink) must not follow symbolic links; these system calls operate on the symbolic link itself.</li>
+<li>You do not have to handle symbolic links to directories for this lab.</li>
+</ol>
+</blockquote>
+<ol>
+<li>创建系统调用</li>
+</ol>
+<p><code>user/usys.pl</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">entry(<span class="string">&quot;symlink&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><code>user/user.h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">symlink</span><span class="params">(<span class="keyword">char</span> *, <span class="keyword">char</span> *)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p><code>kernel/syscall.h</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SYS_symlink 23</span></span><br></pre></td></tr></table></figure>
+
+
+<p><code>kernel/syscall.c</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[SYS_symlink] sys_symlink</span><br></pre></td></tr></table></figure>
+
+<p><code>knerl/sysfile.c</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint64</span></span><br><span class="line"><span class="function"><span class="title">sys_symlink</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>添加<code>#define T_SYMLINK 4</code>to kernel/stat.h，表示symbolic link文件类型</p>
+</li>
+<li><p><code>kernel/fcntl.h</code> 中添加<code>#define O_NOFOLLOW 0x400</code>，表示能用<code>open</code>系统调用打开symbolic link文件。</p>
+</li>
+<li><p>实现 <code>symlink(target, path)</code> system call，即完成<code>sys_symlink()</code></p>
+</li>
+</ol>
+<p>参考硬连接<code>sys_link</code>实现</p>
+<p>这里我在struct inode中增加</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> target[MAXPATH];	<span class="comment">//store traget path when it is a symlink</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>iunlock(ip)会报错：没有足够的数据块； 分配的这个inode可能已经占有了其他数据块，而我们只需要利用inode中的target字段保存target，其他的信息我们一概不用，因此，我们直接调用iunlockput（ip）将ip的所有dircet、indirect字段全部清理掉这样就解决了数据块不够的问题</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//refer to sys_link</span></span><br><span class="line"><span class="comment">//symlink have diff inode but the content of inode are the same</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sys_symlink</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> target[MAXPATH],path[MAXPATH];</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">inode</span> * <span class="title">ip</span>;</span></span><br><span class="line">  <span class="keyword">if</span>(argstr(<span class="number">0</span>, target, MAXPATH) &lt; <span class="number">0</span> || argstr(<span class="number">1</span>, path, MAXPATH) &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  begin_op(ROOTDEV);</span><br><span class="line">  <span class="comment">//xv6book:create()return a locked inode</span></span><br><span class="line">  <span class="keyword">if</span>((ip =(create(path,T_SYMLINK,<span class="number">0</span>,<span class="number">0</span>)))==<span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">goto</span> bad;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">int</span> l = <span class="built_in">strlen</span>(target);</span><br><span class="line">  <span class="keyword">if</span>(l &gt; MAXPATH)&#123;</span><br><span class="line">    iunlockput(ip);</span><br><span class="line">    <span class="keyword">goto</span> bad;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">memset</span>(ip-&gt;target,<span class="number">0</span>,MAXPATH);</span><br><span class="line">  memmove(ip-&gt;target,target,l);</span><br><span class="line">  iunlockput(ip);</span><br><span class="line">  end_op(ROOTDEV);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">bad:</span><br><span class="line">  <span class="comment">//iunlockput(ip);*** when create() fail can&#x27;t iunlockput</span></span><br><span class="line">  end_op(ROOTDEV);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="5">
+<li>修改<code>sys_open()</code>使之能打开symbolic link文件，另外还需要判断标志O_NOFOLLOW已决定是否FOLLOW。如果在标志不为O_NOFOLLOW的情况下，symbolic link链接的文件还是symbolic link文件，则应该递归寻找直到找到不是symbolic link的文件，将其打开。</li>
+</ol>
 
     </div>
 
@@ -313,12 +428,13 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Large-files"><span class="nav-number">1.</span> <span class="nav-text">Large files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Symbolic-links"><span class="nav-number">2.</span> <span class="nav-text">Symbolic links</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <p class="site-author-name" itemprop="name">Yizou CHEN</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -378,12 +494,12 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+  <span class="author" itemprop="copyrightHolder">Yizou CHEN</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">56k</span>
+    <span title="站点总字数">86k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -442,6 +558,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

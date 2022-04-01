@@ -17,15 +17,15 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
   <meta property="og:type" content="website">
-<meta property="og:title" content="Yizou Chen&#39;s Blog">
+<meta property="og:title" content="Yizou CHEN&#39;s Blog">
 <meta property="og:url" content="http://yzouchen.github.io/index.html">
-<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:site_name" content="Yizou CHEN&#39;s Blog">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:author" content="Yizou Chen">
+<meta property="article:author" content="Yizou CHEN">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yzouchen.github.io/">
@@ -41,7 +41,7 @@
   };
 </script>
 
-  <title>Yizou Chen's Blog</title>
+  <title>Yizou CHEN's Blog</title>
   
 
 
@@ -92,13 +92,14 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <h1 class="site-title">Yizou CHEN's Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -133,11 +134,38 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -164,12 +192,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -183,10 +211,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:35:03 / 修改时间：18:40:58" itemprop="dateCreated datePublished" datetime="2022-03-22T18:35:03+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:35:03" itemprop="dateCreated datePublished" datetime="2022-03-22T18:35:03+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-27 17:12:30" itemprop="dateModified" datetime="2022-03-27T17:12:30+08:00">2022-03-27</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -207,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>6k</span>
             </span>
 
         </div>
@@ -219,8 +253,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验需完成简单的 <code>mmap</code> 和 <code>munmap</code> </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab9/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -243,12 +284,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -262,10 +303,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:57 / 修改时间：18:40:37" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:57+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:57" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:57+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 22:05:56" itemprop="dateModified" datetime="2022-03-25T22:05:56+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -286,7 +333,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>5.1k</span>
             </span>
 
         </div>
@@ -298,8 +345,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>xv6中文件系统相关</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -322,12 +376,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -341,10 +395,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:51 / 修改时间：18:39:56" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:51+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:51" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:51+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 17:51:05" itemprop="dateModified" datetime="2022-03-25T17:51:05+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -365,7 +425,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>2.7k</span>
             </span>
 
         </div>
@@ -377,8 +437,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验通过内存分配为例，学习锁的使用，重新设计锁以增加并行性。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab7/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -401,12 +468,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -420,10 +487,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:45 / 修改时间：18:39:17" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:45+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:45" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:45+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 15:51:20" itemprop="dateModified" datetime="2022-03-25T15:51:20+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -444,7 +517,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>331</span>
             </span>
 
         </div>
@@ -456,8 +529,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验目的是为了了解系统调用的过程。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -480,12 +560,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -499,10 +579,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:40 / 修改时间：18:38:48" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:40+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:40" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:40+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 15:18:10" itemprop="dateModified" datetime="2022-03-25T15:18:10+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -523,7 +609,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>5.1k</span>
             </span>
 
         </div>
@@ -535,8 +621,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验要求实现 Copy-on-Write</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab5/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -559,12 +652,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -578,10 +671,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:32 / 修改时间：18:38:16" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:32+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:32" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:32+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-23 21:35:17" itemprop="dateModified" datetime="2022-03-23T21:35:17+08:00">2022-03-23</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -602,7 +701,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>4.6k</span>
             </span>
 
         </div>
@@ -614,8 +713,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验要求实现 页表的lazy allocation</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab4/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -638,12 +744,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -657,10 +763,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:27 / 修改时间：18:37:34" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:27+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:27" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:27+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-23 17:38:52" itemprop="dateModified" datetime="2022-03-23T17:38:52+08:00">2022-03-23</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -681,7 +793,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>2.8k</span>
             </span>
 
         </div>
@@ -693,8 +805,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验要求 1.实现动态分配文件  2.改进Buddy Allocator的空间效率</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab3/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -717,12 +836,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -736,10 +855,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:17 / 修改时间：18:37:02" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:17+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:17" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:17+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-23 11:28:27" itemprop="dateModified" datetime="2022-03-23T11:28:27+08:00">2022-03-23</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -760,7 +885,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>2.8k</span>
             </span>
 
         </div>
@@ -772,8 +897,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <span id="more"></span>
-
+          <p>本实验要求实现xv6中的简易shell</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/22/xv6-Lab2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -796,12 +928,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -880,12 +1012,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -899,10 +1031,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 17:37:37 / 修改时间：22:26:37" itemprop="dateCreated datePublished" datetime="2022-03-22T17:37:37+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 17:37:37" itemprop="dateCreated datePublished" datetime="2022-03-22T17:37:37+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-23 11:27:42" itemprop="dateModified" datetime="2022-03-23T11:27:42+08:00">2022-03-23</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -923,7 +1061,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>6.9k</span>
+              <span>7k</span>
             </span>
 
         </div>
@@ -935,8 +1073,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>官方实验指导书：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/labs/util.html">Lab: Xv6 and Unix utilities (mit.edu)</a></p>
-<p>本实验要求实现Unix中几个常用的函数：<strong>sleep, pingpong, primes, find, xargs</strong></p>
+          <p>本实验要求实现Unix中几个常用的函数：<strong>sleep, pingpong, primes, find, xargs</strong></p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/03/22/xv6-Lab1/#more" rel="contents">
@@ -1020,7 +1157,7 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <p class="site-author-name" itemprop="name">Yizou CHEN</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -1080,12 +1217,12 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+  <span class="author" itemprop="copyrightHolder">Yizou CHEN</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">56k</span>
+    <span title="站点总字数">86k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -1144,6 +1281,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

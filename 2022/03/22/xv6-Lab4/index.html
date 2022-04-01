@@ -17,19 +17,23 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="本实验要求实现 页表的lazy allocation">
+<meta property="og:type" content="article">
 <meta property="og:title" content="xv6 Lab4 Lazy allocation">
 <meta property="og:url" content="http://yzouchen.github.io/2022/03/22/xv6-Lab4/index.html">
-<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:site_name" content="Yizou CHEN&#39;s Blog">
+<meta property="og:description" content="本实验要求实现 页表的lazy allocation">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yzouchen.github.io/2022/03/22/xv6-Lab4/Figure1.JPG">
 <meta property="article:published_time" content="2022-03-22T10:34:32.000Z">
-<meta property="article:modified_time" content="2022-03-22T10:38:16.571Z">
-<meta property="article:author" content="Yizou Chen">
+<meta property="article:modified_time" content="2022-03-23T13:35:17.932Z">
+<meta property="article:author" content="Yizou CHEN">
 <meta property="article:tag" content="xv6">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yzouchen.github.io/2022/03/22/xv6-Lab4/Figure1.JPG">
 
 <link rel="canonical" href="http://yzouchen.github.io/2022/03/22/xv6-Lab4/">
 
@@ -44,7 +48,7 @@
   };
 </script>
 
-  <title>xv6 Lab4 Lazy allocation | Yizou Chen's Blog</title>
+  <title>xv6 Lab4 Lazy allocation | Yizou CHEN's Blog</title>
   
 
 
@@ -95,13 +99,14 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <h1 class="site-title">Yizou CHEN's Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -136,11 +141,38 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -168,12 +200,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -186,10 +218,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:32 / 修改时间：18:38:16" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:32+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:32" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:32+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-23 21:35:17" itemprop="dateModified" datetime="2022-03-23T21:35:17+08:00">2022-03-23</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -217,7 +255,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>4.6k</span>
             </span>
 
         </div>
@@ -229,7 +267,60 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <p>本实验要求实现 页表的lazy allocation</p>
+<span id="more"></span>
+
+<p>官方实验指导书：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/labs/lazy.html">Lab: xv6 lazy page allocation (mit.edu)</a></p>
+<p>我的代码：<a target="_blank" rel="noopener" href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/lazy">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at lazy (github.com)</a></p>
+<p>​        OS可以利用页表硬件玩的很多花样之一是懒惰地分配用户空间的堆内存。Xv6应用程序使用sbrk()系统调用向内核索取堆内存。在我们给你的内核中，sbrk()分配物理内存并将其映射到进程的虚拟地址空间。<strong>然而，有些程序使用sbrk()来请求大量的内存，但是从来没有使用过大部分的内存</strong>，例如，实现大型稀疏数组。<strong>为了优化这种情况，复杂的内核会懒散地分配用户内存。也就是说，sbrk()并不分配物理内存，而只是记住哪些地址被分配。当进程第一次尝试使用任何给定的内存页时，CPU会产生一个页面错误，内核通过分配物理内存、清零和映射来处理这个错误。</strong>你将在本实验中为xv6添加这个懒惰分配功能。</p>
+<h3 id="打印页表"><a href="#打印页表" class="headerlink" title="打印页表"></a>打印页表</h3><p>首先要对操作系统中的页表结构有所了解，自行学习咯，xv6的页表结构详见<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/xv6/book-riscv-rev0.pdf">xv6Book</a>第三章。</p>
+<p><img src="/2022/03/22/xv6-Lab4/Figure1.JPG" alt="xv6页表结构"></p>
+<p>HINTS:</p>
+<ul>
+<li>Use the macros at the end of the file kernel/riscv.h.</li>
+<li>The function **<code>freewalk</code> **may be inspirational.</li>
+<li>Define the prototype for <code>vmprint</code> in kernel/defs.h so that you can call it from exec.c.</li>
+</ul>
+<p>​        在vmprint()中对页表调用printwalk()函数，在printwalk()中对该级页表的512个PTE的每一个进行判断，若有效则打印pte信息，再判断其是否指向次级页表，若有对应的次级页表，则递归调用printwalk()函数打印页表信息。代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//refer to freewalk</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">printwalk</span><span class="params">(<span class="keyword">pagetable_t</span> pagetable, <span class="keyword">int</span> depth)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// there are 2^9 = 512 PTEs in a page table.</span></span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="number">512</span> ; i++)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">pte_t</span> pte = pagetable[i];</span><br><span class="line">    <span class="keyword">if</span>(pte &amp; PTE_V)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span> ; j &lt; depth ; j++)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot; ..&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;%d: pte %p pa %p\n&quot;</span>,i,pte,PTE2PA(pte));   <span class="comment">//use MACRO</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>((pte &amp; PTE_V) &amp;&amp; (pte &amp; (PTE_R|PTE_W|PTE_X)) == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// this PTE points to a lower-level page table.</span></span><br><span class="line">      uint64 child = PTE2PA(pte);</span><br><span class="line">      printwalk((<span class="keyword">pagetable_t</span>)child,depth+<span class="number">1</span>);</span><br><span class="line">    &#125; </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vmprint</span><span class="params">(<span class="keyword">pagetable_t</span> pagetable)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;page table %p\n&quot;</span>,pagetable);</span><br><span class="line">  printwalk(pagetable,<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="实现Lazy-allocation"><a href="#实现Lazy-allocation" class="headerlink" title="实现Lazy allocation"></a>实现Lazy allocation</h3><h4 id="修改sbrk-中对页表的分配"><a href="#修改sbrk-中对页表的分配" class="headerlink" title="修改sbrk()中对页表的分配"></a>修改sbrk()中对页表的分配</h4><blockquote>
+<p>​        Your first task is to delete page allocation from the sbrk(n) system call implementation, which is the function sys_sbrk() in sysproc.c. The sbrk(n) system call grows the process’s memory size by n bytes, and then returns the start of the newly allocated region (i.e., the old size).</p>
+<p>​        Your new sbrk(n) should just increment the process’s size (myproc()-&gt;sz) by n and return the old size. It should not allocate memory – so you should delete the call to growproc() (but you still need to increase the process’s size!).</p>
+</blockquote>
+<p>​        删除sys_sbrk中的growproc()，并改为myproc()-&gt;sz += n，这一步的操作是将进程理论大小提高，但暂时并不为其分配内存页面，这是为lazy allocation的实现作铺垫。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//note: growproc() is in proc.c  </span></span><br><span class="line"><span class="comment">//from growproc() can know neg n-- uvmdealloc</span></span><br><span class="line"><span class="comment">//pos n--uvmalloc -----ignore  (don&#x27;t alloc now)</span></span><br><span class="line"><span class="function">uint64</span></span><br><span class="line"><span class="function"><span class="title">sys_sbrk</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> addr;</span><br><span class="line">  <span class="keyword">int</span> n;</span><br><span class="line">  <span class="keyword">if</span>(argint(<span class="number">0</span>, &amp;n) &lt; <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  addr = myproc()-&gt;sz;</span><br><span class="line">  <span class="comment">//if(growproc(n) &lt; 0)</span></span><br><span class="line">    <span class="comment">//return -1;</span></span><br><span class="line">  myproc()-&gt;sz += n;</span><br><span class="line">  <span class="comment">//dealloc</span></span><br><span class="line">  <span class="keyword">if</span>(n &lt; <span class="number">0</span>) </span><br><span class="line">  &#123;</span><br><span class="line">    myproc()-&gt;sz = uvmdealloc(myproc()-&gt;pagetable, addr, myproc()-&gt;sz);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="实现Lazy-allocation-1"><a href="#实现Lazy-allocation-1" class="headerlink" title="实现Lazy allocation"></a>实现Lazy allocation</h4><blockquote>
+<p>Modify the code in trap.c to respond to a page fault from user space by mapping a newly-allocated page of physical memory at the faulting address, and then returning back to user space to let the process continue executing. You should add your code just before the printf call that produced the “usertrap(): …” message. Your solution is acceptable if it passes usertests.</p>
+</blockquote>
+<p>**HINTS: **</p>
+<ol>
+<li>You can check whether a fault is a page fault by seeing if r_scause() is 13 or 15 in usertrap().</li>
+<li>Look at the arguments to the printf() in usertrap() that reports the page fault, in order to see how to find the virtual address that caused the page fault.</li>
+<li>Steal code from uvmalloc() in vm.c, which is what sbrk() calls (via growproc()). You’ll need to call kalloc() and mappages().</li>
+<li>Use PGROUNDDOWN(va) to round the faulting virtual address down to a page boundary.</li>
+<li>uvmunmap() will panic; modify it to not panic if some pages aren’t mapped.</li>
+<li>If the kernel crashes, look up sepc in kernel/kernel.asm</li>
+<li>Use your print function from above to print the content of a page table.</li>
+<li>If you see the error “incomplete type proc”, include “proc.h” (and “spinlock.h”).</li>
+</ol>
+<h5 id="先修改trap-c以实现缺页异常中断的处理"><a href="#先修改trap-c以实现缺页异常中断的处理" class="headerlink" title="先修改trap.c以实现缺页异常中断的处理"></a>先修改trap.c以实现缺页异常中断的处理</h5><p>增加代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span>(r_scause()==<span class="number">13</span> || r_scause()==<span class="number">15</span>) <span class="comment">//page fault</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">char</span>* mem;</span><br><span class="line">    uint64 va_fault = r_stval();</span><br><span class="line">    <span class="keyword">if</span>(va_fault &gt; (p-&gt;sz))</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">//Kill a process if it page-faults on a virtual memory address higher than any allocated with sbrk().</span></span><br><span class="line">      p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">goto</span> END;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(va_fault &lt; (p-&gt;tf-&gt;sp))      <span class="comment">//over stack</span></span><br><span class="line">    &#123;</span><br><span class="line">      p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">goto</span> END;</span><br><span class="line">    &#125;</span><br><span class="line">    va_fault = PGROUNDDOWN(va_fault);</span><br><span class="line">    mem = kalloc();</span><br><span class="line">    <span class="keyword">if</span>(mem == <span class="number">0</span>)&#123;</span><br><span class="line">      <span class="comment">//exit(-1);</span></span><br><span class="line">      p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">goto</span> END;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">memset</span>(mem,<span class="number">0</span>,PGSIZE);</span><br><span class="line">    <span class="keyword">if</span>(mappages(p-&gt;pagetable, va_fault, PGSIZE, (uint64)mem, PTE_W|PTE_X|PTE_R|PTE_U) != <span class="number">0</span>)&#123;</span><br><span class="line">      kfree(mem);</span><br><span class="line">      <span class="comment">//exit(-1);</span></span><br><span class="line">      p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">      <span class="keyword">goto</span> END;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="再修改uvmunmap-让它不要panic"><a href="#再修改uvmunmap-让它不要panic" class="headerlink" title="再修改uvmunmap()让它不要panic"></a>再修改uvmunmap()让它不要panic</h5><p>即，对于还没有分配物理页的虚拟页，不用删除其映射</p>
+<h5 id="同理，修改uvmcopy-让其不要panic"><a href="#同理，修改uvmcopy-让其不要panic" class="headerlink" title="同理，修改uvmcopy()让其不要panic"></a>同理，修改uvmcopy()让其不要panic</h5><h4 id="完善代码以通过usertests"><a href="#完善代码以通过usertests" class="headerlink" title="完善代码以通过usertests"></a>完善代码以通过usertests</h4><p><strong>HINTS</strong></p>
+<ol>
+<li>Handle negative sbrk() arguments.</li>
+<li>Kill a process if it page-faults on a virtual memory address higher than any allocated with sbrk().</li>
+<li>Handle fork() correctly.</li>
+<li>Handle the case in which a process passes a valid address from sbrk() to a system call such as read or write, but the memory for that address has not yet been allocated.</li>
+<li>Handle out-of-memory correctly: if kalloc() fails in the page fault handler, kill the current process.</li>
+<li>Handle faults on the invalid page below the stack.</li>
+</ol>
+<h5 id="针对第四点"><a href="#针对第四点" class="headerlink" title="针对第四点"></a>针对第四点</h5><p>copyin和copyout都调用了walkaddr()，所以，就修改walkaddr，如前面修改usertrap处一样，如果walk到lazy page，马上分配即可。</p>
 
     </div>
 
@@ -313,12 +404,13 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E5%8D%B0%E9%A1%B5%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">打印页表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0Lazy-allocation"><span class="nav-number">2.</span> <span class="nav-text">实现Lazy allocation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9sbrk-%E4%B8%AD%E5%AF%B9%E9%A1%B5%E8%A1%A8%E7%9A%84%E5%88%86%E9%85%8D"><span class="nav-number">2.1.</span> <span class="nav-text">修改sbrk()中对页表的分配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0Lazy-allocation-1"><span class="nav-number">2.2.</span> <span class="nav-text">实现Lazy allocation</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%85%88%E4%BF%AE%E6%94%B9trap-c%E4%BB%A5%E5%AE%9E%E7%8E%B0%E7%BC%BA%E9%A1%B5%E5%BC%82%E5%B8%B8%E4%B8%AD%E6%96%AD%E7%9A%84%E5%A4%84%E7%90%86"><span class="nav-number">2.2.1.</span> <span class="nav-text">先修改trap.c以实现缺页异常中断的处理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%86%8D%E4%BF%AE%E6%94%B9uvmunmap-%E8%AE%A9%E5%AE%83%E4%B8%8D%E8%A6%81panic"><span class="nav-number">2.2.2.</span> <span class="nav-text">再修改uvmunmap()让它不要panic</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%90%8C%E7%90%86%EF%BC%8C%E4%BF%AE%E6%94%B9uvmcopy-%E8%AE%A9%E5%85%B6%E4%B8%8D%E8%A6%81panic"><span class="nav-number">2.2.3.</span> <span class="nav-text">同理，修改uvmcopy()让其不要panic</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%8C%E5%96%84%E4%BB%A3%E7%A0%81%E4%BB%A5%E9%80%9A%E8%BF%87usertests"><span class="nav-number">2.3.</span> <span class="nav-text">完善代码以通过usertests</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%92%88%E5%AF%B9%E7%AC%AC%E5%9B%9B%E7%82%B9"><span class="nav-number">2.3.1.</span> <span class="nav-text">针对第四点</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <p class="site-author-name" itemprop="name">Yizou CHEN</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -378,12 +470,12 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+  <span class="author" itemprop="copyrightHolder">Yizou CHEN</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">56k</span>
+    <span title="站点总字数">86k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -442,6 +534,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

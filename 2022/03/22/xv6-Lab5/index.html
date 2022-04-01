@@ -17,17 +17,19 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="本实验要求实现 Copy-on-Write">
+<meta property="og:type" content="article">
 <meta property="og:title" content="xv6 Lab5 Copy on Write">
 <meta property="og:url" content="http://yzouchen.github.io/2022/03/22/xv6-Lab5/index.html">
-<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:site_name" content="Yizou CHEN&#39;s Blog">
+<meta property="og:description" content="本实验要求实现 Copy-on-Write">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-03-22T10:34:40.000Z">
-<meta property="article:modified_time" content="2022-03-22T10:38:48.394Z">
-<meta property="article:author" content="Yizou Chen">
+<meta property="article:modified_time" content="2022-03-25T07:18:10.754Z">
+<meta property="article:author" content="Yizou CHEN">
 <meta property="article:tag" content="xv6">
 <meta name="twitter:card" content="summary">
 
@@ -44,7 +46,7 @@
   };
 </script>
 
-  <title>xv6 Lab5 Copy on Write | Yizou Chen's Blog</title>
+  <title>xv6 Lab5 Copy on Write | Yizou CHEN's Blog</title>
   
 
 
@@ -95,13 +97,14 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <h1 class="site-title">Yizou CHEN's Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -136,11 +139,38 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -168,12 +198,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -186,10 +216,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:34:40 / 修改时间：18:38:48" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:40+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:34:40" itemprop="dateCreated datePublished" datetime="2022-03-22T18:34:40+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-25 15:18:10" itemprop="dateModified" datetime="2022-03-25T15:18:10+08:00">2022-03-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -217,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>5.1k</span>
             </span>
 
         </div>
@@ -229,7 +265,63 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <p>本实验要求实现 Copy-on-Write</p>
+<span id="more"></span>
+
+<p>官方实验指导书：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/labs/cow.html">Lab: Copy-on-Write Fork for xv6 (mit.edu)</a></p>
+<p>我的代码：<a target="_blank" rel="noopener" href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/cow">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at cow (github.com)</a></p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><h4 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h4><p>​        CoW，Copy-on-Write，即写时复制，就是要写的时候再复制内存内容。适用的场景是，当我们调用**<code>fork()</code>**时，会调用uvmcopy()，原本按原理子进程需要有父进程所有内存信息的一个复制份，但是实际上可能这些不会被用于写，因此就有了CoW，写时复制。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><blockquote>
+<p>The goal of copy-on-write (COW) fork() is to defer allocating and copying physical memory pages for the child until the copies are actually needed, if ever.</p>
+<p>COW fork() creates just a pagetable for the child, with PTEs for user memory pointing to the parent’s physical pages. COW fork() marks all the user PTEs in both parent and child as not writable. When either process tries to write one of these COW pages, the CPU will force a page fault. The kernel page-fault handler detects this case, allocates a page of physical memory for the faulting process, copies the original page into the new page, and modifies the relevant PTE in the faulting process to refer to the new page, this time with the PTE marked writeable. When the page fault handler returns, the user process will be able to write its copy of the page.</p>
+<p>COW fork() makes freeing of the physical pages that implement user memory a little trickier. A given physical page may be referred to by multiple processes’ page tables, and should be freed only when the last reference disappears.</p>
+</blockquote>
+<p>​        COW的fork()中，只为子进程创建一个指向父进程物理页的页表，而不创建真实的物理页；在调用fork()之后，子进程和父进程的<strong>PTE（pagetable entry）</strong>均被置为不可写，并且设置一个COW标记，表示该pte是cow的，这样，当其中一个进程要写的时候，就会在trap.c中捕捉到写错误同时发现va对应的pte是被COW标记的，就会对原物理页进行复制操作，并修改该pte映射的物理页为被复制的物理页。</p>
+<p>​        由于使用的COW，需要注意释放物理页时，要在所有指向他的pte都释放后才能真正释放，这就要在物理页上引入一个引用计数。</p>
+<h4 id="HINTS"><a href="#HINTS" class="headerlink" title="HINTS"></a>HINTS</h4><blockquote>
+<ol>
+<li><p>The lazy page allocation lab has likely made you familiar with much of the xv6 kernel code that’s relevant for copy-on-write. However, you should not base this lab on your lazy allocation solution; instead, please start with a fresh copy of xv6 as directed above.</p>
+</li>
+<li><p>Here’s one reasonable plan of attack. Modify uvmcopy() to map the parent’s physical pages into the child, instead of allocating new pages, and clear PTE_W in the PTEs of both child and parent. Modify usertrap() to recognize page faults. When a page-fault occurs on a COW page, allocate a new page with kalloc(), copy the old page to the new page, and install the new page in the PTE with PTE_W set. Next, ensure that each physical page is freed when the last PTE reference to it goes away (but not before!), perhaps by implementing reference counts in kalloc.c. Finally, modify copyout() to use the same scheme as page faults when it encounters a COW page.</p>
+</li>
+<li><p>It may be useful to have a way to record, for each PTE, whether it is a COW mapping. You can use the RSW (reserved for software) bits in the RISC-V PTE for this.</p>
+</li>
+<li><p><code>usertests</code> explores more situations than <code>cowtest</code>, so don’t forget to check that all tests pass for both.</p>
+</li>
+<li><p>Some helpful macros and definitions for page table flags are at the end of the file kernel/riscv.h.</p>
+</li>
+</ol>
+</blockquote>
+<ul>
+<li><p>关注**2.**中的实现步骤</p>
+</li>
+<li><p>注意3.中使用PTE中的保留位标记CoW</p>
+</li>
+<li><p>借用kernel/riscv.h中定义的一些macros和definitions，方便操作PTE。</p>
+</li>
+</ul>
+<h3 id="代码部分"><a href="#代码部分" class="headerlink" title="代码部分"></a>代码部分</h3><p>顺序参考HINTS中第二点。</p>
+<ol>
+<li>modify  uvmcopy()        //vm.c；    create pte but don’t allocate  and clear PTE_W in both</li>
+<li>modify  usertrap()        //trap.c        to recognize page faults when page-fault occurs, allocate a new page with kalloc()/copy/set PTE_W</li>
+<li>modify free part        // ensure free when the last PTE reference to it goes away kalloc.c?</li>
+<li>modify copyout()         // same scheme as usertrap</li>
+</ol>
+<p><strong>Step1</strong>    修改uvmcopy(), 创建pte但不分配物理页，设置pte标志位</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">uvmcopy</span><span class="params">(<span class="keyword">pagetable_t</span> old, <span class="keyword">pagetable_t</span> <span class="keyword">new</span>, uint64 sz)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">pte_t</span> *pte;</span><br><span class="line">  <span class="keyword">pte_t</span> *pte_new;</span><br><span class="line">  uint64 i;<span class="comment">//pa, </span></span><br><span class="line">  <span class="comment">//uint flags;</span></span><br><span class="line">  <span class="comment">//char *mem;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; sz; i += PGSIZE)&#123;</span><br><span class="line">    <span class="keyword">if</span>((pte = walk(old, i, <span class="number">0</span>)) == <span class="number">0</span>)</span><br><span class="line">      panic(<span class="string">&quot;uvmcopy: pte should exist&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>((*pte &amp; PTE_V) == <span class="number">0</span>)</span><br><span class="line">      panic(<span class="string">&quot;uvmcopy: page not present&quot;</span>);</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    flags = PTE_FLAGS(*pte);</span></span><br><span class="line"><span class="comment">    if((mem = kalloc()) == 0)</span></span><br><span class="line"><span class="comment">      goto err;</span></span><br><span class="line"><span class="comment">    memmove(mem, (char*)pa, PGSIZE);</span></span><br><span class="line"><span class="comment">    if(mappages(new, i, PGSIZE, (uint64)mem, flags) != 0)&#123;</span></span><br><span class="line"><span class="comment">      kfree(mem);</span></span><br><span class="line"><span class="comment">      goto err;</span></span><br><span class="line"><span class="comment">    &#125;*/</span></span><br><span class="line">    (*pte) = (*pte) &amp; (~PTE_W);   <span class="comment">//set flag_W = 0</span></span><br><span class="line">    (*pte) = (*pte) | (PTE_COW);    <span class="comment">//set flag_COW = 1</span></span><br><span class="line">    pte_new = walk(<span class="keyword">new</span>,i,<span class="number">1</span>);      <span class="comment">//new pte</span></span><br><span class="line">    (*pte_new) = (*pte);                <span class="comment">//point to same pa</span></span><br><span class="line">    <span class="keyword">int</span> Index = phypageIndex((<span class="keyword">void</span> *) (PTE2PA(*pte)));</span><br><span class="line">    cow_reference[Index] ++;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> err:</span></span><br><span class="line"><span class="comment">  uvmunmap(new, 0, i, 1);</span></span><br><span class="line"><span class="comment">  return -1;</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Step2</strong>    修改usertrap(), 在异常处理处识别CoW带来的缺页异常，调用kalloc()分配新页，复制，设置PTE中的标志位PTE_W</p>
+<p>添加代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span>(r_scause()==<span class="number">13</span> || r_scause() == <span class="number">15</span>)   <span class="comment">//page fault</span></span><br><span class="line">&#123;</span><br><span class="line">  uint64 va = r_stval();</span><br><span class="line">  va = PGROUNDDOWN(va);</span><br><span class="line">  <span class="keyword">pte_t</span> *pte = walk(p-&gt;pagetable,va,<span class="number">0</span>);</span><br><span class="line">  <span class="keyword">if</span>(pte == <span class="number">0</span> || ((*pte)&amp;PTE_V) == <span class="number">0</span> || ((*pte)&amp;PTE_COW) == <span class="number">0</span> )</span><br><span class="line">  <span class="comment">//pte not exist or invalid or not a COW pte</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;usertrap(): pte not exist or invalid or not a COW pte\n&quot;</span>);</span><br><span class="line">    p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">goto</span> END;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">//COW process</span></span><br><span class="line">  <span class="comment">//kalloc and copy</span></span><br><span class="line">  <span class="keyword">char</span> * mem = kalloc();</span><br><span class="line">  <span class="keyword">if</span>(mem == <span class="number">0</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;usertrap():out of memory\n&quot;</span>);</span><br><span class="line">    p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">goto</span> END;</span><br><span class="line">  &#125;</span><br><span class="line">  uint64 pa = PTE2PA(*pte);</span><br><span class="line">  memmove((<span class="keyword">void</span> *)mem, (<span class="keyword">char</span> *)pa, PGSIZE);</span><br><span class="line">  <span class="comment">//set PTE_W = 1  set PTE_COW = 0</span></span><br><span class="line">  (*pte) = (*pte) | PTE_W;</span><br><span class="line">  (*pte) = (*pte) &amp; ~PTE_COW;</span><br><span class="line"></span><br><span class="line">  uint flags = PTE_FLAGS((*pte));</span><br><span class="line">  (*pte) = (*pte) &amp; ~PTE_V;</span><br><span class="line">  <span class="comment">//printf(&quot;mark 1\n&quot;);</span></span><br><span class="line">  <span class="keyword">if</span>(mappages(p-&gt;pagetable,va,PGSIZE,(uint64)mem,flags) != <span class="number">0</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;mark 3\n&quot;</span>);</span><br><span class="line">    (*pte) = (*pte) | PTE_V;</span><br><span class="line">    kfree(mem);</span><br><span class="line">    p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">goto</span> END;</span><br><span class="line">  &#125;</span><br><span class="line">  kfree((<span class="keyword">void</span>*)PGROUNDDOWN(pa));</span><br><span class="line">  (*pte) = (*pte) | PTE_V;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>Step3</strong>    修改free部分，增加 PTE 引用计数处理部分</p>
+<p>​        根据提示，在kalloc.c处实现引用计数，根据计算得到，kalloc最多可以分配[物理内存大小 / 页大小]个物理页，开个定长数组记录引用计数（这里我原来的代码似乎有点小问题，物理页数算错了，应该是(PHYSTOP-KERNBASE) / PGSIZE = 25600 , 可以通过测试）。在kalloc()中设置引用计数为1， 在kfree()中对引用计数判断，将引用计数减一，若减为0则释放对应物理内存（添加到freelist中）。</p>
+<p><strong>Step4</strong>    修改 copyout() </p>
+<p>首先，为啥要修改copyout呢？因为<code>copyout</code>是将Kernel Page复制给User Page，而用户进程要求页面是可读写的，因此要做出修改。修改方法与usertrap()中处理page fault的方法相同，真实地分配、复制页，并修改标记位。</p>
 
     </div>
 
@@ -313,12 +405,13 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF"><span class="nav-number">1.1.</span> <span class="nav-text">问题背景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.2.</span> <span class="nav-text">解决方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HINTS"><span class="nav-number">1.3.</span> <span class="nav-text">HINTS</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">代码部分</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <p class="site-author-name" itemprop="name">Yizou CHEN</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -378,12 +471,12 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+  <span class="author" itemprop="copyrightHolder">Yizou CHEN</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">56k</span>
+    <span title="站点总字数">86k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -442,6 +535,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 

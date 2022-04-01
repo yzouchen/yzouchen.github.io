@@ -17,17 +17,19 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"yzouchen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="本实验需完成简单的 mmap 和 munmap">
+<meta property="og:type" content="article">
 <meta property="og:title" content="xv6 Lab9 mmap">
 <meta property="og:url" content="http://yzouchen.github.io/2022/03/22/xv6-Lab9/index.html">
-<meta property="og:site_name" content="Yizou Chen&#39;s Blog">
+<meta property="og:site_name" content="Yizou CHEN&#39;s Blog">
+<meta property="og:description" content="本实验需完成简单的 mmap 和 munmap">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-03-22T10:35:03.000Z">
-<meta property="article:modified_time" content="2022-03-22T10:40:58.628Z">
-<meta property="article:author" content="Yizou Chen">
+<meta property="article:modified_time" content="2022-03-27T09:12:30.246Z">
+<meta property="article:author" content="Yizou CHEN">
 <meta property="article:tag" content="xv6">
 <meta name="twitter:card" content="summary">
 
@@ -44,7 +46,7 @@
   };
 </script>
 
-  <title>xv6 Lab9 mmap | Yizou Chen's Blog</title>
+  <title>xv6 Lab9 mmap | Yizou CHEN's Blog</title>
   
 
 
@@ -95,13 +97,14 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">Yizou Chen's Blog</h1>
+      <h1 class="site-title">Yizou CHEN's Blog</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
 
   <div class="site-nav-right">
     <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
     </div>
   </div>
 </div>
@@ -136,11 +139,38 @@
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
 
   </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
   </ul>
 </nav>
 
 
 
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
 
 </div>
     </header>
@@ -168,12 +198,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Yizou Chen">
+      <meta itemprop="name" content="Yizou CHEN">
       <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Yizou Chen's Blog">
+      <meta itemprop="name" content="Yizou CHEN's Blog">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -186,10 +216,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-22 18:35:03 / 修改时间：18:40:58" itemprop="dateCreated datePublished" datetime="2022-03-22T18:35:03+08:00">2022-03-22</time>
+              <time title="创建时间：2022-03-22 18:35:03" itemprop="dateCreated datePublished" datetime="2022-03-22T18:35:03+08:00">2022-03-22</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-27 17:12:30" itemprop="dateModified" datetime="2022-03-27T17:12:30+08:00">2022-03-27</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -217,7 +253,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>6k</span>
             </span>
 
         </div>
@@ -229,7 +265,75 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <p>本实验需完成简单的 <code>mmap</code> 和 <code>munmap</code> </p>
+<span id="more"></span>
+
+<p>官方实验指导书：<a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2019/labs/mmap.html">Lab: mmap (mit.edu)</a></p>
+<p>我的代码：<a target="_blank" rel="noopener" href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/mmap">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at mmap (github.com)</a></p>
+<h3 id="实验介绍："><a href="#实验介绍：" class="headerlink" title="实验介绍："></a>实验介绍：</h3><p><strong>什么是<code>mmap</code> 和 <code>munmap</code> 呢？</strong></p>
+<blockquote>
+<p>mmap主要的工作就是将文件描述符fd对应的文件映射到进程的虚拟内存中，映射的起始地址从addr开始，如果addr为0，则表明kernel应该自行为其分配地址，length表明映射的长度，prot表明文件的权限，本次实验只要求实现PROT_READ和PROT_WRITE，flags代表映射的类型，有很多类型，但在本次实验中我们只需要处理两种类型：MAP_SHARED和MAP_PRIVATE。其中可以简单的理解为MAP_SHARED要将映射到内存中的文件回写，而MAP_PRIVATE则不。</p>
+<p>munmap就是mmap的逆向操作，移除对应地址空间的映射，如果内存被修改且标记为MAP_SHARED，修改应该首先被写回文件。munmap可能只是unmap文件的一部分，但此处可以假设unmap要么从开始处，要么到结尾处（不会分成几块）。</p>
+</blockquote>
+<p><strong>为什么要mmap？mmap有何作用？</strong></p>
+<blockquote>
+<p>参考阅读：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/huxiao-tee/p/4660352.html">认真分析mmap：是什么 为什么 怎么用 - 胡潇 - 博客园 (cnblogs.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/huxiao-tee/p/4657851.html">从内核文件系统看文件读写过程 - 胡潇 - 博客园 (cnblogs.com)</a></p>
+<p>buffer cache &amp; page cache ？</p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/alanwu/1122077">Buffer cache和page cache的区别_存储之道的技术博客_51CTO博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/linhaostudy/p/10196652.html">linux Page cache和buffer cache正解 - yooooooo - 博客园 (cnblogs.com)</a></p>
+</blockquote>
+<p><strong>HINTS</strong></p>
+<ol>
+<li><p>sys call / MACRO setting</p>
+</li>
+<li><p>mmap–lazy allocate   -&gt; modify usertrap()。<code>mmap</code>会返回映射到虚拟空间的起始地址，但<strong>该地址并没有进行页映射（<code>mappages</code>），也就是说<code>mmap</code>并不做内存映射的工作，因此当用户进程访问到这地址时会出现缺页异常</strong>，我们需要在<code>trap.c</code>中捕获该异常，并为其<strong>懒加载</strong>一个页面，将文件的内容写进去，这才真正完成了文件到内存的映射；</p>
+</li>
+<li><p>为跟踪mmap映射的每一块内存，define a structure VMA</p>
+</li>
+<li><p>实现mmap,在proc中找一位置用于map</p>
+</li>
+<li><p>use readi() to read the file. (set permissions correctly)</p>
+<p>add cide to cause a page-fault in a mmaped region to allocate a page of phy mem and read        // readi():in fs.c</p>
+</li>
+<li><p>实现munmap():use uvmunmap() /ref cnt of file ./check flags–if MAP_SHARED–write(filewrite for inspiration)</p>
+</li>
+<li><p>ignore dirty bit(D)</p>
+</li>
+<li><p>modify exit() to unmap all like munmap</p>
+</li>
+<li><p>modify fork() ensure that the child has the same mapped regions as the parent.</p>
+</li>
+</ol>
+<p><strong>PROCESS</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PROCESS:</span><br><span class="line">some MACRO and defs</span><br><span class="line">struct VMA and proc</span><br><span class="line">lazy allocate -&gt; usertrap()</span><br><span class="line">mmap()</span><br><span class="line">vma表的初始化？--allocproc in proc.c</span><br><span class="line">munmap()--内存碎片化？注意对start/end_ad的修改(以及后续地址的每个都减去unmap的长度?)</span><br><span class="line">exit()</span><br><span class="line">fork()</span><br></pre></td></tr></table></figure>
+
+<h3 id="开始coding"><a href="#开始coding" class="headerlink" title="开始coding"></a>开始coding</h3><p>首先设计VMA</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">VMA</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> valid;</span><br><span class="line">  uint64 start_ad;</span><br><span class="line">  uint64 end_ad;</span><br><span class="line">  <span class="keyword">int</span> length;</span><br><span class="line">  <span class="keyword">int</span> prot;</span><br><span class="line">  <span class="keyword">int</span> flags;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> * <span class="title">file</span>;</span></span><br><span class="line">  <span class="keyword">int</span> fd;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>并在struct proc中添加<code>struct VMA VMAs [NVMA]</code></p>
+<p>How to find an unused region in the process’s address space in which to map the file？</p>
+<p>我们将实现拉回到用户进程的内存布局中，如下图所示。可以看到，heap段便是我们可用的内存空间。我们可以让映射内存从trapframe之下开始向下增长。</p>
+<p><a href="Figure1.png"></a></p>
+<p>如何记录当前堆已经（从上到下）增长到哪个位置了呢？我们则需要一个<strong>当前最大VMA地址指针</strong>来记录。最终方案如下图所示：</p>
+<p>在struct proc中增加current_maxva字段。</p>
+<p>对应地在allocproc中初始化添加的proc字段，将有效位置为无效，初始化current_maxva为<code>PGROUNDDOWN(MAXVA - 2 *PGSIZE)</code>。</p>
+<p>下面正式实现mmap函数：</p>
+<p>就是找到当前空闲的一个VMA，然后根据传进来的各种参数设置各种字段。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">uint64</span></span><br><span class="line"><span class="function"><span class="title">sys_mmap</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  uint64 addr;</span><br><span class="line">  <span class="keyword">int</span> length, prot, flags, fd, offset;</span><br><span class="line">  <span class="keyword">if</span>(argaddr(<span class="number">0</span>,&amp;addr)&lt;<span class="number">0</span> || argint(<span class="number">1</span>,&amp;length)&lt;<span class="number">0</span> ||</span><br><span class="line">      argint(<span class="number">2</span>,&amp;prot)&lt;<span class="number">0</span>      || argint(<span class="number">3</span>,&amp;flags)&lt;<span class="number">0</span>     ||</span><br><span class="line">      argint(<span class="number">4</span>,&amp;fd)&lt;<span class="number">0</span>           || argint(<span class="number">5</span>,&amp;offset)&lt;<span class="number">0</span>     )&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> *<span class="title">p</span> =</span> myproc();</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> * <span class="title">f</span> =</span> (p-&gt;ofile)[fd];</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">VMA</span>* <span class="title">vma</span> =</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span>(!f-&gt;writable &amp;&amp; (prot&amp;PROT_WRITE) &amp;&amp; (flags &amp; MAP_SHARED))&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NVMA; i++)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!(p-&gt;VMAs[i].valid))&#123;</span><br><span class="line">      vma = &amp;p-&gt;VMAs[i];</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span>(vma)&#123;</span><br><span class="line">    vma-&gt;valid = <span class="number">1</span>;</span><br><span class="line">    vma-&gt;start_ad = PGROUNDDOWN(p-&gt;current_maxva - length);       <span class="comment">//start is the lower address</span></span><br><span class="line">    vma-&gt;end_ad = PGROUNDDOWN(p-&gt;current_maxva);</span><br><span class="line">    vma-&gt;length = length;</span><br><span class="line">    vma-&gt;prot = prot;</span><br><span class="line">    vma-&gt;flags = flags;</span><br><span class="line">    vma-&gt;file = f;</span><br><span class="line">    vma-&gt;fd = fd;</span><br><span class="line"></span><br><span class="line">    vma-&gt;file-&gt;ref ++;</span><br><span class="line">    p-&gt;current_maxva = vma-&gt;start_ad;</span><br><span class="line">    <span class="keyword">return</span>  vma-&gt;start_ad;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于本质上是个lazy allocation，所以还要再缺页中断那增加处理：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//refer to Lab lazy</span></span><br><span class="line"> <span class="keyword">else</span> <span class="keyword">if</span>(r_scause()==<span class="number">13</span> || r_scause()==<span class="number">15</span>) <span class="comment">//page fault</span></span><br><span class="line"> &#123;</span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">&quot;usertrap(): mmap page fault\n&quot;</span>);</span><br><span class="line">   <span class="keyword">char</span>* phy_mem_addr;</span><br><span class="line">   uint64 va_fault = r_stval();</span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">VMA</span> *<span class="title">vma</span> =</span> <span class="number">0</span>;</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NVMA; i++)&#123;</span><br><span class="line">     <span class="keyword">if</span>(p-&gt;VMAs[i].start_ad &lt;= va_fault &amp;&amp; va_fault &lt;= p-&gt;VMAs[i].end_ad)</span><br><span class="line">     &#123;</span><br><span class="line">       vma = &amp;(p-&gt;VMAs[i]);</span><br><span class="line">       <span class="keyword">break</span>;</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">if</span>(!vma)&#123;</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">&quot;usertrap():VA is not in any VMA\n&quot;</span>);</span><br><span class="line">     p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">     <span class="keyword">goto</span> BAD;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//allocate a phy page and map</span></span><br><span class="line">   phy_mem_addr = kalloc();</span><br><span class="line">   <span class="keyword">if</span>(phy_mem_addr == <span class="number">0</span>)&#123;</span><br><span class="line">     p-&gt;killed = <span class="number">1</span>;</span><br><span class="line">     <span class="keyword">goto</span> BAD;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="built_in">memset</span>(phy_mem_addr,<span class="number">0</span>,PGSIZE);</span><br><span class="line">   uint64 va_fault_pgstart = PGROUNDDOWN(va_fault);</span><br><span class="line">   <span class="keyword">if</span>(mappages(p-&gt;pagetable, va_fault_pgstart, PGSIZE, (uint64)phy_mem_addr, vma-&gt;prot | PTE_U) != <span class="number">0</span>)&#123;</span><br><span class="line">     kfree(phy_mem_addr);</span><br><span class="line">     <span class="built_in">printf</span>(<span class="string">&quot;usertrap():map page fail\n&quot;</span>);</span><br><span class="line">     p-&gt;killed =<span class="number">1</span>;</span><br><span class="line">   &#125;</span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">file</span> * <span class="title">f</span> =</span> vma-&gt;file;</span><br><span class="line">   ilock(f-&gt;ip);</span><br><span class="line">   readi(f-&gt;ip, <span class="number">1</span>, va_fault_pgstart, (va_fault_pgstart - vma-&gt;start_ad), PGSIZE);</span><br><span class="line">   iunlock(f-&gt;ip);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>再完成munmap系统调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//assume a call of munmap won&#x27;t  cross different file(VMA)</span></span><br><span class="line"><span class="function">uint64 </span></span><br><span class="line"><span class="function"><span class="title">sys_munmap</span><span class="params">(<span class="keyword">void</span>)</span></span>&#123;</span><br><span class="line">  uint64 addr;</span><br><span class="line">  <span class="keyword">int</span> length;</span><br><span class="line">  <span class="keyword">if</span>(argaddr(<span class="number">0</span>, &amp;addr) &lt; <span class="number">0</span> || argint(<span class="number">1</span>, &amp;length) &lt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  uint64 start_base = PGROUNDDOWN(addr);</span><br><span class="line">  uint64 end_base = PGROUNDDOWN(addr + length);</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">proc</span> * <span class="title">p</span> =</span> myproc();</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">VMA</span> * <span class="title">vma</span> =</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>i; i &lt; NVMA; i++)&#123;</span><br><span class="line">    <span class="keyword">if</span>(p-&gt;VMAs[i].valid == <span class="number">1</span> &amp;&amp;</span><br><span class="line">        p-&gt;VMAs[i].start_ad &lt;= start_base &amp;&amp;</span><br><span class="line">        p-&gt;VMAs[i].end_ad &gt;= end_base)&#123;</span><br><span class="line">          vma = &amp;(p-&gt;VMAs[i]);</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span>(!vma)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Error: munmap() fail to find a appropriate VMA\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (vma-&gt;flags &amp; MAP_SHARED) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;....We need to write back file\n&quot;</span>);</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">f</span> =</span> vma-&gt;file;</span><br><span class="line">    begin_op(f-&gt;ip-&gt;dev);</span><br><span class="line">    ilock(f-&gt;ip);</span><br><span class="line">    writei(f-&gt;ip, <span class="number">1</span>, vma-&gt;start_ad, <span class="number">0</span>, vma-&gt;length);</span><br><span class="line">    iunlock(f-&gt;ip);</span><br><span class="line">    end_op(f-&gt;ip-&gt;dev);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i = start_base; i &lt;= end_base; i+=PGSIZE)&#123;</span><br><span class="line">    <span class="keyword">if</span>(walkaddr(p-&gt;pagetable, i)) &#123;</span><br><span class="line">        uvmunmap(p-&gt;pagetable, i, PGSIZE, <span class="number">1</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;munmap(): walk() fail to find the map in pagetable&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//adapt</span></span><br><span class="line">  <span class="comment">//five cases (process 3 of 5)</span></span><br><span class="line">  <span class="keyword">if</span>(vma-&gt;start_ad == start_base &amp;&amp; vma-&gt;end_ad == end_base)&#123;</span><br><span class="line">    vma-&gt;file-&gt;ref --;</span><br><span class="line">    vma-&gt;valid = <span class="number">0</span>;</span><br><span class="line">    vma-&gt;length = <span class="number">0</span>;</span><br><span class="line">  &#125;<span class="keyword">else</span> <span class="keyword">if</span>(vma-&gt;start_ad == start_base &amp;&amp; vma-&gt;end_ad &lt; end_base)&#123;</span><br><span class="line">    vma-&gt;start_ad = end_base;</span><br><span class="line">    vma-&gt;length -=length;</span><br><span class="line">  &#125;<span class="keyword">else</span> <span class="keyword">if</span>(vma-&gt;start_ad &gt; start_base &amp;&amp; vma-&gt;end_ad == end_base)&#123;</span><br><span class="line">    vma-&gt;end_ad = start_base <span class="number">-1</span>;</span><br><span class="line">    vma-&gt;length -=length;</span><br><span class="line">  &#125;<span class="keyword">else</span> <span class="keyword">if</span>(vma-&gt;start_ad &gt; start_base &amp;&amp; vma-&gt;end_ad &lt; end_base)&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;munmap(): wrong unmap punch a hole\n&quot;</span>);</span><br><span class="line">  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;munmap(): out of range\n&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> length;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p><strong>注：</strong>这里看别人的代码，还存在一个内存紧缩的问题没有实现。</p>
+<p>最后，修改fork()和exit()，fork即增加vma字段的初始化，exit与munmap相似，就是释放掉全部VMA及其映射的内存。</p>
+<blockquote>
+<p>感谢 <a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44465434/article/details/111589244">xv6 6.S081 Lab9: mmap_DeadPool loves Star的博客-CSDN博客</a></p>
+</blockquote>
 
     </div>
 
@@ -310,12 +414,13 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E9%AA%8C%E4%BB%8B%E7%BB%8D%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">实验介绍：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8Bcoding"><span class="nav-number">2.</span> <span class="nav-text">开始coding</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <p class="site-author-name" itemprop="name">Yizou Chen</p>
+  <p class="site-author-name" itemprop="name">Yizou CHEN</p>
   <div class="site-description" itemprop="description"></div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -375,12 +480,12 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Yizou Chen</span>
+  <span class="author" itemprop="copyrightHolder">Yizou CHEN</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">56k</span>
+    <span title="站点总字数">86k</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
   </div>
@@ -439,6 +544,10 @@
   
 
 
+
+
+  
+<script src="/js/local-search.js"></script>
 
 
 
