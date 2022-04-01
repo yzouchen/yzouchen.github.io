@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CMake</title>
+    <url>/2022/01/25/CMake/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>Tools</category>
+      </categories>
+      <tags>
+        <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>An Empirical Guide to the Behavior and Use of Scalable Persistent Memory</title>
     <url>/2022/01/22/An-Empirical-Guide-to-the-Behavior-and-Use-of-Scalable-Persistent-Memory/</url>
     <content><![CDATA[<p><strong>Title:</strong> An Empirical Guide to the Behavior and Use of Scalable Persistent Memory</p>
@@ -103,17 +114,6 @@
       </tags>
   </entry>
   <entry>
-    <title>CMake</title>
-    <url>/2022/01/25/CMake/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>Tools</category>
-      </categories>
-      <tags>
-        <tag>Tools</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Git</title>
     <url>/2022/01/22/Git/</url>
     <content><![CDATA[<blockquote>
@@ -198,6 +198,464 @@
       </tags>
   </entry>
   <entry>
+    <title>Linux Useful Commands</title>
+    <url>/2022/03/20/Linux-Useful-Commands/</url>
+    <content><![CDATA[<blockquote>
+<p>介绍Linux上常用的指令</p>
+</blockquote>
+<span id="more"></span>
+
+<h3 id="Tmux"><a href="#Tmux" class="headerlink" title="Tmux"></a>Tmux</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tmux new -s &lt;session-name&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux ls</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux a -t session-name</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux detach  <span class="comment"># &lt;ctrl+b d&gt;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux kill-session -t &lt;session-name&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="查看服务器有哪些人在用"><a href="#查看服务器有哪些人在用" class="headerlink" title="查看服务器有哪些人在用"></a>查看服务器有哪些人在用</h3><blockquote>
+<p><code>w</code>和<code>who</code>只能查看哪些人登陆了，但是如果是用<a href="https://so.csdn.net/so/search?q=vscode&spm=1001.2101.3001.7020">vscode</a>登陆的就看不到，只有一个node进程。而且如果有人在后台跑程序也看不到。</p>
+<p>所以需要一个可以查看系统中哪些人的进程在跑的命令：</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -e -o uid --no-headers | awk &#x27;$1 &gt;= 1000&#x27; | sort -u | xargs -i id -nu &#123;&#125;			# 显示uid&gt;=1000的用户</span><br></pre></td></tr></table></figure>
+
+<h3 id="查看内核-发行版本"><a href="#查看内核-发行版本" class="headerlink" title="查看内核/发行版本"></a>查看内核/发行版本</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cat /etc/os-release</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> lsb_release -a</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /proc/version</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> uname --<span class="built_in">help</span>		<span class="comment"># select option</span></span></span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HTMFS: Strong Consistency Comes for Free with Hardware Transactional Memory in Persistent Memory File Systems</title>
+    <url>/2022/03/02/HTMFS-Strong-Consistency-Comes-for-Free-with-Hardware-Transactional-Memory-in-Persistent-Memory-File-Systems/</url>
+    <content><![CDATA[<p><strong>Title:</strong> HTMFS: Strong Consistency Comes for Free with Hardware Transactional Memory in Persistent Memory File Systems</p>
+<p><strong>Source:</strong> FAST’ 2022</p>
+<p><strong>School:</strong> SJTU-IPADS</p>
+<span id="more"></span>
+
+<hr>
+<blockquote>
+<p>note by yzouchen 20220302</p>
+<p>translation mainly by DeepL</p>
+</blockquote>
+<h1 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h1><h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>​        文件系统设计，通常都存在performance和consistency之间的trade-off，难以同时实现。本文重新审视这种trade-off，提出<strong>HOP</strong>（Hardware-assisted Optimistic Persistence）——  一个轻量级的软硬件协同机制，用于利用硬件事务性内存 **hardware transactional memory (HTM)**，进而在PMem文件系统中同时实现高性能和强一致性保证。</p>
+<p>​        <strong>HOP</strong>的核心idea是：**”pick the updates visible to the file system interface and warp them into HTM.”(使更新对文件系统接口可视，并打包他们into HTM)**。HOP采用了一种FS-aware的，乐观锁(Optimistic Concurrency Control)(OCC)类似，的机制来克服HTM容量限制、以及使用协作锁(Cooperative locks)来作为保证progress的fallbacks。</p>
+<p>​        本文将HOP应用于构造<strong>HTMFS</strong>，一个支持强一致性的用户态 PM 文件系统。在evaluation中，HTMFS相比同样支持强一致性的state-of-the-art PM FS，提升了8.4x的性能。</p>
+<h1 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1    Introduction"></a>1    Introduction</h1><p>​        文件系统是许多存储服务的关键基石。诸如键值存储和数据库以及持续存储数据的应用程序。在早期，文件系统被设计为具有松散一致性保证的性能。例如，<em>FFS</em>依靠文件系统的清洁卸载来避免一致性问题。在崩溃或电力不足的情况下，文件系统的用户必须调用并等待冗长的文件系统一致性检查程序，即<em>fsck</em>，它将检测一致性问题并尝试恢复，但不能保证。</p>
+<p>​        如今，随着存储设备的加速和它们在应用中的广泛使用，性能已经不是应用程序需要的唯一功能。应用程序还需要强的一致性，以提供可靠的服务。例如，键值存储和数据库需要强大的崩溃的一致性，以保证所有返回的写入内容都被持久化，并能在系统崩溃后被正确读取。在没有一致性保证的文件系统上，这些应用不得不在一致性水平上做出妥协或者使用复杂的机制来提供可靠的存储。如果文件系统能够提供强大的一致性，那么编程工作也可以减少。</p>
+<p>​        文件系统的强一致性意味着每请求的顺序一致性，它包括两个方面。首先，对于任意的文件系统请求，由并发任务观察到的，对文件系统状态的修改应该是原子性的。大多数文件系统使用inode-level锁，它确保不同请求的修改顺序以保证顺序的一致性。第二，每当系统崩溃，重启后，所有先前的文件系统请求应该满足全有或全无的语义，也就是说，一个文件系统请求对文件系统的所有改变状态的所有变化都应该被应用，否则就不应用。文件系统不一定保证强大的崩溃一致性。例如，<em>ZoFS</em>没有提供数据修改的原子性。假设写入者在写到一半的时候崩溃了，那么读者有可能在系统结束后读取部分更新的值。读者有可能在系统恢复后读取部分更新的值。</p>
+<p>​        同时，现代存储设备已经变得更快和不同。新兴的持久性存储器（PM）强化了内存的耐久性。因此，文件系统可以使用加载/存储指令，以接近DRAM的性能访问PM存储。一些PM文件系统被提出来以利用PM的特性。他们中的许多人提供了强大的一致性。</p>
+<p>​        然而，现有的PM文件系统仍然需要复杂的和昂贵的机制，如<strong>Journaling</strong>和<strong>shadow paging</strong>，以实现强崩溃一致性。Journaling有两倍写入问题，而shadow paging需要将变化传播给原子更新，因此它只适合于专用数据结构。写放大的程度与它使用的数据结构以及它的写入模式有关。</p>
+<p>​        以前的方法只限于CPU写的原子性单元。英特尔的<em>限制性事务存储（RTM）</em>。可以提供多个更新的原子性。然而，文件系统自然与RTM不兼容。基于块设备的文件系统通过IO访问数据，这将中止RTM。尽管PM可以直接被CPU  load/store指令访问，但PM的写入的持久化操作需要cache line flush指令的帮助（例如clflush、clflushopt和clwb），这将中止RTM。</p>
+<p>​        最近，英特尔提出了其第二代Optane Persistent Memory产品，该产品与新的Xeon平台合作实现了<strong>增强的异步DRAM刷新（enhanced asynchronous DRAM refresh）（eADR）技术</strong>，该技术将CPU cache纳入了**(崩溃情况下的)持久化域**。特别是，这些平台保证内存写入的持久性，一旦它们成为全局可见(global visible)，这意味着对持久性内存的数据修改不再需要cache line flush以实现持久化。这使我们有可能结合RTM和持久化内存来同时提供原子性、并发性和持久性。</p>
+<p>​        尽管 RTM 可以与 PM 一起使用，但有几个挑战阻止RTM-PM直接用于PM文件系统。首先，用户使用文件系统来处理大型数据的存储和检索。然而，RTM在读写集合的size都是有限的，因此很容易因文件数据复制而中止。第二，与FS相关的系统调用的代码路径中存在某些依赖性。例如，与路径有关的操作（如open和mkdir）必须先进行路径查询，而且文件indexing必须在读写文件之前完成。这些操作可能很冗长，而且可能包括不需要被RTM跟踪的内存访问。简单地将在RTM中简单地包装整个操作，不仅容易导致capacity abort，而且还增加了conflict aborts的概率。</p>
+<p>​        在本文中，我们提出了HOP，一种轻量级的硬软件合作机制，用于在PM文件系统中提供强一致性。HOP建立在最近的eADR兼容平台的基础上，并利用硬件事务性内存（HTM）来保证文件系统更新的原子耐久性。为了解决HTM的容量限制，HOP采用了一个OCC-like的机制，将一个大的文件系统请求切成更小的片段，同时保留了<br>并发一致性和执行过程中的崩溃一致性。为了保证文件系统的progress，HOP设计了cooperative locks作为HTM的fallback。HOP和其他崩溃一致性机制的比较见表1</p>
+<p>​        为了说明HOP，我们实现了HTMFS，一个基于ZoFS的用户空间PM文件系统。使用FxMark、Filebench、LevelDB和TPC-C on SQLite进行evaluation。结果显示，HOP的性能优于SOTA PM文件系统。在保证强一致性的同时实现了与弱一致性FS相近的性能。通过精心设计的细粒度并发控制，HTMFS在competitive cases中提供了更好的性能。</p>
+<p>​        Contribution：</p>
+<ul>
+<li>The design of HOP, a lightweight hardware-software cooperative mechanism to provide strong consistency in persistent memory file systems (§3);</li>
+<li>The implemention of HTMFS which provides both strong consistency and performance using HOP (§4);</li>
+<li>Comprehensive evaluation that shows that HTMFS outperforms state-of-the-art persistent memory file systems,proving the effectiveness of HOP (§5).</li>
+</ul>
+<h1 id="2-Background-and-Motivation"><a href="#2-Background-and-Motivation" class="headerlink" title="2    Background and Motivation"></a>2    Background and Motivation</h1><h2 id="2-1-File-System-Consistency-and-Performance"><a href="#2-1-File-System-Consistency-and-Performance" class="headerlink" title="2.1    File System Consistency and Performance"></a>2.1    File System Consistency and Performance</h2><p>​        原来的文件系统在建立时并没有把一致性作为priority，例如，如果在<code>clean umount</code>之前发生崩溃，<em>FFS</em>就没有一致性保证。<br>​        一个古老的fsck工具只是让文件系统可以挂载，但对数据的一致性或持久性没有任何保证。fsck工具有助于恢复、修复和刷新系统。<br>​        如果没有文件系统提供一致性，应用程序需要承担起保证一致性的责任。例如，为了保证数据原子性地在文件A中被持久化，应用程序需要依次进行以下操作<br>顺序进行：</p>
+<pre><code>    1. Create file B with the same content as file A;
+    1. Write new data to file B;
+    1. Flush file B to guarantee that the new data is persisted in storage;
+    1. Rename file B as file A;
+    1. Sync the directory change;
+</code></pre>
+<p>​        这对应用程序来说显然是costly。因此，一些文件系统，如Ext4和NOVA，提供了强一致性作为一个可选功能。</p>
+<p>​        然而，强一致性并不是免费的。Ext4使用data journal来提供数据的原子更新，因此有重复写入的问题。NOVA可以使用CoW（写时复制）方法来以原子方式更新数据。然而，在我们的评估中，CoW可能使NOVA的性能降低60%以上。</p>
+<h2 id="2-2-Persistent-Memory-and-PM-File-System"><a href="#2-2-Persistent-Memory-and-PM-File-System" class="headerlink" title="2.2    Persistent Memory and PM File System"></a>2.2    Persistent Memory and PM File System</h2><p>持久性内存（PM）是一种新兴的存储技术，它执行具有持久性的字节寻址存储器。通过与易失性存储器（即DRAM）具有的相同的接口，写入PM的数据保证在电源循环中保留。因此，存储层次已经改变。</p>
+<p>​        基于这些变化，之前曾提出过几个PM文件系统，以更好地利用PM特性，获得更好的性能。这些文件系统在PM带来的新场景下重新审视了现有的崩溃一致性机制，但没有探索根本上不同的（且更有效的）文件系统的崩溃一致性机制。</p>
+<p>​        唯一的区别是利用原子指令来提供小规模的更新，最多到一个cache line。BPFS将整个文件系统采用树状结构，并通过影子分页和原子指令提供强大的一致性。PMFS引入了细粒度的日记，并结合了原子指令和可选的影子分页来实现数据一致性。NOVA是一个为PM设计的日志结构的文件系统。它结合了所有的原子指令、shadow paging、Journaling以实现强一致性。SoupFS是对PM的软更新技术的重新审视，没有提供强的的一致性保证。</p>
+<p>​        传统的文件系统，如Ext4和XFS，引入direct access mode(DAX)来绕过cache 在数据通路中，进而优化其跑在PM上的性能。然而这没有改变文件系统的崩溃一致性等级。</p>
+<p>​        PM的字节寻址性和持久性也motivate了一些用户空间文件系统，例如Aerie、<br>Strata、SplitFS、ZoFS和Libnvmmio。Strata和Libnvmmio使用logs来保证一致性。SplitFS依靠底层Ext4进行元数据处理。ZoFS采取软更新的方式来保护数据的修改，因此只提供弱一致性。它首先更新数据，然后修改文件的大小以完成操作。然而，如果系统在文件大小改变之前崩溃，部分更新可能会被下一次的读操作读取。</p>
+<p>总结来说，PM为文件系统设计带来新的机会，但现有的新文件系统仍然坚持使用现有的崩溃一致性机制，使性能和强一致性之间的trade-off成为实现快速且可靠文件系统的持久障碍。</p>
+<h2 id="2-3-Hardware-Transactional-Memory"><a href="#2-3-Hardware-Transactional-Memory" class="headerlink" title="2.3    Hardware Transactional Memory"></a>2.3    Hardware Transactional Memory</h2><p>​        事务性内存为程序员提供了一个简单的(有时甚至是高效的)方法来实现并发应用。硬件事务性内存技术，如Intel’s Restricted Transactional Memory(RTM) in TSX and ARM’s TME，提供了事务性内存的硬件支持。程序员只需要确定包裹共享内存资源的关键部分，并用<code>xbegin</code>和<code>xend</code>指令标记它。事务性内存机制将保证关键部分的执行会被序列化，这样就不会发生data race。执行的事务如果不能满足可序列化的要求，将被硬件中止，这将通过高速缓存一致性协议来检测。具体来说，未提交的事务写的数据被保存在该CPU核的私有cache中，只有在事务成功提交时才会成为global visible。</p>
+<p>由于与高速缓存实现的紧密联系。下面的限制将导致HTM的中止，用户应该注意。</p>
+<ul>
+<li><strong>Conflict aborts.</strong>    HTM使用read/write集来跟踪内存访问。在HTM中读的cache lines被添加到读集，而写的cache line则被添加到写集。在HTM成功提交之前，如果读集中的cache line被修改  或者  写集被另一个core访问，那么这个事务将由于冲突而被中止。这种类型的中止可能通过retry 事务而成功。</li>
+<li><strong>Capacity aborts.</strong>    CPU的私有cache大小有限，因此HTM的读写集也有限。如何超过读写集大小限制的事务必然会被abort，不管retry多少次。</li>
+<li><strong>Other aborts.</strong>        除了冲突和容量中止，还有一些其他来源可以中止事务，如中断以及HTM不兼容的指令。这取决于具体的场景来判断简单的retry是否能使事务成功。例如，如果在事务过程中发生了一个page fault，中断将导致事务中止。在这种情况下，有必要在重试事务之前，进行prefault(预故障)（提前触发页面故障）。</li>
+</ul>
+<h2 id="2-4-HTM-in-PM-FileSystem"><a href="#2-4-HTM-in-PM-FileSystem" class="headerlink" title="2.4    HTM in PM FileSystem"></a>2.4    HTM in PM FileSystem</h2><p>​        在基于块的存储设备时代，HTM从来不是文件系统一致性的选择。字节可寻址持久性内存的出现为在文件系统中使用HTM提供了机会。然而，CPU缓存的不稳定性迫使需要使用cache line flush指令来实现持久性，这与HTM机制有内在的冲突，HTM机制是将in-flight的事务数据存放在CPU高速缓存中。</p>
+<p>​        2021年1月，Intel的新平台将CPU cache纳入了持久化域，这意味着到达CPU缓存的数据可以被保证是持久的，即使在崩溃和电力短缺的情况下也是如此。现在有可能在PM上使用HTM。而且，还不止于此。HTM成为是与持久性存储器一起使用的好伙伴。根据Intel资料，如果发生电力短缺，只有全局可见的数据才会是持久的。换句话说，HTM in-flight 的数据修改将被丢弃，这使得HTM是一个很好的替代方法，用以在文件系统中强制执行原子更新，以实现文件系统中的崩溃一致性。HTM似乎很有希望在文件系统中使用，用于同时提供崩溃一致性和提供并发性证。</p>
+<h1 id="3-Design"><a href="#3-Design" class="headerlink" title="3    Design"></a>3    Design</h1><p>乍一看，为文件系统配备HTM似乎很简单：只需将每个文件系统请求包装在一对xbegin和xend中，就可以保证文件系统请求的ACID。然而，现实证明，这远远不够。由于文件系统请求中的较长的代码路径和复杂的操作，将整个文件系统请求直接包装在一个硬件事务中会经常导致事务中止。直接在文件系统中采用HTM将导致以下三个问题：</p>
+<ol>
+<li>long code path 会经常性导致capacity aborts</li>
+<li>long code path 使得事务更容易因为data conflicts 而 abort</li>
+<li>很多工作需要重复做，因为要retry那些abort的事务</li>
+</ol>
+<p>为了解决以上问题，我们设计了一个轻量级的软硬件协调机制，命名为HOP。后面先介绍HOP是什么，再描述如何利用HOP来构造RTM-compliant FS—-HTMFS.</p>
+<h2 id="3-1-HOP"><a href="#3-1-HOP" class="headerlink" title="3.1    HOP"></a>3.1    HOP</h2><p>​        为了缩短HTM中的code path，我们把一个文件系统的操作分成多个小部分。当连接在一起时，它perform similar to 一个单一的大的事务。这个想法类似于事务切分（transaction chopping）。</p>
+<p>所有文件系统操作中的内存访问可以被分类成三类：</p>
+<ol>
+<li>Reads</li>
+<li>Invisible writes: updates that cannot be observed via the file system interface (such as memory allocation and updates to the shadow pages);</li>
+<li>Visible writes: updates that can be observed by the file system interface (like timestamp modification, in-place updates, and the change of file size).</li>
+</ol>
+<p>​        为了减轻复杂文件系统操作引起的capacity abort，HOP只在事务中包装visible writes。invisible update被设计为能够以最小的开销回滚，而critical reads则由sequence counts保护。</p>
+<p>​        更详细地说，我们首先在RTM之外执行所有的read和invisible write。然后，我们用RTM将visible write包装到PM，从而实现原子性操作。然而，如果不对第一部分应用任何保护措施可能会导致并发性错误。HOP通过保护可能导致并发性错误的字段来确保并发性一致性。如<strong>Figure 1</strong>所示，当我们要访问RTM外的受保护字段时，我们首先记录相应的sequence count，然后访问PM。在进入RTM保护的区域时，这些序列号将被验证，以确保其余部分的在整个过程中保持不变，直到RTM提交成功。如果验证失败（即有一个序列数被改变了），HOP将回滚到第一个改变的点，重新开始该事务。例如，如果我们发现A的seqcount没有改变，但是B的seqcount被修改了，我们会用红色的虚线线 “B被改变 “来重新记录B的seqcount并重新读取B。</p>
+<p>​        除了修改seqcount，许多原因（在§2.3中介绍的）也可能导致中止。如果是由中断或其他原因引起的意外中止，retry RTM事务就足够了，因为回到最开始会造成不必要的的开销。</p>
+<p>​        <strong>讨论并发性的正确性。</strong>接下来，我们将讨论HOP中的所有并发情况（读-读、写-写、写-读和读-写）。读-读永远不会带来问题。由于HOP中潜在的冲突写入受到RTM的保护，两个相互冲突的写入会导致互相冲突中止，直到其中一个成功为止（或不断地互相中止，使其无法继续前进。我们将通过其他方法避免这种情况）。</p>
+<p>​        然而，写-读/读-写，如果发生冲突，将导致RTM中止，因为可能发生冲突的写操作都是在 RTM 内部执行的。任何中止操作都会触发图1中的重做，所以一个成功提交的事务保证不存在并发性错误。</p>
+<p>​        对于读写场景，如<strong>Figure 2</strong>所示，线程1首先读取一些受序列号保护的变量。然后开始RTM，验证序列号，并且执行所有可见的写操作。线程2被简化为在某个时间点上修改冲突变量。线程2修改的时间被线程2修改的时间点可以分为三个范围（就是Figure2 Thread2 ABC三种结果），导致三种后果。</p>
+<ul>
+<li>Result A: If Thread 2 modifies seqcount before Thread 1 reads it or after Thread 1 finishes all operations, it has no effect on the result of Thread 1.</li>
+<li>Result B: If Thread 2 modifies seqcount between Thread 1 reading seqcount and verifying seqcount, it causes Thread 1 to fail validation and thus redo the whole task.</li>
+<li>Result C: If Thread 2 modifies seqcount after Thread 1 verifies successfully (while before the RTM ends), it causes an RTM abort in Thread 1 as it modified Thread 1’s read set, thus redoing the whole task.</li>
+</ul>
+<p>​        通过HOP，我们可以打破RTM的容量限制。然后，我们将介绍HOP如何通过文件系统中的一些具体操作来帮助建立HTMFS。</p>
+<h2 id="3-2-File-Operations"><a href="#3-2-File-Operations" class="headerlink" title="3.2    File Operations"></a>3.2    File Operations</h2><h3 id="3-2-1-Data-Read"><a href="#3-2-1-Data-Read" class="headerlink" title="3.2.1    Data Read"></a>3.2.1    Data Read</h3><p>​        对于数据读取，我们使用基于seqcount的方法，使其原子化。具体来说，一个文件的结构如<strong>Figure 3</strong>所示，对于每一页，我们首先记录最后一页的持久性指针(包括序列数)，然后读取其内容。读取结束后，我们验证所有记录的指针和它们的序列计数是否都没有变化。我们将重新阅读发生变化的那一页，然后再次验证所有的序列计数，直到这个进度中的所有记录保持稳定。由于只有数据写入才会修改序列计数或持久的指针，我们可以确保在整个读操作过程中，我们所读的页面没有任何变化。</p>
+<h3 id="3-2-2-Data-Write"><a href="#3-2-2-Data-Write" class="headerlink" title="3.2.2    Data Write"></a>3.2.2    Data Write</h3><p>​        数据更新是文件系统操作的基础。HTMFS面临的主要挑战之一是RTM的容量限制和文件系统操作中涉及的大量数据之间的冲突。因此，直接将整个文件系统操作包裹在一个RTM事务中，将不可避免地导致容量中止，使操作无法完成。</p>
+<p>​        为了解决这个问题，我们提出了一种混合方法，它结合了Copy-on-Write和Journaling，将数据转换成可以被嵌入到RTM事务中的元数据更新。</p>
+<p>​        适合于单个PM page的small write操作被直接包裹在RTM事务中。对于大数据的写入，如<strong>Figure 3</strong>所示，我们的策略首先将数据写到PM中，以便大批的数据可以用指针表示，使其能够很容易被嵌入到有限的RTM事务中。为了详细说明，我们首先分配PM空间来存储数据。注意，分配的信息是在DRAM中，在崩溃后，它将不会被持久化。但数据是在PM中。然后我们开始一个RTM事务，在这个事务中，文件系统元数据被修改，包括对分配元数据的修改。持久点是RTM提交。一旦提交成功，文件数据和元数据将以原子方式持久化。在事务中止时，文件系统的任何变化在重启后都不可见，唯一的例外是，文件数据被写入未分配的PM，这在大多数情况下是无害的。但是，在系统崩溃后，这些块可能已经泄漏了。对整个PM进行耗时的扫描<br>可以帮助找回泄漏的空间。为了消除恢复过程，我们设计了一个基于自由列表的新分配器（如<strong>Figure 4</strong>所示）来防止内存泄漏。</p>
+<h3 id="3-2-3-Allocation"><a href="#3-2-3-Allocation" class="headerlink" title="3.2.3    Allocation"></a>3.2.3    Allocation</h3><p>​        我们将分配分成两部分：首先，我们将已分配的块移到一个临时分配列表中，该列表具有与未分配的空间列表相同的结构。然后我们简单地丢弃事务中的临时列表，以持久化分配。如果崩溃发生了，我们将临时列表添加到未分配的空间列表，以防止内存泄漏。</p>
+<p>​        为了确保文件系统不引用任何未分配的数据块，通常文件系统会在释放数据块之前修改（或删除）对数据块的引用，然后再释放该数据块。如果文件系统在一个数据块的引用被删除后崩溃，也可能发生内存泄漏。（当这个内存块还没有被释放）。当我们需要当我们需要释放多个数据块时，我们也可能在释放过程中出现崩溃。确保原子性的一个更简单的方法是将所有这些操作包裹在一个事务中，但RTM有可能出现容量中止。为了解决这个问题，我们采用了一种类似于分配操作的释放方法。只有那些必须以原子方式完成的操作被放在RTM中。从而避免了容量中止的概率。</p>
+<h2 id="3-3-Directory-Operations"><a href="#3-3-Directory-Operations" class="headerlink" title="3.3    Directory Operations"></a>3.3    Directory Operations</h2><h3 id="3-3-1-Path-Walk"><a href="#3-3-1-Path-Walk" class="headerlink" title="3.3.1    Path Walk"></a>3.3.1    Path Walk</h3><p>​        文件系统通常使用树状结构来维护目录层次结构。path walk是文件系统中一个相当常见的情景。许多与文件系统相关的系统调用需要path walk，如<code>open、mkdir、unlink</code>等。这些函数首先会做一个path walk，path walk中文件系统会用斜线分割全路径。然后，它从根目录开始，依次寻找每一级的路径名，从根目录开始，直到到达最后的级。然后对最后一级目录中的最后一个文件名执行指定的操作。</p>
+<p>​        所有需要行走路径的操作都会记录其访问的目录项（dentry）的序列号。并在与数据写入同一RTM中验证这些序列号与（如Figure 1所示）。以<code>touch /a/b</code>为例，该操作将首先搜索根目录(/)中的dentry a。当它找到匹配的dentry时，它将首先记录该dentry的序列号（Dseq of thedentry a），然后读取目录a的inode号。然后开始一个事务，验证之前读取的序列号，将新的dentry b插入到目录/a中，并最后提交事务。</p>
+<h3 id="3-3-2-Directory-Updates"><a href="#3-3-2-Directory-Updates" class="headerlink" title="3.3.2    Directory Updates"></a>3.3.2    Directory Updates</h3><p>​        我们不使用directory inode上的锁来保护同一目录的更新(add/remove a dentry)。取而代之的是，我们在每个bucket中使用单独的seqcount，所有的插入操作需要修改哈希表中相应桶的seqcount（<strong>Figure 5</strong>中的Bseq）。当在一个目录中同时插入多个不同的directory entries时，竞争会导致只有一个目录插入操作成功。同时，因为序列号已被修改，另一个将不得不要redo整个操作。在redo的过程中，该操作将在directory中发现一个存在相同名称的directory dentry，并返回错误代码<code>EEXIST</code>。</p>
+<p>​        在文件系统中，目录可以通过系统调用<code>rmdir</code>被删除。然而，只有空目录可以被删除，以避免意外地删除有用的数据。实用程序<code>rm</code>可以通过设置参数为<code>-r</code>用来删除一个非空的目录。它将递归地删除目录和它们的内容。在实现中，它将首先删除所有子目录的的所有子目录，然后通过<code>rmdir</code>将空目录从文件系统树中删除。这个过程并没有打破的限制，即在文件系统中只有空目录可以被删除的限制。</p>
+<p>​        我们需要考虑的情景是：进程A试图将一个新的文件/a/b/c放入一个空目录/a/b中，同时进程B试图删除这个空目录/a/b。</p>
+<p>​        如图1所示，A将首先walk path并记录/a/b的序列计数Dseq。然后，它将在与插入/a/b/c同一RTM中验证序列号。如果序列号在验证之前被改变了，那么A将不能验证它，并回滚(重新查找路径)。如果序列号在A验证成功后被改变，那么对这个序列号的修改（B在另一个事务中改变它）将导致A的事务中止。那么A将被回滚并redo。在新一轮的路径查找中，它将发现目录/a/b不存在，其结果与B的整个操作在A之前完成相同，不会造成任何问题。</p>
+<p>​        B也需要在同一个RTM中，验证和修改这个序列号，并删除这个空的目录。一旦成功提交，尚未完成路径行走的插入操作的插入操作将无法找到这个目录（/a/b），其他的操作将无法验证Dseq或者被Dseq的修改所中止，从而保护了的正确性。如果B被A中止了，因为冲突，B将发现目录不是空的。重试，因此返回ENOTEMPTY，就像它正试图删除一个非空的目录，这与A的操作在B之前原子完成是一样的。</p>
+<p>这个Dseq保证这两个操作的结果在这种情况下与串行执行一致。所以它不再需要使用锁来保护其并发的正确性。</p>
+<h2 id="3-4-Other-File-Types"><a href="#3-4-Other-File-Types" class="headerlink" title="3.4    Other File Types"></a>3.4    Other File Types</h2><p>软链接(<strong>Symbolic links</strong>.): 软链接首先被扩展为一个正常的路径，新的路径将被返回给调度器，调度器将重新调度文件请求。其余的操作就像普通的文件一样。</p>
+<h2 id="3-5-The-Timestamps"><a href="#3-5-The-Timestamps" class="headerlink" title="3.5    The Timestamps"></a>3.5    The Timestamps</h2><p>文件系统中记录文件部分信息的时间戳有若干种：</p>
+<ul>
+<li>Access timestamp (atime): the last time the file was accessed.</li>
+<li>Modified timestamp (mtime): the last time the file’s contents were modified.</li>
+<li>Changed timestamp (ctime): the last time the metadata of the file was changed.</li>
+</ul>
+<p>许多文件系统操作会修改一些时间戳。理论上，修改时间戳应该与访问文件同时发生，所以它们需要以原子方式完成。我们需要在同一个事务中如同其他操作那样修改时间戳。在这里我们观察到，把对关键变量的访问和对关键变量的修改放在事务的最后，可以大大降低由于冲突而导致的中止的概率。</p>
+<h2 id="3-6-The-Special-Case-Rename"><a href="#3-6-The-Special-Case-Rename" class="headerlink" title="3.6    The Special Case: Rename"></a>3.6    The Special Case: Rename</h2><p><code>unlink</code>和<code>rmdir</code>都只能从文件系统中删除叶节点（文件和空目录）。然而<code>rename</code>没有这样的限制，它可以将文件系统的子树移动到另一个位置。</p>
+<p>​        重命名是一个特殊的操作，需要从文件系统树上原子化地删除一个目录或一个文件，并将其添加到另一个目录。通常情况下，我们会在两个目录上持有锁以确保其正确性。然而，它可能碰巧的是，两个重命名操作都持有一个锁并等待的锁，从而导致死锁。这个问题可以通过比较两个锁并按一定顺序取锁来解决。然而，只取两个目录的锁，并不能防止循环的发生。如<strong>Figure 6</strong>所示，有两个路径/A/B/C和/X/Y/Z这两个目录树。有两个重命名操作；一个想把/A/B重命名为/X/Y/Z/B，另一个想把/X/Y重命名为/A/B/C/Y。</p>
+<p>​        以第一个操作为例。</p>
+<ol>
+<li><p>首先，它将walk path，找到源目录A/B（锁定父节点A）和目标目录/X/Y/Z（锁定节点Z）</p>
+</li>
+<li><p>然后，它试图从目录A中删除目录条目B，并在目录Z中插入一个新的目录项B。</p>
+</li>
+<li><p>最后，它将释放这两个锁。</p>
+</li>
+</ol>
+<p>​        然而，在步骤1和2之间，另一个操作也可能完成路径行走并获得两个节点（源Y和目标C）。如果没有其他保护措施，这两个操作都可以成功，从而导致导致一个重命名循环。所以我们需要采取额外的措施来避免循环，例如，通过添加一个全局重命名锁来串行化所有重命名操作。</p>
+<p>​        我们仍然采用无锁设计（HOP）来进行重命名过程。在path walking（namex）中，我们记录了我们<strong>traverse的所有目录的序列计数</strong>（如在§ 3.3.1节所述），最后检查所有的序列数是否在一次RTM中发生了变化。如果有变化，namex操作将从变化点开始再次执行；如果没有变化，则继续进行删除目录条目和添加目录条目的操作。由于上述所有的操作(检查路径变化和修改目录条目)都是在同一个RTM中完成的，一个成功的RTM提交保证整个重命名操作以原子方式完成。在前面的例子中，如果两个操作都完成了路径行走并进入目录修改步骤(步骤2)，那么当一个操作完成后，另一个操作会因为其读集被修改而中止，从而重新验证了序列号而失败，因为序列数已经被修改。然后它回滚，重新进行路径行走并发现目录树最终发生了变化。</p>
+<h1 id="4-Implementation"><a href="#4-Implementation" class="headerlink" title="4    Implementation"></a>4    Implementation</h1><p>​        为了说明HTMFS的有效性，我们决定实现基于ZoFS的HTMFS，因为ZoFS中的所有操作都在用户空间，从而避免了由于系统调用而导致的事务中止的可能性。整体架构如<strong>Figure 7</strong>所示。ZoFS由一个内核状态的KernFS和一个（或多个）用户空间的文件系统库。HTMFS也由两部分组成，分别是ZoFS的原始KernFS和一个新的LibFS。在ZoFS中，整个文件系统树根据权限被分为多个区。</p>
+<h2 id="KernFS"><a href="#KernFS" class="headerlink" title="KernFS"></a>KernFS</h2><p>​        KernFS负责维护关于整个文件系统中所有zone的信息，以及所有PM页的归属。每个zone都有一个root page，用来存储该区的元数据。KernFS使用一个持久化的哈希表来存储所有的区，其中，Key是每个区的路径前缀，Value是每个zone相对于root page的相对地址。当一个user-space的文件系统库需要访问一个路径时，KernFS会使用这个哈希表来找到该zone的的root page并进一步访问该zone。</p>
+<p>​        KernFS以页为单位全局管理所有PM空间。ZoFS使用两级分配。KernFS将PM pages分配到各个zone in bulk，每个zone进一步分配其pages，以便存储数据和元数据。KernFS跟踪每个页面的分配情况，即，每个页面属于哪个区，以及哪些页面是空闲的，可以被分配。在这个过程中，ZoFS使用一个全局的易失性红黑树来跟踪分配表中所有的空闲空间，以及另一个红黑树来跟踪所有已分配的空间以及相应区域对应的root page address。这些易失性数据结构可以在系统崩溃后很容易被重新创建。</p>
+<h2 id="LibFS"><a href="#LibFS" class="headerlink" title="LibFS"></a>LibFS</h2><p>​        LibFS负责管理一个区域内的所有元数据和数据，主要包括文件和目录。它包含了§3中所有的设计。文件结构，如Figure 3所示，是一个类似于页表的三层结构，支持最大512GB的文件。当然，它可以很容易地扩展到支持更大的文件。目录结构是一个哈希表，如Figure 5中所示。</p>
+<p>​        由于KernFS使用一个自由列表来管理自由空间，当一个zone向内核发出一个系统调用，以获得更多的自由空间(<code>Coffer_enlarge</code>)时，KernFS会返回一个自由列表。因此，我们的LibFS需要将自由列表转换为HTMFS所识别的版本（如图4所示）。这可以防止对内核方面的修改。</p>
+<p>​        <strong>fallback path回退路径</strong>。当RTM失败时，我们根据返回值选择重试或回退路径。当重试失败的次数超过了阈值（我们在实现中选择了60，因为当最大重试次数从10次到100次不等时，它能提供最好的性能）。在回退路径中，我们使用inode-level读/写锁进行并发控制，并使用RTM来实现崩溃一致性。当RTM在后退路径中仍然失败时。我们使用journal作为最后的手段。</p>
+<p>​        正常路径上的操作将首先检查在RTM开始后，是否有人持有写锁。如果写锁被其他任务持有，该操作将回滚到回退路径，并尝试持有该写锁。如果锁没有被其他人持有，但其他人在RTM提交前获得了写锁，该操作将终止，因为它的读取集已被修改，然后重试RTM操作，并重新检查锁的状态。</p>
+<h2 id="Prevent-RTM-abort"><a href="#Prevent-RTM-abort" class="headerlink" title="Prevent RTM abort"></a>Prevent RTM abort</h2><p>​        导致RTM中止的原因有很多，首先是RTM capacity abort。最简单的实现是将整个文件系统调用包装在一个RTM中，实验后我们发现，大多数目录和文件操作都会产生capacity abort。在使用HOP之后，HTMFS解决了这种类型的问题。</p>
+<p>​        在我们的实现中，我们发现导致RTM中止的一个常见原因是page fault。RTM中止的一个常见原因是page fault，而这是无法预测的。所以我们通过首先访问需要访问的内存来防止页故障并且预装载RTM中止后执行的代码。</p>
+<p>​        最后，失败是由于冲突造成的，它返回一个特定的值。在这种情况下，HTMFS试图先重试，如果竞争不大的话，这可以解决这些冲突。如果重试失败了一定次数，HTMFS会回退到fallback path，即使用锁来保护关键代码的并发控制。在fallback path中，我们将首先采取锁来防止并发访问，然后使用HOP来确保其崩溃的一致性。所以它仍然可以满足强一致性要求。</p>
+<p>​        还有一些其他原因，比如在RTM中混入AVX和SSE指令，REP-MOV指令中的长字符串等，都会导致RTM中止[31]。在实践中，我们发现memcpy使用的REP-MOV指令会很可能导致RTM中止。所以我们使用循环赋值（SSE2-MOV）来代替RTM里面的memcpy。</p>
+<h1 id="5-Evaluation"><a href="#5-Evaluation" class="headerlink" title="5    Evaluation"></a>5    Evaluation</h1><h2 id="5-1-Platform-Setup"><a href="#5-1-Platform-Setup" class="headerlink" title="5.1    Platform Setup"></a>5.1    Platform Setup</h2><ul>
+<li>28 core Xeon Gold 6330，超线程关闭，频率固定到2.0GHz</li>
+<li>PMem 200 series</li>
+<li>ZoFS作为baseline， 比较三种SOTA PM-aware File System(NOVA, SplitFS, Libnvmmio on NOVA).这些FS中使用inode-level 锁。</li>
+<li>把其他文件系统中的clflush， clflushopt， clwb， fence指令都删了以提高他们的性能，因为eADR平台这些都不需要</li>
+<li>使用FxMark， filebench， TPC-C on SQLite， LevelDB来评测HTMFS的性能</li>
+</ul>
+<h2 id="5-2-Micro-benchmarks"><a href="#5-2-Micro-benchmarks" class="headerlink" title="5.2    Micro-benchmarks"></a>5.2    Micro-benchmarks</h2><h2 id="5-3-Macro-benchmarks"><a href="#5-3-Macro-benchmarks" class="headerlink" title="5.3    Macro-benchmarks"></a>5.3    Macro-benchmarks</h2><h2 id="5-4-Crash-Consistency-Correctness"><a href="#5-4-Crash-Consistency-Correctness" class="headerlink" title="5.4    Crash Consistency Correctness"></a>5.4    Crash Consistency Correctness</h2><h2 id="5-5-Application-Benchmarks"><a href="#5-5-Application-Benchmarks" class="headerlink" title="5.5    Application Benchmarks"></a>5.5    Application Benchmarks</h2><h1 id="6-Discussion"><a href="#6-Discussion" class="headerlink" title="6    Discussion"></a>6    Discussion</h1><h1 id="7-Related-Work"><a href="#7-Related-Work" class="headerlink" title="7    Related Work"></a>7    Related Work</h1><h1 id="阅读笔记附录"><a href="#阅读笔记附录" class="headerlink" title="阅读笔记附录"></a>阅读笔记附录</h1><blockquote>
+<p>解释一些本文出现的但我还不了解的名词</p>
+</blockquote>
+<p>Transactional Memory(事务内存)：<a href="https://en.wikipedia.org/wiki/Transactional_memory">WikiPedia</a></p>
+]]></content>
+      <categories>
+        <category>Papers</category>
+        <category>PMem</category>
+      </categories>
+      <tags>
+        <tag>Papers</tag>
+        <tag>PMem</tag>
+        <tag>File System</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux File System Arch</title>
+    <url>/2022/03/20/LinuxFSArch/</url>
+    <content><![CDATA[<blockquote>
+<p>Linux上文件系统的的基本体系结构</p>
+</blockquote>
+<span id="more"></span>
+
+<p><img src="/2022/03/20/LinuxFSArch/Figure1.png" alt="Overview"></p>
+<p>对linux文件系统来说，如果将其视作一个整体，那么对上对下他分别需要：</p>
+<ol>
+<li>针对不同的物理硬盘，需要使用不同的驱动支持，而不同的驱动，所提供的IO操作接口是不一样的，那么，文件系统需要统一 的IO操作接口。</li>
+<li>不同的文件系统提供的API不尽相同，对于内核调用来说，需要有统一的API接口。</li>
+</ol>
+<p>于是就将层次结构细分为前面图中所示。</p>
+<h3 id="具体解释如下："><a href="#具体解释如下：" class="headerlink" title="具体解释如下："></a>具体解释如下：</h3><h4 id="1-硬盘驱动"><a href="#1-硬盘驱动" class="headerlink" title="1.硬盘驱动"></a>1.硬盘驱动</h4><blockquote>
+<p>常见的硬盘类型有PATA, SATA和AHCI等，在Linux系统中，对不同硬盘所提供的驱动模块一般都存放在内核目录树drivers/ata中，而对于一般通用的硬盘驱动，也许会直接被编译到内核中，而不会以模块的方式出现</p>
+</blockquote>
+<h4 id="2-General-Block-Device-Layer"><a href="#2-General-Block-Device-Layer" class="headerlink" title="2. General Block Device Layer"></a>2. General Block Device Layer</h4><p>​        这一层的作用，正是解答了上面提出的第一个问题，不同的硬盘驱动，会提供不同的IO接口，内核认为这种杂乱的接口，不利于管理，需要把这些接口抽象一下，形成一个统一的对外接口，这样，不管你是什么硬盘，什么驱动，对外而言，它们所提供的IO接口没什么区别，都一视同仁的被看作<strong>块设备</strong>来处理。</p>
+<p>​        所以，如果在一层做的任何修改，将会直接影响到所有文件系统，不管是ext3,ext4还是其它文件系统，只要在这一层次做了某种修改，对它们都会产生影响。</p>
+<p><strong>注：</strong>由于PMEM(NVM)上文件系统访问粒度小，块级操作不利于充分挖掘性能，故PMEM文件系统中此层会/可重新设计。</p>
+<h4 id="File-System"><a href="#File-System" class="headerlink" title="File System"></a>File System</h4><p>目前大多Linux发行版本默认使用的文件系统一般是ext4。</p>
+<p>任何文件系统，都是由<code>mkfs.xxx</code>命令创建，如：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mkfs.ext4 /dev/sda</span></span><br></pre></td></tr></table></figure>
+
+<p>内核所支持的文件系统类型，可以通过内核目录树 fs 目录中的内容来查看。</p>
+<h4 id="Virtual-File-System（VFS）"><a href="#Virtual-File-System（VFS）" class="headerlink" title="Virtual File System（VFS）"></a>Virtual File System（VFS）</h4><p>​        Virtual File System这一层，正是用来解决上面提出的第二个问题，试想，当我们通过<code>mkfs.xxx</code>系列命令创建了很多不同的文件系统，但这些文件系统都有各自的API接口，而用户想要的是，不管你是什么API，他们只关心mount/umount，或open/close等操作。</p>
+<p>​        所以，VFS就把这些不同的文件系统做一个抽象，提供统一的API访问接口，这样，用户空间就不用关心不同文件系统中不一样的API了。VFS所提供的这些统一的API，再经过System Call包装一下，用户空间就可以经过SCI的系统调用来操作不同的文件系统。</p>
+<p>VFS所提供的常用API有：<code>mount(), umount(), open(),close(), mkdir() ...</code></p>
+<blockquote>
+<p><a href="https://www.cnblogs.com/shijingjing07/p/5666636.html">引用博客</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux中存储设备管理</title>
+    <url>/2022/02/15/Linux%E4%B8%AD%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/</url>
+    <content><![CDATA[<blockquote>
+<p>记录Linux上存储设备管理的原理和方法</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="设备识别"><a href="#设备识别" class="headerlink" title="设备识别"></a>设备识别</h1><p>设备接入系统后以文件形式存在，在<code>/dev</code>目录下。</p>
+<p>设备文件名称：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">SATA/SAS/USB	/dev/sda; /dev/sdb         # s=SATA，d=DISK，a/b=第几块</span><br><span class="line">IDE	        	/dev/hd0; /dev/hd1         # h=hard</span><br><span class="line">VIRTIO-BLOCK	/dev/vda  ;/dev/vdb         # v=virtio</span><br><span class="line">M2(SSD)	        /dev/nvme0;/dev/nvme1       # nvme=m2</span><br><span class="line">SD/MMC/EMMC(卡)	/dev/mmcblk0;/dev/mmcblk1   # mmcblk=mmc卡</span><br><span class="line">光驱	        	/dev/cdrom；/dev/sr0；/dev/sr1</span><br></pre></td></tr></table></figure>
+
+<p>查看设备：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">fdisk -l                    # 查看磁盘分区情况</span><br><span class="line">lsblk                       # 设备使用情况</span><br><span class="line">blkid                       # 设备管理方式及设备ID</span><br><span class="line">df                          # 查看正在被系统挂载的设备</span><br><span class="line">cat /proc/partitions        # 查看系统识别设备</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="挂载-卸载"><a href="#挂载-卸载" class="headerlink" title="挂载/卸载"></a>挂载/卸载</h1><p>Linux系统中**”一切皆文件”**，所有文件都放置在以根目录为树根的树形目录结构中。</p>
+<p>在Linux看来，<strong>任何硬件设备也都是文件</strong>，它们各有自己的一套<strong>文件系统</strong>。</p>
+<p>当在Linux系统中使用这些硬件设备时，只有将Linux本身的文件目录与硬件设备的文件目录（<code>/dev</code>中的那个）合二为一，硬件设备才能为我们所用，也就是说，虽然<code>/dev</code>中有一个该设备对应的目录，但不能直接通过访问这个目录来访问设备，需要和其他目录关联后才能访问。</p>
+<p>那么，这里的合二为一的过程我们称之为**”挂载”**：指的就是将设备文件中的顶级目录连接到Linux根目录下的某一目录，访问此目录就等同于访问设备文件。</p>
+<p>注意：挂载目录最好是空目录。这里并不是根目录下任何一个目录都可以作为挂载点，由于挂载操作会使得原有目录中文件被隐藏，因此根目录以及系统原有目录都不要作为挂载点，会造成系统异常甚至崩溃，<strong>挂载点最好是新建的空目录。</strong></p>
+<p><strong>Commmands:</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mount [-o 挂载参数] &lt;device&gt; &lt;mount point&gt;		<span class="comment"># (更换)挂载</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 挂载参数 ro为只读；rw为读写</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> umount &lt;device&gt;或者&lt;mount point&gt;		<span class="comment"># 卸载</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 在卸载时当出现设备正忙：</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> fuser -kvm &lt;device&gt;或者&lt;mount point&gt; 	<span class="comment"># -k 结束进程 -v 显示详细信息 -m 显示进程</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount			<span class="comment"># 查看挂载信息</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount -o remount,ro &lt;mount point&gt;			<span class="comment"># 转换挂载参数</span></span></span><br></pre></td></tr></table></figure>
+
+<p><strong>以上挂载均为临时挂载，reboot后失效</strong></p>
+<p><strong>设备永久挂载：</strong></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim /etc/fstab 	<span class="comment">##设备挂载策略</span></span></span><br><span class="line">设备 挂载点 文件系统类型 挂载参数 是否备份 是否检测</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 此文件在编写完成后不会马上生效</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount -a 				<span class="comment">##重新读取/etc/fstab文件</span></span></span><br></pre></td></tr></table></figure>
+
+<p>/etc/fstab和/etc/mtab的区别：</p>
+<blockquote>
+<p>fstab是记录启动时检查的挂载信息，mtab是记录当前系统的挂载信息</p>
+</blockquote>
+<h1 id="磁盘分区"><a href="#磁盘分区" class="headerlink" title="磁盘分区"></a>磁盘分区</h1><h2 id="分区方式"><a href="#分区方式" class="headerlink" title="分区方式"></a>分区方式</h2><ul>
+<li>MBR分区：主分区4个</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Legacy启动方式以传统BIOS启动，可以进行MBR分区的系统安装。</span><br><span class="line">位数：32位</span><br><span class="line">分区表大小：64byte</span><br><span class="line">支持分区个数：主分区4个，所有分区16个，主分区+扩展分区总和最多4个</span><br><span class="line">支持单个分区大小：2.2TB</span><br><span class="line">MBR分区方式包含主分区P、扩展分区E、逻辑分区L</span><br><span class="line">主分区P:主分区表记录分区的信息并可以直接使用的分区</span><br><span class="line">扩展分区E:主分区表记录的分区，不可直接使用，只是逻辑分区容器</span><br><span class="line">逻辑分区L:扩展分区之上划分的分区叫做逻辑分区，逻辑分区信息由容器记录</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>GPT分区：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">UEFI（统一的可扩展固件接口，Unified Extensible Firmware Interface）启动方式，可以进行GPT分区的系统安装。</span><br><span class="line">理论上支持分区个数无上限，因为分区表只是指向一个EFI分区，</span><br><span class="line">而EFI分区大小可变，由EFI分区记录后面所有分区的分区信息，</span><br><span class="line">但弊端就是，EFI分区G了，所有分区信息都G了。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>更改分区方式：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> parted /dev/sda</span> </span><br><span class="line"><span class="meta">$</span><span class="bash"> fdisk /dev/sda		(<span class="built_in">command</span> 输入g)</span></span><br><span class="line">后续在进行一系列提示操作选择</span><br></pre></td></tr></table></figure>
+
+<h2 id="分区步骤"><a href="#分区步骤" class="headerlink" title="分区步骤"></a>分区步骤</h2><ul>
+<li>非交互式方法</li>
+</ul>
+<p><code>parted /dev/sda mklabel msdos</code>，更改为MBR分区方式。</p>
+<p><code>parted /dev/sda mkpart primary 1 100</code>，分个100M的分区 （之后的分区要从101开始分）。</p>
+<p><code>blkid</code>可以查看到还没安软件暂时无法管理的分区sda1。</p>
+<p><code>parted /dev/sda rm 2</code>，删除第二个分区。</p>
+<ul>
+<li>交互式方法</li>
+</ul>
+<p>使用 <code>fdisk /dev/sda</code>命令，用该种方法分区默认是MBR分区。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Command (m for help): m ##获得帮助</span><br><span class="line">d ##删除</span><br><span class="line">l ##列出所有分区类型</span><br><span class="line">n ##新建</span><br><span class="line">p ##显示分区表</span><br><span class="line">t ##更改分区类型</span><br><span class="line">w ##保存更改</span><br><span class="line">q ##退出</span><br><span class="line">g ##设定分区方式为GPT</span><br><span class="line">o ##设定分区方式为mbr</span><br></pre></td></tr></table></figure>
+
+<h2 id="分区后怎么使分区可以使用"><a href="#分区后怎么使分区可以使用" class="headerlink" title="分区后怎么使分区可以使用"></a>分区后怎么使分区可以使用</h2><ol>
+<li><p>同步分区表：<code>udevadm settle</code></p>
+</li>
+<li><p>给磁盘装软件（格式化）</p>
+</li>
+</ol>
+<p><code>mkfs.xfs -K /dev/sda1</code> 或者<code>mkfs -t xfs -K /dev/sda1</code> ，格式化设备为xfs文件系统（相当于在/dev/sda1上安装设备管理软件）<br>注：没有软件是不能管理我们的设备的； -K: 不丢弃空数据块，即不对空的设备进行处理； 可以man 5 fs查看帮助.</p>
+<table>
+<thead>
+<tr>
+<th>文件系统名</th>
+<th>最大</th>
+<th>最大单个文件</th>
+<th>最大文件个数</th>
+<th>代表系统</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FAT16</td>
+<td>2GB</td>
+<td>4GB</td>
+<td>65536</td>
+<td>DOS,Win95</td>
+</tr>
+<tr>
+<td>FAT32</td>
+<td>4GB</td>
+<td>8TB</td>
+<td>4177920</td>
+<td>Win98</td>
+</tr>
+<tr>
+<td>NTFS</td>
+<td>256TB</td>
+<td>16TB</td>
+<td>4294967295</td>
+<td>Win2000以后</td>
+</tr>
+<tr>
+<td>EXT3</td>
+<td>32TB</td>
+<td>2TB</td>
+<td>32000个子目录</td>
+<td>RHEL5</td>
+</tr>
+<tr>
+<td>EXT4</td>
+<td>1EB</td>
+<td>16TB</td>
+<td>无限子目录</td>
+<td>RHEL6</td>
+</tr>
+<tr>
+<td>XFS</td>
+<td>16EB</td>
+<td>8EB</td>
+<td>无限子目录</td>
+<td>RHEL7及之后</td>
+</tr>
+</tbody></table>
+<ol start="3">
+<li>挂载</li>
+</ol>
+<h1 id="swap分区"><a href="#swap分区" class="headerlink" title="swap分区"></a>swap分区</h1><ul>
+<li><p>原理：当物理内存空间吃紧时，将不常访问的数据保存到swap上，这样系统就“拥有”更多的物理内存服务于各个进程，当系统需要访问swap上的内容时，再将数据加载到内存中(swap out / swap in)。</p>
+</li>
+<li><p>swap分区大小：与物理内存大小以及是否允许休眠有关</p>
+</li>
+<li><p>swap分区管理：</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<blockquote>
+<p><a href="https://blog.csdn.net/m0_55005311/article/details/117248738"> linux之磁盘管理，查看识别设备，磁盘的挂载卸载、分区、swap分区、配额管理，文件系统区别</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux安装程序</title>
+    <url>/2022/02/14/Linux%E5%AE%89%E8%A3%85%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<blockquote>
+<p>介绍Linux上安装程序的几种方法和规范</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><h2 id="Linux可识别的包"><a href="#Linux可识别的包" class="headerlink" title="Linux可识别的包"></a>Linux可识别的包</h2><h3 id="源代码包"><a href="#源代码包" class="headerlink" title="源代码包"></a>源代码包</h3><ul>
+<li>优点：开源：如果有足够能力，可以修改源代码；可以自由选择所需的功能；软件是编译安装，所以更加适合自己的系统，更加稳定也效率高；卸载方便：直接删除文件夹。</li>
+<li>缺点：安装过程步骤较多，尤其是安装较大的软件集合（如：LAMP环境搭建），容易出现拼写错误；编译时间较长，安装比二进制安装时间长；因为是编译安装，安装过程中一旦报错新手很难解决。</li>
+</ul>
+<h3 id="rpm包-deb包-二进制包"><a href="#rpm包-deb包-二进制包" class="headerlink" title=".rpm包/.deb包(二进制包)"></a>.rpm包/.deb包(二进制包)</h3><ul>
+<li><p>.rpm用rpm: Redhat Package Manager</p>
+</li>
+<li><p>.deb用dpkg: Debian Package</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">软件名-软件版本-[软件发布的次数].适合的Linux平台.适合的硬件平台.rpm</span><br><span class="line">如：httpd-2.2.15-15.e16.contos.1.i686.rpm</span><br></pre></td></tr></table></figure>
+
+<p>由于RPM出现得更早，所以在<strong>各种版本的Linux都常见到</strong>。</p>
+<p>而dpkg则<strong>只出现在Debian Linux中</strong>，其它Linux版本一般都没有。</p>
+<ul>
+<li>二进制包：与源代码区别就是源代码包经过编译成为机器能直接识别的二进制包</li>
+<li>优点：包管理系统简单，只需要几个命令就可以实现包的安装、升级、查询和卸载；安装速度比源码包快。</li>
+<li>缺点：经过编译，不可以看到源代码；功能选择不如源代包灵活；依赖性。</li>
+</ul>
+<h2 id="RPM默认安装路径"><a href="#RPM默认安装路径" class="headerlink" title="RPM默认安装路径"></a>RPM默认安装路径</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/etc 	一些设置文件放置的目录如/etc/crontab</span><br><span class="line">/usr/bin 	一些可执行文件</span><br><span class="line">/usr/lib 	一些程序使用的动态函数库</span><br><span class="line">/usr/share/doc 	一些基本的软件使用手册与帮助文档</span><br><span class="line">/usr/share/man 	一些man page文件</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="下载包"><a href="#下载包" class="headerlink" title="下载包"></a>下载包</h1><ol>
+<li>ftp文件传输软件</li>
+<li>wget直接从网站下载</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载到当前文件夹</span></span><br><span class="line">wget http://cn.wordpress.org/wordpress-3.1-zh_CN.zip</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
+<li><p>rpm包的安装步骤</p>
+<ol>
+<li>找到包并下载到本机某目录</li>
+<li>cd .rpm包所在的目录</li>
+<li>rpm -ivh &lt;包名&gt;</li>
+</ol>
+</li>
+<li><p>deb包的安装步骤</p>
+<ol>
+<li>找到包并下载到本机某目录</li>
+<li>cd .deb包所在的目录</li>
+<li>dpkg -i &lt;包名&gt;</li>
+</ol>
+</li>
+<li><p>源代码包的安装步骤：</p>
+<ol>
+<li><p>下载</p>
+</li>
+<li><p>cd 包所在目录</p>
+</li>
+<li><p>解压：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> soft.zip</span></span><br><span class="line">unzip soft.zip</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.gz</span></span><br><span class="line">tar -xzvf soft.tar.gz</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.bz2</span></span><br><span class="line">tar -xjvf soft.tar.bz2</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.xz</span></span><br><span class="line">tar -Jxvf soft.tar.xz</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.Z</span></span><br><span class="line">tar -Zxvf soft.tar.Z</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 实际上从1.15版本开始tar就可以自动识别压缩的格式</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 上面四种tar的解压可统一为如下指令</span></span><br><span class="line">tar -xvf soft.tar.[*]</span><br></pre></td></tr></table></figure></li>
+<li><p>进入包<code>cd soft</code></p>
+</li>
+<li><p><code>./configure</code> 检查配置</p>
+</li>
+<li><p><code>make</code>编译</p>
+</li>
+<li><p><code>make install</code>安装</p>
+</li>
+<li><p><code>make clean</code>清楚编译和配置过程中的临时文件</p>
+</li>
+</ol>
+</li>
+<li><p>使用 yum / apt-get 直接安装</p>
+<ul>
+<li><p>yum是基于rpm开发，自动处理依赖关系，适用于Fedora/CentOS/RedHat</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install []</span><br><span class="line">yum install -y []	# 安装过程中默认全选yes</span><br></pre></td></tr></table></figure></li>
+<li><p>apt-get，类yum，适用于Ubuntu/Debian</p>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Markdown</title>
     <url>/2022/01/10/Markdown/</url>
     <content><![CDATA[<blockquote>
@@ -229,6 +687,74 @@
       </categories>
       <tags>
         <tag>Tools</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Paper-Note-Collection</title>
+    <url>/2022/03/20/Paper-Note-Collection/</url>
+    <content><![CDATA[<blockquote>
+<p>本篇集中收录论文笔记（含自己的 / 他人写的好的）</p>
+</blockquote>
+<span id="more"></span>
+
+<p><a href="https://yzouchen.github.io/2022/01/25/Understanding-the-idiosyncrasies-of-real-persistent-memory/">Understanding the idiosyncrasies of real persistent memory</a></p>
+<p><a href="https://yzouchen.github.io/2022/01/22/An-Empirical-Guide-to-the-Behavior-and-Use-of-Scalable-Persistent-Memory/">An Empirical Guide to the Behavior and Use of Scalable Persistent Memory</a></p>
+<p><a href="https://yzouchen.github.io/2022/03/02/HTMFS-Strong-Consistency-Comes-for-Free-with-Hardware-Transactional-Memory-in-Persistent-Memory-File-Systems/">HTMFS: Strong Consistency Comes for Free with Hardware Transactional Memory in Persistent Memory File Systems</a></p>
+<p><a href="https://blog.csdn.net/weixin_44465434/article/details/122508912">PMFS(System software for persistent memory)</a></p>
+<p><a href="https://blog.csdn.net/weixin_44465434/article/details/120885453">NOVA: A Log-structured File System for Hybrid Volatile/Non-volatile Main Memories</a></p>
+]]></content>
+      <categories>
+        <category>Papers</category>
+      </categories>
+      <tags>
+        <tag>Papers</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>科研数据管理</title>
+    <url>/2022/02/04/Research-Data-Management/</url>
+    <content><![CDATA[<blockquote>
+<p>本文整理自SJTU-IPADS-Tutorial第八讲-科研数据管理，后续增加自己的一些笔记</p>
+</blockquote>
+<span id="more"></span>
+
+<h4 id="Systems-Benchmarking-Crimes"><a href="#Systems-Benchmarking-Crimes" class="headerlink" title="Systems Benchmarking Crimes"></a>Systems Benchmarking Crimes</h4><p><a href="https://www.cse.unsw.edu.au/~gernot/benchmarking-crimes.html">Gernot’s List of Systems Benchmarking Crimes (unsw.edu.au)</a></p>
+<p><img src="/Figure1.JPG" alt="Systems Benchmarking Crimes Contents"></p>
+<hr>
+<h4 id="Data-presentation"><a href="#Data-presentation" class="headerlink" title="Data presentation"></a>Data presentation</h4><h5 id="图"><a href="#图" class="headerlink" title="图"></a>图</h5><ul>
+<li>注意<ul>
+<li>Title要有描述和强调，能看图知道的就看图知道（标题里把内容说差不多了）</li>
+<li>Y轴尽量从0开始</li>
+<li>注意单位（对数？）</li>
+</ul>
+</li>
+<li>Tools<ul>
+<li>Excel</li>
+<li>GNUPlot：<a href="http://www.gnuplot.info/">gnuplot homepage</a>，<a href="http://gnuplot.sourceforge.net/demo_5.4/">Demos for gnuplot</a></li>
+<li>Python+matplotlib</li>
+</ul>
+</li>
+<li>图表类型<ul>
+<li>柱状图</li>
+<li>折线图：可拓展性、连续性、时间线、throughput-latency</li>
+<li>箱线图：max、min、median</li>
+</ul>
+</li>
+</ul>
+<h5 id="表"><a href="#表" class="headerlink" title="表"></a>表</h5><p>主要用于定性展示，勾勾叉叉，哭脸笑脸。</p>
+<hr>
+<h4 id="Artifact-Evaluation-AE"><a href="#Artifact-Evaluation-AE" class="headerlink" title="Artifact Evaluation(AE)"></a>Artifact Evaluation(AE)</h4><ul>
+<li><p>组织一些人对源代码和数据进行检验，暂时不是必要，不会影响文章accept</p>
+</li>
+<li><p>三个章：1.开源  2.测试能跑通  3.测试数据可复现</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>ResearchNote</category>
+      </categories>
+      <tags>
+        <tag>ResearchNote</tag>
       </tags>
   </entry>
   <entry>
@@ -632,797 +1158,6 @@
       </tags>
   </entry>
   <entry>
-    <title>上手PMem</title>
-    <url>/2022/02/11/%E4%B8%8A%E6%89%8BPMem/</url>
-    <content><![CDATA[<p>本文记录上手Intel Optane DC Persistent Memory Module的一些背景及指令步骤</p>
-<span id="more"></span>
-
-<blockquote>
-<p>先挖坑，还不完整，慢慢填哈。</p>
-</blockquote>
-<p>首先，说明/记录一个PMem较权威的资源出处：<a href="https://pmem.io/">PMem.io</a>。Github User Name为<code>PMem</code>(Libraries and Examples for Persistent Memory Programming)。网站内含主流PMem软件与文档。其中 -&gt; Learn -&gt; Docs 为Persistent Memory Document，内含三部分：Getting Started Guide、IPMCTL User Guide、NDCTL User Guide，将在下文逐一展开。</p>
-<p>本文每章下均注明原文链接，翻译部分带有主观色彩</p>
-<h1 id="快速上手Intel-Optane-DC-PMM"><a href="#快速上手Intel-Optane-DC-PMM" class="headerlink" title="快速上手Intel Optane DC PMM"></a>快速上手Intel Optane DC PMM</h1><blockquote>
-<p>相当于后面几章的简约版，快速上手</p>
-</blockquote>
-<h2 id="Part-1-Persistent-Memory-Provisioning-Introduction"><a href="#Part-1-Persistent-Memory-Provisioning-Introduction" class="headerlink" title="Part 1 Persistent Memory Provisioning Introduction"></a>Part 1 Persistent Memory Provisioning Introduction</h2><p>参考自：<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
-<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Intel的Optane DC Persistent Memory支持两种模式：Memory Mode 和 App Direct Mode(，Mixed Mode)。</p>
-<p>详情<a href="https://itpeernetwork.intel.com/intel-optane-dc-persistent-memory-operating-modes/#gs.n77o95">Intel® Optane™ DC Persistent Memory Operating Modes Explained - IT Peer Network</a></p>
-<ul>
-<li><p><strong>IPMCTL</strong>是intel官方创建并维护的用于配置和管理Optane DCPMM的开源实用程序，用于管理Region。</p>
-</li>
-<li><p><strong>NDCTL</strong>是非易失性设备控制，用于管理Namespace。</p>
-</li>
-</ul>
-<h3 id="持久性内存相关概念"><a href="#持久性内存相关概念" class="headerlink" title="持久性内存相关概念"></a>持久性内存相关概念</h3><h4 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h4><p>Region是指一组一个或多个NVDIMM，也称为交错集，可以以n路交织或非交织的方式创建Region。 在Intel Optane DC PMM上，只能使用 ipmctl 创建或更改区域。</p>
-<p>支持的Region有三种：PMEM，BLK和NVDIMM，Region可以划分为一个或多个namespace（命名空间）。</p>
-<ul>
-<li><p>PMEM：持久化内存设备允许字节可寻址访问。</p>
-</li>
-<li><p>BLK：块设备就像传统的存储设备一样允许扇区原子性。</p>
-</li>
-<li><p>NVDIMM：这些设备可以同时支持PMEM和BLK模式访问。</p>
-</li>
-</ul>
-<blockquote>
-<p>我的理解是，Region就像一个物理磁盘，而其namespace就相当于物理磁盘通过分区划分为多个逻辑磁盘</p>
-</blockquote>
-<h4 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h4><p>Namespace用于定义一个连续寻址的非易失性存储器，其概念类似于硬盘分区，SCSI逻辑单元（LUN）或NVM Express命名空间。 它是持久性存储器的单元，在/dev中作为可用于I/O的设备出现。 英特尔建议使用<strong>非易失性设备控制（ndctl）</strong>为Linux操作系统创建名称空间。</p>
-<h4 id="DAX"><a href="#DAX" class="headerlink" title="DAX"></a>DAX</h4><p>直接访问（DAX）是一种允许应用程序直接从CPU（通过加载和存储）访问持久性介质的机制，绕过传统的I/O堆栈（页面缓存和块层）。</p>
-<h3 id="Namespace-Types"><a href="#Namespace-Types" class="headerlink" title="Namespace Types"></a>Namespace Types</h3><ul>
-<li>Filesystem-DAX(FSDAX)</li>
-<li>Device DAX(DEVDAX)</li>
-<li>Sector</li>
-<li>Raw</li>
-</ul>
-<h3 id="PMem-Provisioning-Overview"><a href="#PMem-Provisioning-Overview" class="headerlink" title="PMem Provisioning Overview"></a>PMem Provisioning Overview</h3><p>使用PMem的准备工作分两步（Memory Mode只需第一步，AppDirect Mode执行下述两步）</p>
-<ol>
-<li>配置Goal(Region)：在这一步骤中，goal会被识别并存储在PMem modules中，并在下次重启时应用。有三种模式：Memory Mode, App Direct mode, or mixed mode.Goal可以通过以下两者之一的方法设置。<ul>
-<li>Bios设置</li>
-<li>操作系统实用程序：<strong>IPMCTL</strong></li>
-</ul>
-</li>
-<li>配置Namespaces：只有App Direct Mode需要。这是 OS-specific 操作。<ul>
-<li>Linux: <strong>ndctl</strong> utility</li>
-<li>Windows: Powershell</li>
-</ul>
-</li>
-</ol>
-<h3 id="IPMCTL工具"><a href="#IPMCTL工具" class="headerlink" title="IPMCTL工具"></a>IPMCTL工具</h3><p>Ipmctl可以从统一可扩展固件接口（UEFI）shell或操作系统中的终端窗口启动。 两个版本的ipmctl都支持相同的功能，通过从命令行运行<code>ipmctl help 或者 man ipmctl</code>，可以看到完整的命令列表。Linux和Windows环境下的Commands相同。</p>
-<blockquote>
-<p>具体在后面的<strong>Part 2</strong>中介绍</p>
-</blockquote>
-<h3 id="NDCTL工具"><a href="#NDCTL工具" class="headerlink" title="NDCTL工具"></a>NDCTL工具</h3><blockquote>
-<p> 因为是OS(Linux)专用，在后面的<strong>Part 2</strong>中介绍</p>
-</blockquote>
-<h3 id="Appendixes"><a href="#Appendixes" class="headerlink" title="Appendixes"></a>Appendixes</h3><h4 id="Appendix-A-Provisioning常问问题"><a href="#Appendix-A-Provisioning常问问题" class="headerlink" title="Appendix A: Provisioning常问问题"></a>Appendix A: Provisioning常问问题</h4><p>见<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
-<h4 id="Appendix-B-ipmctl-指令列表"><a href="#Appendix-B-ipmctl-指令列表" class="headerlink" title="Appendix B: ipmctl 指令列表"></a>Appendix B: ipmctl 指令列表</h4><p><img src="/2022/02/11/%E4%B8%8A%E6%89%8BPMem/Figure1.JPG" alt="ipmctl指令列表"></p>
-<h4 id="Appendix-C-配置-管理"><a href="#Appendix-C-配置-管理" class="headerlink" title="Appendix C: 配置 - 管理"></a>Appendix C: 配置 - 管理</h4><h5 id="修改配置了的Goal"><a href="#修改配置了的Goal" class="headerlink" title="修改配置了的Goal"></a>修改配置了的Goal</h5><p>创建新的goal时，ipmctl会检查NVDIMMs是否已经配置了，会提示在创建新的goal之前要先delete旧的goal。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl create -goal MemoryMode=100</span></span><br><span class="line"></span><br><span class="line">Create region configuration goal failed: Error (115) - A requested DIMM already has a configured goal. Delete this existing goal before creating a new one</span><br></pre></td></tr></table></figure>
-
-<h5 id="删除配置"><a href="#删除配置" class="headerlink" title="删除配置"></a>删除配置</h5><p>配置新的goal前要删除旧的goal。为了删除namespace，需要使用<strong>ndctl</strong>来管理，详见Part 2。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl delete -goal</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="Dump-转储-当前Goal"><a href="#Dump-转储-当前Goal" class="headerlink" title="Dump(转储)当前Goal"></a>Dump(转储)当前Goal</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl dump -destination testfile -system -config</span></span><br><span class="line">Successfully dumped system configuration to file: testfile</span><br></pre></td></tr></table></figure>
-
-<h5 id="基于配置文件创建Goal"><a href="#基于配置文件创建Goal" class="headerlink" title="基于配置文件创建Goal"></a>基于配置文件创建Goal</h5><p>Goals可以基于配置文件配置，也可以存储当前配置为一个文件，这使得相同配置可以被应用于不同系统/复用于同一系统。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 将转储到testfile中</span></span><br><span class="line">ipmctl dump -destination testfile -system -config</span><br><span class="line"><span class="meta">#</span><span class="bash"> 从myPath或testfile中载入配置</span></span><br><span class="line">ipmctl load -source myPath/testfile –goal</span><br></pre></td></tr></table></figure>
-
-<h5 id="检查模式修改"><a href="#检查模式修改" class="headerlink" title="检查模式修改"></a>检查模式修改</h5><p>注：配置后需要reboot</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ipmctl show –memoryresources</span><br></pre></td></tr></table></figure>
-
-<h5 id="Show-Regions"><a href="#Show-Regions" class="headerlink" title="Show Regions"></a>Show Regions</h5><p>模式从Memory Mode修改为App Direct Mode时，重启后每个socket会创建一个Region。</p>
-<p>模式从App Direct Mode修改为Memory Mode时，重启后不会创建有Region。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ipmctl show -region</span><br></pre></td></tr></table></figure>
-
-<h4 id="Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode"><a href="#Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode" class="headerlink" title="Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)"></a>Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)</h4><p>见<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
-<h2 id="Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory"><a href="#Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory" class="headerlink" title="Part 2 Linux Provisioning for Intel Optane Persistent Memory"></a>Part 2 Linux Provisioning for Intel Optane Persistent Memory</h2><blockquote>
-<p>基于Linux OS环境介绍，Windows用的少，详见Intel QSG Part3</p>
-</blockquote>
-<p>参考自：<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-part2-linux-provisioning-with-optane-pmem.html">QSG Part 2 Provisioning with Intel® Optane™ PMEM - Linux*</a></p>
-<h3 id="Linux-Support-for-Intel-Optane-Persistent-Memory"><a href="#Linux-Support-for-Intel-Optane-Persistent-Memory" class="headerlink" title="Linux Support for Intel Optane Persistent Memory"></a>Linux Support for Intel Optane Persistent Memory</h3><h4 id="Kernel-Support"><a href="#Kernel-Support" class="headerlink" title="Kernel Support"></a>Kernel Support</h4><p>The Linux NVDIMM/PMem drivers are enabled by default, starting with Linux mainline kernel 4.2. We recommend mainline kernel version 4.19 or later to deliver Reliability, Availability and Serviceability (RAS) features required by the Persistent Memory Development Kit (PMDK).  </p>
-<h4 id="Custom-Kernel-Support"><a href="#Custom-Kernel-Support" class="headerlink" title="Custom Kernel Support"></a>Custom Kernel Support</h4><p>自定义Kernel Support</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">egrep -i &quot;zone_device|hugepage|nfit|nvdimm|pmem|_nd_|btt|dax|memory_hotplug&quot; /boot/config-$(uname -r)</span><br></pre></td></tr></table></figure>
-
-<h4 id="Software-Non-volatile-Device-Control-NDCTL"><a href="#Software-Non-volatile-Device-Control-NDCTL" class="headerlink" title="Software: Non-volatile Device Control (NDCTL)"></a>Software: Non-volatile Device Control (NDCTL)</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo [apt|dnf|yum|zypper] install ndctl libndctl6 libndctl-dev</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查是否已经安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> ndctl</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="Software-IPMCTL"><a href="#Software-IPMCTL" class="headerlink" title="Software: IPMCTL"></a>Software: IPMCTL</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo [apt|dnf|yum|zypper] install ipmctl</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查是否已经安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> ipmctl</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Tutorial-PMem预备"><a href="#Tutorial-PMem预备" class="headerlink" title="Tutorial: PMem预备"></a>Tutorial: PMem预备</h3><h4 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h4><ul>
-<li>Intel Optane DC PMem Modules</li>
-<li>ipmctl</li>
-<li>ndctl</li>
-</ul>
-<h4 id="Step1-PMem-Discovery"><a href="#Step1-PMem-Discovery" class="headerlink" title="Step1: PMem Discovery"></a>Step1: PMem Discovery</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -dimm</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -topology</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -memoryresources</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="Step2-Determine-a-Configuration-Goal"><a href="#Step2-Determine-a-Configuration-Goal" class="headerlink" title="Step2: Determine a Configuration Goal"></a>Step2: Determine a Configuration Goal</h4><p>决定要配置成什么模式</p>
-<h4 id="Step-3-Configure-your-Platform"><a href="#Step-3-Configure-your-Platform" class="headerlink" title="Step 3: Configure your Platform"></a>Step 3: Configure your Platform</h4><p>所有配置后都需要重启一下才能生效。</p>
-<h5 id="Memory-Mode"><a href="#Memory-Mode" class="headerlink" title="Memory Mode"></a>Memory Mode</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal memorymode=100</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="App-Direct"><a href="#App-Direct" class="headerlink" title="App Direct"></a>App Direct</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal persistentmemorytype=appdirect</span></span><br></pre></td></tr></table></figure>
-
-<h5 id="Mixed-Mode"><a href="#Mixed-Mode" class="headerlink" title="Mixed Mode"></a>Mixed Mode</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 以60%PMem容量设置为MemoryMode为例</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal Memorymode=60</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces"><a href="#Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces" class="headerlink" title="Step 4: Provisioning of Intel Optane Persistent Memory Namespaces"></a>Step 4: Provisioning of Intel Optane Persistent Memory Namespaces</h4><h5 id="预备条件"><a href="#预备条件" class="headerlink" title="预备条件"></a>预备条件</h5><p>AppDirect Mode/Mixed Mode</p>
-<h5 id="Tutorial-如何创建namespace"><a href="#Tutorial-如何创建namespace" class="headerlink" title="Tutorial: 如何创建namespace"></a>Tutorial: 如何创建namespace</h5><ol>
-<li>首先需要确定我们是要配置系统全部的PMem容量还是其中的一部分。<ul>
-<li>如果要对全部region创建单一namespace，直接使用：<code>sudo ndctl create-namespace</code></li>
-<li>如果只用到PMem容量的一部分，则指令如：<code>sudo ndctll create-namespace -m fsdax -s 54G</code>这个指令的参数解释如下：<ul>
-<li>Argument Details<ul>
-<li>fsdax: Namespace mode</li>
-<li>54G: capacity(G!=GiB)</li>
-</ul>
-</li>
-<li>Argument Results<ul>
-<li>创建了一个新的<code>/dev/pmem&#123;X[.Y]&#125;</code>设备</li>
-<li>X.Y代表这是第X个Region上的第Y个namespace</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>输入指令<code>ls -l /dev/pmem*</code>来确定namespace成功被创建</li>
-<li>（略）使用指令<code> ndctl create-namespace -n &quot;MyApp&quot;</code>将namespace标记为”MyApp”</li>
-<li>使用指令<code>sudo ndctl create-namespace</code>来指定剩余全部PMem容量为一个namespace</li>
-<li>使用指令<code>ndctl list -N</code>列出全部创建的namespace</li>
-<li>使用指令如<code>mkfs.ext4 -f /dev/pmem1</code>来创建文件系统并挂载到PMem设备上</li>
-<li>使用指令如<code> mkdir /mnt/myPMem</code>来创造挂载点</li>
-<li>使用指令如<code>mount -o dax /dev/pmem1 /mnt/myPMem </code>来挂载文件系统，通过<code>-o dax</code>选项。</li>
-</ol>
-<h3 id="Appendix-如何将PMem恢复出厂设置"><a href="#Appendix-如何将PMem恢复出厂设置" class="headerlink" title="Appendix: 如何将PMem恢复出厂设置"></a>Appendix: 如何将PMem恢复出厂设置</h3><h4 id="Quick-Method"><a href="#Quick-Method" class="headerlink" title="Quick Method"></a>Quick Method</h4><ol>
-<li><code>sudo ndctl destroy-namespace -f all </code></li>
-<li>OS&gt; <code>ipmctl delete -f -dimm -pcd&#39;</code><ol>
-<li>Deletes the Goal aka PCD (Platform Config Data) </li>
-</ol>
-</li>
-<li>Reboot the system</li>
-</ol>
-<h4 id="Long-Method"><a href="#Long-Method" class="headerlink" title="Long Method"></a>Long Method</h4><ol>
-<li>sudo登录</li>
-<li><code>ndctl list -N</code>: Get a list of namespaces</li>
-<li>Unmount the file system from the namespace needing to be removed</li>
-<li><code>ndctl disable-namespace</code>: Disable namespaces (repeat steps for all namespaces required)</li>
-<li><code>ndctl destroy-namespace</code></li>
-<li><code>ipmctl delete -f -dimm -pcd</code>: Delete the Goal aka PCD (Platform Config Data)</li>
-<li>Reboot</li>
-</ol>
-<h1 id="Getting-Started-Guide"><a href="#Getting-Started-Guide" class="headerlink" title="Getting Started Guide"></a>Getting Started Guide</h1><p>参考自：<a href="https://docs.pmem.io/persistent-memory/getting-started-guide">Getting Started Guide - Persistent Memory Documentation (pmem.io)</a></p>
-<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="PMem综述"><a href="#PMem综述" class="headerlink" title="PMem综述"></a>PMem综述</h3><p>Persistent Memory(Non-Volatile Memory)出现的背景是：CPU一直越来越快，core/thread数也越来越多，尽力维持Moore定律，但是DRAM和传统非易失性存储(NAND SSDs， HDD)的容量、价格、速度进步缓慢，成为系统和应用性能的瓶颈。</p>
-<p>PMem位于存储结构中DRAM和NAND SSD之间，容量比DRAM大，性能比SSD好，应用可以像对DRAM访问那样访问PMem，<em>消除了在内存和存储器之间来回分页数据块的需要。</em>(?)</p>
-<h3 id="PMem对application-developers意味着什么？"><a href="#PMem对application-developers意味着什么？" class="headerlink" title="PMem对application developers意味着什么？"></a>PMem对application developers意味着什么？</h3><ul>
-<li>数据的持久性<ul>
-<li>数据需要flush后才能持久化，一直以来都是这样，但flush的问题过去没被programmers重视。虽然调用标准API也可以work，但更多种的flush，(where the application flushes stores from the CPU caches directly, instead of calling into the kernel, is also possible.</li>
-<li>CPUs有乱序执行和cache访问/刷回</li>
-</ul>
-</li>
-<li>数据的一致性<ul>
-<li>PMem可以使得8-byte store to pmem是powerfail atomic。对传统的保证一致性方法（transactions/logging/recovery）带来变革。</li>
-</ul>
-</li>
-<li>内存泄露<ul>
-<li>对传统持久化存储来说，重启不会改变内存泄露，泄露了的内容重启还是泄露。对目前的易失性内存，重启后会释放掉泄露的内存。</li>
-</ul>
-</li>
-<li>字节级寻址</li>
-<li>Error Handling</li>
-</ul>
-<h1 id="IPMCTL-User-Guide"><a href="#IPMCTL-User-Guide" class="headerlink" title="IPMCTL User Guide"></a>IPMCTL User Guide</h1><p>参考自：<a href="https://docs.pmem.io/ipmctl-user-guide">IPMCTL User Guide - IPMCTL User Guide (pmem.io)</a></p>
-<h1 id="NDCTL-User-Guide"><a href="#NDCTL-User-Guide" class="headerlink" title="NDCTL User Guide"></a>NDCTL User Guide</h1><p>参考自：<a href="https://docs.pmem.io/ndctl-user-guide">NDCTL User Guide - NDCTL User Guide (pmem.io)</a></p>
-]]></content>
-      <categories>
-        <category>ResearchNote</category>
-        <category>PMem</category>
-      </categories>
-      <tags>
-        <tag>PMem</tag>
-        <tag>ResearchNote</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux安装程序</title>
-    <url>/2022/02/14/Linux%E5%AE%89%E8%A3%85%E7%A8%8B%E5%BA%8F/</url>
-    <content><![CDATA[<blockquote>
-<p>介绍Linux上安装程序的几种方法和规范</p>
-</blockquote>
-<span id="more"></span>
-
-<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><h2 id="Linux可识别的包"><a href="#Linux可识别的包" class="headerlink" title="Linux可识别的包"></a>Linux可识别的包</h2><h3 id="源代码包"><a href="#源代码包" class="headerlink" title="源代码包"></a>源代码包</h3><ul>
-<li>优点：开源：如果有足够能力，可以修改源代码；可以自由选择所需的功能；软件是编译安装，所以更加适合自己的系统，更加稳定也效率高；卸载方便：直接删除文件夹。</li>
-<li>缺点：安装过程步骤较多，尤其是安装较大的软件集合（如：LAMP环境搭建），容易出现拼写错误；编译时间较长，安装比二进制安装时间长；因为是编译安装，安装过程中一旦报错新手很难解决。</li>
-</ul>
-<h3 id="rpm包-deb包-二进制包"><a href="#rpm包-deb包-二进制包" class="headerlink" title=".rpm包/.deb包(二进制包)"></a>.rpm包/.deb包(二进制包)</h3><ul>
-<li><p>.rpm用rpm: Redhat Package Manager</p>
-</li>
-<li><p>.deb用dpkg: Debian Package</p>
-</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">软件名-软件版本-[软件发布的次数].适合的Linux平台.适合的硬件平台.rpm</span><br><span class="line">如：httpd-2.2.15-15.e16.contos.1.i686.rpm</span><br></pre></td></tr></table></figure>
-
-<p>由于RPM出现得更早，所以在<strong>各种版本的Linux都常见到</strong>。</p>
-<p>而dpkg则<strong>只出现在Debian Linux中</strong>，其它Linux版本一般都没有。</p>
-<ul>
-<li>二进制包：与源代码区别就是源代码包经过编译成为机器能直接识别的二进制包</li>
-<li>优点：包管理系统简单，只需要几个命令就可以实现包的安装、升级、查询和卸载；安装速度比源码包快。</li>
-<li>缺点：经过编译，不可以看到源代码；功能选择不如源代包灵活；依赖性。</li>
-</ul>
-<h2 id="RPM默认安装路径"><a href="#RPM默认安装路径" class="headerlink" title="RPM默认安装路径"></a>RPM默认安装路径</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/etc 	一些设置文件放置的目录如/etc/crontab</span><br><span class="line">/usr/bin 	一些可执行文件</span><br><span class="line">/usr/lib 	一些程序使用的动态函数库</span><br><span class="line">/usr/share/doc 	一些基本的软件使用手册与帮助文档</span><br><span class="line">/usr/share/man 	一些man page文件</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="下载包"><a href="#下载包" class="headerlink" title="下载包"></a>下载包</h1><ol>
-<li>ftp文件传输软件</li>
-<li>wget直接从网站下载</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载到当前文件夹</span></span><br><span class="line">wget http://cn.wordpress.org/wordpress-3.1-zh_CN.zip</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ul>
-<li><p>rpm包的安装步骤</p>
-<ol>
-<li>找到包并下载到本机某目录</li>
-<li>cd .rpm包所在的目录</li>
-<li>rpm -ivh &lt;包名&gt;</li>
-</ol>
-</li>
-<li><p>deb包的安装步骤</p>
-<ol>
-<li>找到包并下载到本机某目录</li>
-<li>cd .deb包所在的目录</li>
-<li>dpkg -i &lt;包名&gt;</li>
-</ol>
-</li>
-<li><p>源代码包的安装步骤：</p>
-<ol>
-<li><p>下载</p>
-</li>
-<li><p>cd 包所在目录</p>
-</li>
-<li><p>解压：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> soft.zip</span></span><br><span class="line">unzip soft.zip</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.gz</span></span><br><span class="line">tar -xzvf soft.tar.gz</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.bz2</span></span><br><span class="line">tar -xjvf soft.tar.bz2</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.xz</span></span><br><span class="line">tar -Jxvf soft.tar.xz</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> soft.tar.Z</span></span><br><span class="line">tar -Zxvf soft.tar.Z</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 实际上从1.15版本开始tar就可以自动识别压缩的格式</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 上面四种tar的解压可统一为如下指令</span></span><br><span class="line">tar -xvf soft.tar.[*]</span><br></pre></td></tr></table></figure></li>
-<li><p>进入包<code>cd soft</code></p>
-</li>
-<li><p><code>./configure</code> 检查配置</p>
-</li>
-<li><p><code>make</code>编译</p>
-</li>
-<li><p><code>make install</code>安装</p>
-</li>
-<li><p><code>make clean</code>清楚编译和配置过程中的临时文件</p>
-</li>
-</ol>
-</li>
-<li><p>使用 yum / apt-get 直接安装</p>
-<ul>
-<li><p>yum是基于rpm开发，自动处理依赖关系，适用于Fedora/CentOS/RedHat</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yum install []</span><br><span class="line">yum install -y []	# 安装过程中默认全选yes</span><br></pre></td></tr></table></figure></li>
-<li><p>apt-get，类yum，适用于Ubuntu/Debian</p>
-</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>上手PMIdioBench</title>
-    <url>/2022/02/13/%E4%B8%8A%E6%89%8BPMIdioBench/</url>
-    <content><![CDATA[<p>PMIdioBench: 测试PMem系统性能工具。</p>
-<p>文章发表于VLDB’20: Understanding the idiosyncrasies of real persistent memory</p>
-<p>本文记录配置及使用PMIdioBench的过程</p>
-<span id="more"></span>
-
-<p>Github仓库：<a href="https://github.com/padsys/PMIdioBench">padsys/PMIdioBench</a>PMIdioBench主要代码在<code>PMIdioBench/Bench/</code>目录下。</p>
-<p>论文原文：<a href="https://dl.acm.org/doi/abs/10.14778/3436905.3436921">Understanding the idiosyncrasies of real persistent memory</a></p>
-<blockquote>
-<p>安装环境为CentOS 7，kernel为3.10.0</p>
-<p>如果用的CentOS 8，估计能省去很多包版本的问题</p>
-</blockquote>
-<h1 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h1><ol>
-<li>pmdk: Github: <a href="https://github.com/pmem/pmdk">pmdk</a></li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> autconf</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install autoconf</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> git://anongit.freedesktop.org/pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./autogen.sh	<span class="comment"># 检查依赖</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错 没有libtoolize</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> --&gt; 需要安装libtool</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libtool</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 再次运行./autogen.sh 前面的错误过了，再报glib版本过低</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pkg-config依赖于glib，但是glib也依赖于pkg-config，所以增加一个参数再运行：</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./autogen.sh --with-internal-glib</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 过啦，显示：Now <span class="built_in">type</span> <span class="string">&#x27;make&#x27;</span> to compile pkg-config.</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装ndctl库</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install -y ndctl*</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装pmdk</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/pmem/pmdk.git</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错没有 libdaxctl-dev/libdaxctl-devel/daxctl-devel</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 就挺神奇，检查，安装过的是daxctl-libs-65-5.el7.x86_64，不是前面提到的任一个</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install daxctl*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libpmem*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install pandoc</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span>		</span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错rdma/fabric.h: 没有那个文件或目录</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libfabric*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make		<span class="comment"># 编译终于通过了</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install doxygen</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo make install		<span class="comment"># 这个没有root权限过不了</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查pmdk是否安装成功</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> src/<span class="built_in">test</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make <span class="built_in">test</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cp testconfig.sh.example testconfig.sh</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./RUNTESTS</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 一直PASS，ok?</span></span><br><span class="line"><span class="meta">#</span><span class="bash">./RUNTESTS obj_critnib_mt -s TEST0 -t all -f pmem</span></span><br><span class="line"><span class="meta">#</span><span class="bash">obj_critnib_mt/TEST0: PMEM_FS_DIR is not <span class="built_in">set</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">RUNTESTS: stopping: obj_critnib_mt/TEST0 failed, TEST=all FS=pmem BUILD=debug</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 先忽略。。没指定FS，似乎没问题。</span></span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>libpmemobj++</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libpmemobj++-devel</span></span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li>MongoDB with PMSE commit d8372274a9b3f18dbceb0cfcc0caa496b5940789</li>
-</ol>
-<p><a href="https://github.com/pmem/pmse">pmse</a></p>
-<p><a href="https://github.com/pmem/pmse/commit/d8372274a9b3f18dbceb0cfcc0caa496b5940789">pmse要求的commit</a></p>
-<p><a href="https://github.com/mongodb/mongo">mongodb/mongo: The MongoDB Database</a></p>
-<blockquote>
-<p><a href="https://blog.csdn.net/shirukai/article/details/82152214">CentOS下安装MongoDB</a></p>
-</blockquote>
-<p><a href="https://docs.mongodb.com/manual/installation/">官方安装MongoDB文档</a></p>
-<ol start="4">
-<li>Java</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo yum install jre/java-1.8.0-openjdk			#jre</span><br><span class="line">sudo yum install java-1.8.0-openjdk-devel		#jdk</span><br></pre></td></tr></table></figure>
-
-<ol start="5">
-<li>fio</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo yum install fio</span><br></pre></td></tr></table></figure>
-
-<ol start="6">
-<li>YCSB</li>
-</ol>
-<ol start="7">
-<li>Intel VTune Profiler</li>
-</ol>
-<p><a href="https://www.intel.com/content/www/us/en/develop/documentation/vtune-install-guide/top.html">Intel VTune Profiler Installation Guide</a></p>
-<p>注意这里用到的<code>ipm watch</code>所处路径为<code>/opt/intel/oneapi/vtune/2022.1.0/ipmwatch</code></p>
-<p>注意<a href="https://blog.csdn.net/buknow/article/details/93617254">error while loading shared libraries: libtest.so: cannot open shared object file: No such file or di-CSDN博客</a></p>
-<ol start="8">
-<li>FlameGraph</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/brendangregg/FlameGraph.git &lt;install path&gt;</span><br></pre></td></tr></table></figure>
-
-
-
-<ol start="9">
-<li>ipmctl</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo yum install</span><br></pre></td></tr></table></figure>
-
-
-
-]]></content>
-      <categories>
-        <category>ResearchNote</category>
-        <category>PMem</category>
-      </categories>
-      <tags>
-        <tag>PMem</tag>
-        <tag>ResearchNote</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux中存储设备管理</title>
-    <url>/2022/02/15/Linux%E4%B8%AD%E5%AD%98%E5%82%A8%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86/</url>
-    <content><![CDATA[<blockquote>
-<p>记录Linux上存储设备管理的原理和方法</p>
-</blockquote>
-<span id="more"></span>
-
-<h1 id="设备识别"><a href="#设备识别" class="headerlink" title="设备识别"></a>设备识别</h1><p>设备接入系统后以文件形式存在，在<code>/dev</code>目录下。</p>
-<p>设备文件名称：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">SATA/SAS/USB	/dev/sda; /dev/sdb         # s=SATA，d=DISK，a/b=第几块</span><br><span class="line">IDE	        	/dev/hd0; /dev/hd1         # h=hard</span><br><span class="line">VIRTIO-BLOCK	/dev/vda  ;/dev/vdb         # v=virtio</span><br><span class="line">M2(SSD)	        /dev/nvme0;/dev/nvme1       # nvme=m2</span><br><span class="line">SD/MMC/EMMC(卡)	/dev/mmcblk0;/dev/mmcblk1   # mmcblk=mmc卡</span><br><span class="line">光驱	        	/dev/cdrom；/dev/sr0；/dev/sr1</span><br></pre></td></tr></table></figure>
-
-<p>查看设备：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">fdisk -l                    # 查看磁盘分区情况</span><br><span class="line">lsblk                       # 设备使用情况</span><br><span class="line">blkid                       # 设备管理方式及设备ID</span><br><span class="line">df                          # 查看正在被系统挂载的设备</span><br><span class="line">cat /proc/partitions        # 查看系统识别设备</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="挂载-卸载"><a href="#挂载-卸载" class="headerlink" title="挂载/卸载"></a>挂载/卸载</h1><p>Linux系统中**”一切皆文件”**，所有文件都放置在以根目录为树根的树形目录结构中。</p>
-<p>在Linux看来，<strong>任何硬件设备也都是文件</strong>，它们各有自己的一套<strong>文件系统</strong>。</p>
-<p>当在Linux系统中使用这些硬件设备时，只有将Linux本身的文件目录与硬件设备的文件目录（<code>/dev</code>中的那个）合二为一，硬件设备才能为我们所用，也就是说，虽然<code>/dev</code>中有一个该设备对应的目录，但不能直接通过访问这个目录来访问设备，需要和其他目录关联后才能访问。</p>
-<p>那么，这里的合二为一的过程我们称之为**”挂载”**：指的就是将设备文件中的顶级目录连接到Linux根目录下的某一目录，访问此目录就等同于访问设备文件。</p>
-<p>注意：挂载目录最好是空目录。这里并不是根目录下任何一个目录都可以作为挂载点，由于挂载操作会使得原有目录中文件被隐藏，因此根目录以及系统原有目录都不要作为挂载点，会造成系统异常甚至崩溃，<strong>挂载点最好是新建的空目录。</strong></p>
-<p><strong>Commmands:</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mount [-o 挂载参数] &lt;device&gt; &lt;mount point&gt;		<span class="comment"># (更换)挂载</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 挂载参数 ro为只读；rw为读写</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> umount &lt;device&gt;或者&lt;mount point&gt;		<span class="comment"># 卸载</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 在卸载时当出现设备正忙：</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> fuser -kvm &lt;device&gt;或者&lt;mount point&gt; 	<span class="comment"># -k 结束进程 -v 显示详细信息 -m 显示进程</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount			<span class="comment"># 查看挂载信息</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount -o remount,ro &lt;mount point&gt;			<span class="comment"># 转换挂载参数</span></span></span><br></pre></td></tr></table></figure>
-
-<p><strong>以上挂载均为临时挂载，reboot后失效</strong></p>
-<p><strong>设备永久挂载：</strong></p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> vim /etc/fstab 	<span class="comment">##设备挂载策略</span></span></span><br><span class="line">设备 挂载点 文件系统类型 挂载参数 是否备份 是否检测</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 此文件在编写完成后不会马上生效</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mount -a 				<span class="comment">##重新读取/etc/fstab文件</span></span></span><br></pre></td></tr></table></figure>
-
-<p>/etc/fstab和/etc/mtab的区别：</p>
-<blockquote>
-<p>fstab是记录启动时检查的挂载信息，mtab是记录当前系统的挂载信息</p>
-</blockquote>
-<h1 id="磁盘分区"><a href="#磁盘分区" class="headerlink" title="磁盘分区"></a>磁盘分区</h1><h2 id="分区方式"><a href="#分区方式" class="headerlink" title="分区方式"></a>分区方式</h2><ul>
-<li>MBR分区：主分区4个</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Legacy启动方式以传统BIOS启动，可以进行MBR分区的系统安装。</span><br><span class="line">位数：32位</span><br><span class="line">分区表大小：64byte</span><br><span class="line">支持分区个数：主分区4个，所有分区16个，主分区+扩展分区总和最多4个</span><br><span class="line">支持单个分区大小：2.2TB</span><br><span class="line">MBR分区方式包含主分区P、扩展分区E、逻辑分区L</span><br><span class="line">主分区P:主分区表记录分区的信息并可以直接使用的分区</span><br><span class="line">扩展分区E:主分区表记录的分区，不可直接使用，只是逻辑分区容器</span><br><span class="line">逻辑分区L:扩展分区之上划分的分区叫做逻辑分区，逻辑分区信息由容器记录</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>GPT分区：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">UEFI（统一的可扩展固件接口，Unified Extensible Firmware Interface）启动方式，可以进行GPT分区的系统安装。</span><br><span class="line">理论上支持分区个数无上限，因为分区表只是指向一个EFI分区，</span><br><span class="line">而EFI分区大小可变，由EFI分区记录后面所有分区的分区信息，</span><br><span class="line">但弊端就是，EFI分区G了，所有分区信息都G了。</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>更改分区方式：</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> parted /dev/sda</span> </span><br><span class="line"><span class="meta">$</span><span class="bash"> fdisk /dev/sda		(<span class="built_in">command</span> 输入g)</span></span><br><span class="line">后续在进行一系列提示操作选择</span><br></pre></td></tr></table></figure>
-
-<h2 id="分区步骤"><a href="#分区步骤" class="headerlink" title="分区步骤"></a>分区步骤</h2><ul>
-<li>非交互式方法</li>
-</ul>
-<p><code>parted /dev/sda mklabel msdos</code>，更改为MBR分区方式。</p>
-<p><code>parted /dev/sda mkpart primary 1 100</code>，分个100M的分区 （之后的分区要从101开始分）。</p>
-<p><code>blkid</code>可以查看到还没安软件暂时无法管理的分区sda1。</p>
-<p><code>parted /dev/sda rm 2</code>，删除第二个分区。</p>
-<ul>
-<li>交互式方法</li>
-</ul>
-<p>使用 <code>fdisk /dev/sda</code>命令，用该种方法分区默认是MBR分区。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Command (m for help): m ##获得帮助</span><br><span class="line">d ##删除</span><br><span class="line">l ##列出所有分区类型</span><br><span class="line">n ##新建</span><br><span class="line">p ##显示分区表</span><br><span class="line">t ##更改分区类型</span><br><span class="line">w ##保存更改</span><br><span class="line">q ##退出</span><br><span class="line">g ##设定分区方式为GPT</span><br><span class="line">o ##设定分区方式为mbr</span><br></pre></td></tr></table></figure>
-
-<h2 id="分区后怎么使分区可以使用"><a href="#分区后怎么使分区可以使用" class="headerlink" title="分区后怎么使分区可以使用"></a>分区后怎么使分区可以使用</h2><ol>
-<li><p>同步分区表：<code>udevadm settle</code></p>
-</li>
-<li><p>给磁盘装软件（格式化）</p>
-</li>
-</ol>
-<p><code>mkfs.xfs -K /dev/sda1</code> 或者<code>mkfs -t xfs -K /dev/sda1</code> ，格式化设备为xfs文件系统（相当于在/dev/sda1上安装设备管理软件）<br>注：没有软件是不能管理我们的设备的； -K: 不丢弃空数据块，即不对空的设备进行处理； 可以man 5 fs查看帮助.</p>
-<table>
-<thead>
-<tr>
-<th>文件系统名</th>
-<th>最大</th>
-<th>最大单个文件</th>
-<th>最大文件个数</th>
-<th>代表系统</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>FAT16</td>
-<td>2GB</td>
-<td>4GB</td>
-<td>65536</td>
-<td>DOS,Win95</td>
-</tr>
-<tr>
-<td>FAT32</td>
-<td>4GB</td>
-<td>8TB</td>
-<td>4177920</td>
-<td>Win98</td>
-</tr>
-<tr>
-<td>NTFS</td>
-<td>256TB</td>
-<td>16TB</td>
-<td>4294967295</td>
-<td>Win2000以后</td>
-</tr>
-<tr>
-<td>EXT3</td>
-<td>32TB</td>
-<td>2TB</td>
-<td>32000个子目录</td>
-<td>RHEL5</td>
-</tr>
-<tr>
-<td>EXT4</td>
-<td>1EB</td>
-<td>16TB</td>
-<td>无限子目录</td>
-<td>RHEL6</td>
-</tr>
-<tr>
-<td>XFS</td>
-<td>16EB</td>
-<td>8EB</td>
-<td>无限子目录</td>
-<td>RHEL7及之后</td>
-</tr>
-</tbody></table>
-<ol start="3">
-<li>挂载</li>
-</ol>
-<h1 id="swap分区"><a href="#swap分区" class="headerlink" title="swap分区"></a>swap分区</h1><ul>
-<li><p>原理：当物理内存空间吃紧时，将不常访问的数据保存到swap上，这样系统就“拥有”更多的物理内存服务于各个进程，当系统需要访问swap上的内容时，再将数据加载到内存中(swap out / swap in)。</p>
-</li>
-<li><p>swap分区大小：与物理内存大小以及是否允许休眠有关</p>
-</li>
-<li><p>swap分区管理：</p>
-</li>
-</ul>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-<blockquote>
-<p><a href="https://blog.csdn.net/m0_55005311/article/details/117248738"> linux之磁盘管理，查看识别设备，磁盘的挂载卸载、分区、swap分区、配额管理，文件系统区别</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HTMFS: Strong Consistency Comes for Free with Hardware Transactional Memory in Persistent Memory File Systems</title>
-    <url>/2022/03/02/HTMFS-Strong-Consistency-Comes-for-Free-with-Hardware-Transactional-Memory-in-Persistent-Memory-File-Systems/</url>
-    <content><![CDATA[<p><strong>Title:</strong> HTMFS: Strong Consistency Comes for Free with Hardware Transactional Memory in Persistent Memory File Systems</p>
-<p><strong>Source:</strong> FAST’ 2022</p>
-<p><strong>School:</strong> SJTU-IPADS</p>
-<span id="more"></span>
-
-<hr>
-<blockquote>
-<p>note by yzouchen 20220302</p>
-<p>translation mainly by DeepL</p>
-</blockquote>
-<h1 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h1><h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>​        文件系统设计，通常都存在performance和consistency之间的trade-off，难以同时实现。本文重新审视这种trade-off，提出<strong>HOP</strong>（Hardware-assisted Optimistic Persistence）——  一个轻量级的软硬件协同机制，用于利用硬件事务性内存 **hardware transactional memory (HTM)**，进而在PMem文件系统中同时实现高性能和强一致性保证。</p>
-<p>​        <strong>HOP</strong>的核心idea是：**”pick the updates visible to the file system interface and warp them into HTM.”(使更新对文件系统接口可视，并打包他们into HTM)**。HOP采用了一种FS-aware的，乐观锁(Optimistic Concurrency Control)(OCC)类似，的机制来克服HTM容量限制、以及使用协作锁(Cooperative locks)来作为保证progress的fallbacks。</p>
-<p>​        本文将HOP应用于构造<strong>HTMFS</strong>，一个支持强一致性的用户态 PM 文件系统。在evaluation中，HTMFS相比同样支持强一致性的state-of-the-art PM FS，提升了8.4x的性能。</p>
-<h1 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1    Introduction"></a>1    Introduction</h1><p>​        文件系统是许多存储服务的关键基石。诸如键值存储和数据库以及持续存储数据的应用程序。在早期，文件系统被设计为具有松散一致性保证的性能。例如，<em>FFS</em>依靠文件系统的清洁卸载来避免一致性问题。在崩溃或电力不足的情况下，文件系统的用户必须调用并等待冗长的文件系统一致性检查程序，即<em>fsck</em>，它将检测一致性问题并尝试恢复，但不能保证。</p>
-<p>​        如今，随着存储设备的加速和它们在应用中的广泛使用，性能已经不是应用程序需要的唯一功能。应用程序还需要强的一致性，以提供可靠的服务。例如，键值存储和数据库需要强大的崩溃的一致性，以保证所有返回的写入内容都被持久化，并能在系统崩溃后被正确读取。在没有一致性保证的文件系统上，这些应用不得不在一致性水平上做出妥协或者使用复杂的机制来提供可靠的存储。如果文件系统能够提供强大的一致性，那么编程工作也可以减少。</p>
-<p>​        文件系统的强一致性意味着每请求的顺序一致性，它包括两个方面。首先，对于任意的文件系统请求，由并发任务观察到的，对文件系统状态的修改应该是原子性的。大多数文件系统使用inode-level锁，它确保不同请求的修改顺序以保证顺序的一致性。第二，每当系统崩溃，重启后，所有先前的文件系统请求应该满足全有或全无的语义，也就是说，一个文件系统请求对文件系统的所有改变状态的所有变化都应该被应用，否则就不应用。文件系统不一定保证强大的崩溃一致性。例如，<em>ZoFS</em>没有提供数据修改的原子性。假设写入者在写到一半的时候崩溃了，那么读者有可能在系统结束后读取部分更新的值。读者有可能在系统恢复后读取部分更新的值。</p>
-<p>​        同时，现代存储设备已经变得更快和不同。新兴的持久性存储器（PM）强化了内存的耐久性。因此，文件系统可以使用加载/存储指令，以接近DRAM的性能访问PM存储。一些PM文件系统被提出来以利用PM的特性。他们中的许多人提供了强大的一致性。</p>
-<p>​        然而，现有的PM文件系统仍然需要复杂的和昂贵的机制，如<strong>Journaling</strong>和<strong>shadow paging</strong>，以实现强崩溃一致性。Journaling有两倍写入问题，而shadow paging需要将变化传播给原子更新，因此它只适合于专用数据结构。写放大的程度与它使用的数据结构以及它的写入模式有关。</p>
-<p>​        以前的方法只限于CPU写的原子性单元。英特尔的<em>限制性事务存储（RTM）</em>。可以提供多个更新的原子性。然而，文件系统自然与RTM不兼容。基于块设备的文件系统通过IO访问数据，这将中止RTM。尽管PM可以直接被CPU  load/store指令访问，但PM的写入的持久化操作需要cache line flush指令的帮助（例如clflush、clflushopt和clwb），这将中止RTM。</p>
-<p>​        最近，英特尔提出了其第二代Optane Persistent Memory产品，该产品与新的Xeon平台合作实现了<strong>增强的异步DRAM刷新（enhanced asynchronous DRAM refresh）（eADR）技术</strong>，该技术将CPU cache纳入了**(崩溃情况下的)持久化域**。特别是，这些平台保证内存写入的持久性，一旦它们成为全局可见(global visible)，这意味着对持久性内存的数据修改不再需要cache line flush以实现持久化。这使我们有可能结合RTM和持久化内存来同时提供原子性、并发性和持久性。</p>
-<p>​        尽管 RTM 可以与 PM 一起使用，但有几个挑战阻止RTM-PM直接用于PM文件系统。首先，用户使用文件系统来处理大型数据的存储和检索。然而，RTM在读写集合的size都是有限的，因此很容易因文件数据复制而中止。第二，与FS相关的系统调用的代码路径中存在某些依赖性。例如，与路径有关的操作（如open和mkdir）必须先进行路径查询，而且文件indexing必须在读写文件之前完成。这些操作可能很冗长，而且可能包括不需要被RTM跟踪的内存访问。简单地将在RTM中简单地包装整个操作，不仅容易导致capacity abort，而且还增加了conflict aborts的概率。</p>
-<p>​        在本文中，我们提出了HOP，一种轻量级的硬软件合作机制，用于在PM文件系统中提供强一致性。HOP建立在最近的eADR兼容平台的基础上，并利用硬件事务性内存（HTM）来保证文件系统更新的原子耐久性。为了解决HTM的容量限制，HOP采用了一个OCC-like的机制，将一个大的文件系统请求切成更小的片段，同时保留了<br>并发一致性和执行过程中的崩溃一致性。为了保证文件系统的progress，HOP设计了cooperative locks作为HTM的fallback。HOP和其他崩溃一致性机制的比较见表1</p>
-<p>​        为了说明HOP，我们实现了HTMFS，一个基于ZoFS的用户空间PM文件系统。使用FxMark、Filebench、LevelDB和TPC-C on SQLite进行evaluation。结果显示，HOP的性能优于SOTA PM文件系统。在保证强一致性的同时实现了与弱一致性FS相近的性能。通过精心设计的细粒度并发控制，HTMFS在competitive cases中提供了更好的性能。</p>
-<p>​        Contribution：</p>
-<ul>
-<li>The design of HOP, a lightweight hardware-software cooperative mechanism to provide strong consistency in persistent memory file systems (§3);</li>
-<li>The implemention of HTMFS which provides both strong consistency and performance using HOP (§4);</li>
-<li>Comprehensive evaluation that shows that HTMFS outperforms state-of-the-art persistent memory file systems,proving the effectiveness of HOP (§5).</li>
-</ul>
-<h1 id="2-Background-and-Motivation"><a href="#2-Background-and-Motivation" class="headerlink" title="2    Background and Motivation"></a>2    Background and Motivation</h1><h2 id="2-1-File-System-Consistency-and-Performance"><a href="#2-1-File-System-Consistency-and-Performance" class="headerlink" title="2.1    File System Consistency and Performance"></a>2.1    File System Consistency and Performance</h2><p>​        原来的文件系统在建立时并没有把一致性作为priority，例如，如果在<code>clean umount</code>之前发生崩溃，<em>FFS</em>就没有一致性保证。<br>​        一个古老的fsck工具只是让文件系统可以挂载，但对数据的一致性或持久性没有任何保证。fsck工具有助于恢复、修复和刷新系统。<br>​        如果没有文件系统提供一致性，应用程序需要承担起保证一致性的责任。例如，为了保证数据原子性地在文件A中被持久化，应用程序需要依次进行以下操作<br>顺序进行：</p>
-<pre><code>    1. Create file B with the same content as file A;
-    1. Write new data to file B;
-    1. Flush file B to guarantee that the new data is persisted in storage;
-    1. Rename file B as file A;
-    1. Sync the directory change;
-</code></pre>
-<p>​        这对应用程序来说显然是costly。因此，一些文件系统，如Ext4和NOVA，提供了强一致性作为一个可选功能。</p>
-<p>​        然而，强一致性并不是免费的。Ext4使用data journal来提供数据的原子更新，因此有重复写入的问题。NOVA可以使用CoW（写时复制）方法来以原子方式更新数据。然而，在我们的评估中，CoW可能使NOVA的性能降低60%以上。</p>
-<h2 id="2-2-Persistent-Memory-and-PM-File-System"><a href="#2-2-Persistent-Memory-and-PM-File-System" class="headerlink" title="2.2    Persistent Memory and PM File System"></a>2.2    Persistent Memory and PM File System</h2><p>持久性内存（PM）是一种新兴的存储技术，它执行具有持久性的字节寻址存储器。通过与易失性存储器（即DRAM）具有的相同的接口，写入PM的数据保证在电源循环中保留。因此，存储层次已经改变。</p>
-<p>​        基于这些变化，之前曾提出过几个PM文件系统，以更好地利用PM特性，获得更好的性能。这些文件系统在PM带来的新场景下重新审视了现有的崩溃一致性机制，但没有探索根本上不同的（且更有效的）文件系统的崩溃一致性机制。</p>
-<p>​        唯一的区别是利用原子指令来提供小规模的更新，最多到一个cache line。BPFS将整个文件系统采用树状结构，并通过影子分页和原子指令提供强大的一致性。PMFS引入了细粒度的日记，并结合了原子指令和可选的影子分页来实现数据一致性。NOVA是一个为PM设计的日志结构的文件系统。它结合了所有的原子指令、shadow paging、Journaling以实现强一致性。SoupFS是对PM的软更新技术的重新审视，没有提供强的的一致性保证。</p>
-<p>​        传统的文件系统，如Ext4和XFS，引入direct access mode(DAX)来绕过cache 在数据通路中，进而优化其跑在PM上的性能。然而这没有改变文件系统的崩溃一致性等级。</p>
-<p>​        PM的字节寻址性和持久性也motivate了一些用户空间文件系统，例如Aerie、<br>Strata、SplitFS、ZoFS和Libnvmmio。Strata和Libnvmmio使用logs来保证一致性。SplitFS依靠底层Ext4进行元数据处理。ZoFS采取软更新的方式来保护数据的修改，因此只提供弱一致性。它首先更新数据，然后修改文件的大小以完成操作。然而，如果系统在文件大小改变之前崩溃，部分更新可能会被下一次的读操作读取。</p>
-<p>总结来说，PM为文件系统设计带来新的机会，但现有的新文件系统仍然坚持使用现有的崩溃一致性机制，使性能和强一致性之间的trade-off成为实现快速且可靠文件系统的持久障碍。</p>
-<h2 id="2-3-Hardware-Transactional-Memory"><a href="#2-3-Hardware-Transactional-Memory" class="headerlink" title="2.3    Hardware Transactional Memory"></a>2.3    Hardware Transactional Memory</h2><p>​        事务性内存为程序员提供了一个简单的(有时甚至是高效的)方法来实现并发应用。硬件事务性内存技术，如Intel’s Restricted Transactional Memory(RTM) in TSX and ARM’s TME，提供了事务性内存的硬件支持。程序员只需要确定包裹共享内存资源的关键部分，并用<code>xbegin</code>和<code>xend</code>指令标记它。事务性内存机制将保证关键部分的执行会被序列化，这样就不会发生data race。执行的事务如果不能满足可序列化的要求，将被硬件中止，这将通过高速缓存一致性协议来检测。具体来说，未提交的事务写的数据被保存在该CPU核的私有cache中，只有在事务成功提交时才会成为global visible。</p>
-<p>由于与高速缓存实现的紧密联系。下面的限制将导致HTM的中止，用户应该注意。</p>
-<ul>
-<li><strong>Conflict aborts.</strong>    HTM使用read/write集来跟踪内存访问。在HTM中读的cache lines被添加到读集，而写的cache line则被添加到写集。在HTM成功提交之前，如果读集中的cache line被修改  或者  写集被另一个core访问，那么这个事务将由于冲突而被中止。这种类型的中止可能通过retry 事务而成功。</li>
-<li><strong>Capacity aborts.</strong>    CPU的私有cache大小有限，因此HTM的读写集也有限。如何超过读写集大小限制的事务必然会被abort，不管retry多少次。</li>
-<li><strong>Other aborts.</strong>        除了冲突和容量中止，还有一些其他来源可以中止事务，如中断以及HTM不兼容的指令。这取决于具体的场景来判断简单的retry是否能使事务成功。例如，如果在事务过程中发生了一个page fault，中断将导致事务中止。在这种情况下，有必要在重试事务之前，进行prefault(预故障)（提前触发页面故障）。</li>
-</ul>
-<h2 id="2-4-HTM-in-PM-FileSystem"><a href="#2-4-HTM-in-PM-FileSystem" class="headerlink" title="2.4    HTM in PM FileSystem"></a>2.4    HTM in PM FileSystem</h2><p>​        在基于块的存储设备时代，HTM从来不是文件系统一致性的选择。字节可寻址持久性内存的出现为在文件系统中使用HTM提供了机会。然而，CPU缓存的不稳定性迫使需要使用cache line flush指令来实现持久性，这与HTM机制有内在的冲突，HTM机制是将in-flight的事务数据存放在CPU高速缓存中。</p>
-<p>​        2021年1月，Intel的新平台将CPU cache纳入了持久化域，这意味着到达CPU缓存的数据可以被保证是持久的，即使在崩溃和电力短缺的情况下也是如此。现在有可能在PM上使用HTM。而且，还不止于此。HTM成为是与持久性存储器一起使用的好伙伴。根据Intel资料，如果发生电力短缺，只有全局可见的数据才会是持久的。换句话说，HTM in-flight 的数据修改将被丢弃，这使得HTM是一个很好的替代方法，用以在文件系统中强制执行原子更新，以实现文件系统中的崩溃一致性。HTM似乎很有希望在文件系统中使用，用于同时提供崩溃一致性和提供并发性证。</p>
-<h1 id="3-Design"><a href="#3-Design" class="headerlink" title="3    Design"></a>3    Design</h1><p>乍一看，为文件系统配备HTM似乎很简单：只需将每个文件系统请求包装在一对xbegin和xend中，就可以保证文件系统请求的ACID。然而，现实证明，这远远不够。由于文件系统请求中的较长的代码路径和复杂的操作，将整个文件系统请求直接包装在一个硬件事务中会经常导致事务中止。直接在文件系统中采用HTM将导致以下三个问题：</p>
-<ol>
-<li>long code path 会经常性导致capacity aborts</li>
-<li>long code path 使得事务更容易因为data conflicts 而 abort</li>
-<li>很多工作需要重复做，因为要retry那些abort的事务</li>
-</ol>
-<p>为了解决以上问题，我们设计了一个轻量级的软硬件协调机制，命名为HOP。后面先介绍HOP是什么，再描述如何利用HOP来构造RTM-compliant FS—-HTMFS.</p>
-<h2 id="3-1-HOP"><a href="#3-1-HOP" class="headerlink" title="3.1    HOP"></a>3.1    HOP</h2><p>​        为了缩短HTM中的code path，我们把一个文件系统的操作分成多个小部分。当连接在一起时，它perform similar to 一个单一的大的事务。这个想法类似于事务切分（transaction chopping）。</p>
-<p>所有文件系统操作中的内存访问可以被分类成三类：</p>
-<ol>
-<li>Reads</li>
-<li>Invisible writes: updates that cannot be observed via the file system interface (such as memory allocation and updates to the shadow pages);</li>
-<li>Visible writes: updates that can be observed by the file system interface (like timestamp modification, in-place updates, and the change of file size).</li>
-</ol>
-<p>​        为了减轻复杂文件系统操作引起的capacity abort，HOP只在事务中包装visible writes。invisible update被设计为能够以最小的开销回滚，而critical reads则由sequence counts保护。</p>
-<p>​        更详细地说，我们首先在RTM之外执行所有的read和invisible write。然后，我们用RTM将visible write包装到PM，从而实现原子性操作。然而，如果不对第一部分应用任何保护措施可能会导致并发性错误。HOP通过保护可能导致并发性错误的字段来确保并发性一致性。如<strong>Figure 1</strong>所示，当我们要访问RTM外的受保护字段时，我们首先记录相应的sequence count，然后访问PM。在进入RTM保护的区域时，这些序列号将被验证，以确保其余部分的在整个过程中保持不变，直到RTM提交成功。如果验证失败（即有一个序列数被改变了），HOP将回滚到第一个改变的点，重新开始该事务。例如，如果我们发现A的seqcount没有改变，但是B的seqcount被修改了，我们会用红色的虚线线 “B被改变 “来重新记录B的seqcount并重新读取B。</p>
-<p>​        除了修改seqcount，许多原因（在§2.3中介绍的）也可能导致中止。如果是由中断或其他原因引起的意外中止，retry RTM事务就足够了，因为回到最开始会造成不必要的的开销。</p>
-<p>​        <strong>讨论并发性的正确性。</strong>接下来，我们将讨论HOP中的所有并发情况（读-读、写-写、写-读和读-写）。读-读永远不会带来问题。由于HOP中潜在的冲突写入受到RTM的保护，两个相互冲突的写入会导致互相冲突中止，直到其中一个成功为止（或不断地互相中止，使其无法继续前进。我们将通过其他方法避免这种情况）。</p>
-<p>​        然而，写-读/读-写，如果发生冲突，将导致RTM中止，因为可能发生冲突的写操作都是在 RTM 内部执行的。任何中止操作都会触发图1中的重做，所以一个成功提交的事务保证不存在并发性错误。</p>
-<p>​        对于读写场景，如<strong>Figure 2</strong>所示，线程1首先读取一些受序列号保护的变量。然后开始RTM，验证序列号，并且执行所有可见的写操作。线程2被简化为在某个时间点上修改冲突变量。线程2修改的时间被线程2修改的时间点可以分为三个范围（就是Figure2 Thread2 ABC三种结果），导致三种后果。</p>
-<ul>
-<li>Result A: If Thread 2 modifies seqcount before Thread 1 reads it or after Thread 1 finishes all operations, it has no effect on the result of Thread 1.</li>
-<li>Result B: If Thread 2 modifies seqcount between Thread 1 reading seqcount and verifying seqcount, it causes Thread 1 to fail validation and thus redo the whole task.</li>
-<li>Result C: If Thread 2 modifies seqcount after Thread 1 verifies successfully (while before the RTM ends), it causes an RTM abort in Thread 1 as it modified Thread 1’s read set, thus redoing the whole task.</li>
-</ul>
-<p>​        通过HOP，我们可以打破RTM的容量限制。然后，我们将介绍HOP如何通过文件系统中的一些具体操作来帮助建立HTMFS。</p>
-<h2 id="3-2-File-Operations"><a href="#3-2-File-Operations" class="headerlink" title="3.2    File Operations"></a>3.2    File Operations</h2><h3 id="3-2-1-Data-Read"><a href="#3-2-1-Data-Read" class="headerlink" title="3.2.1    Data Read"></a>3.2.1    Data Read</h3><p>​        对于数据读取，我们使用基于seqcount的方法，使其原子化。具体来说，一个文件的结构如<strong>Figure 3</strong>所示，对于每一页，我们首先记录最后一页的持久性指针(包括序列数)，然后读取其内容。读取结束后，我们验证所有记录的指针和它们的序列计数是否都没有变化。我们将重新阅读发生变化的那一页，然后再次验证所有的序列计数，直到这个进度中的所有记录保持稳定。由于只有数据写入才会修改序列计数或持久的指针，我们可以确保在整个读操作过程中，我们所读的页面没有任何变化。</p>
-<h3 id="3-2-2-Data-Write"><a href="#3-2-2-Data-Write" class="headerlink" title="3.2.2    Data Write"></a>3.2.2    Data Write</h3><p>​        数据更新是文件系统操作的基础。HTMFS面临的主要挑战之一是RTM的容量限制和文件系统操作中涉及的大量数据之间的冲突。因此，直接将整个文件系统操作包裹在一个RTM事务中，将不可避免地导致容量中止，使操作无法完成。</p>
-<p>​        为了解决这个问题，我们提出了一种混合方法，它结合了Copy-on-Write和Journaling，将数据转换成可以被嵌入到RTM事务中的元数据更新。</p>
-<p>​        适合于单个PM page的small write操作被直接包裹在RTM事务中。对于大数据的写入，如<strong>Figure 3</strong>所示，我们的策略首先将数据写到PM中，以便大批的数据可以用指针表示，使其能够很容易被嵌入到有限的RTM事务中。为了详细说明，我们首先分配PM空间来存储数据。注意，分配的信息是在DRAM中，在崩溃后，它将不会被持久化。但数据是在PM中。然后我们开始一个RTM事务，在这个事务中，文件系统元数据被修改，包括对分配元数据的修改。持久点是RTM提交。一旦提交成功，文件数据和元数据将以原子方式持久化。在事务中止时，文件系统的任何变化在重启后都不可见，唯一的例外是，文件数据被写入未分配的PM，这在大多数情况下是无害的。但是，在系统崩溃后，这些块可能已经泄漏了。对整个PM进行耗时的扫描<br>可以帮助找回泄漏的空间。为了消除恢复过程，我们设计了一个基于自由列表的新分配器（如<strong>Figure 4</strong>所示）来防止内存泄漏。</p>
-<h3 id="3-2-3-Allocation"><a href="#3-2-3-Allocation" class="headerlink" title="3.2.3    Allocation"></a>3.2.3    Allocation</h3><p>​        我们将分配分成两部分：首先，我们将已分配的块移到一个临时分配列表中，该列表具有与未分配的空间列表相同的结构。然后我们简单地丢弃事务中的临时列表，以持久化分配。如果崩溃发生了，我们将临时列表添加到未分配的空间列表，以防止内存泄漏。</p>
-<p>​        为了确保文件系统不引用任何未分配的数据块，通常文件系统会在释放数据块之前修改（或删除）对数据块的引用，然后再释放该数据块。如果文件系统在一个数据块的引用被删除后崩溃，也可能发生内存泄漏。（当这个内存块还没有被释放）。当我们需要当我们需要释放多个数据块时，我们也可能在释放过程中出现崩溃。确保原子性的一个更简单的方法是将所有这些操作包裹在一个事务中，但RTM有可能出现容量中止。为了解决这个问题，我们采用了一种类似于分配操作的释放方法。只有那些必须以原子方式完成的操作被放在RTM中。从而避免了容量中止的概率。</p>
-<h2 id="3-3-Directory-Operations"><a href="#3-3-Directory-Operations" class="headerlink" title="3.3    Directory Operations"></a>3.3    Directory Operations</h2><h3 id="3-3-1-Path-Walk"><a href="#3-3-1-Path-Walk" class="headerlink" title="3.3.1    Path Walk"></a>3.3.1    Path Walk</h3><p>​        文件系统通常使用树状结构来维护目录层次结构。path walk是文件系统中一个相当常见的情景。许多与文件系统相关的系统调用需要path walk，如<code>open、mkdir、unlink</code>等。这些函数首先会做一个path walk，path walk中文件系统会用斜线分割全路径。然后，它从根目录开始，依次寻找每一级的路径名，从根目录开始，直到到达最后的级。然后对最后一级目录中的最后一个文件名执行指定的操作。</p>
-<p>​        所有需要行走路径的操作都会记录其访问的目录项（dentry）的序列号。并在与数据写入同一RTM中验证这些序列号与（如Figure 1所示）。以<code>touch /a/b</code>为例，该操作将首先搜索根目录(/)中的dentry a。当它找到匹配的dentry时，它将首先记录该dentry的序列号（Dseq of thedentry a），然后读取目录a的inode号。然后开始一个事务，验证之前读取的序列号，将新的dentry b插入到目录/a中，并最后提交事务。</p>
-<h3 id="3-3-2-Directory-Updates"><a href="#3-3-2-Directory-Updates" class="headerlink" title="3.3.2    Directory Updates"></a>3.3.2    Directory Updates</h3><p>​        我们不使用directory inode上的锁来保护同一目录的更新(add/remove a dentry)。取而代之的是，我们在每个bucket中使用单独的seqcount，所有的插入操作需要修改哈希表中相应桶的seqcount（<strong>Figure 5</strong>中的Bseq）。当在一个目录中同时插入多个不同的directory entries时，竞争会导致只有一个目录插入操作成功。同时，因为序列号已被修改，另一个将不得不要redo整个操作。在redo的过程中，该操作将在directory中发现一个存在相同名称的directory dentry，并返回错误代码<code>EEXIST</code>。</p>
-<p>​        在文件系统中，目录可以通过系统调用<code>rmdir</code>被删除。然而，只有空目录可以被删除，以避免意外地删除有用的数据。实用程序<code>rm</code>可以通过设置参数为<code>-r</code>用来删除一个非空的目录。它将递归地删除目录和它们的内容。在实现中，它将首先删除所有子目录的的所有子目录，然后通过<code>rmdir</code>将空目录从文件系统树中删除。这个过程并没有打破的限制，即在文件系统中只有空目录可以被删除的限制。</p>
-<p>​        我们需要考虑的情景是：进程A试图将一个新的文件/a/b/c放入一个空目录/a/b中，同时进程B试图删除这个空目录/a/b。</p>
-<p>​        如图1所示，A将首先walk path并记录/a/b的序列计数Dseq。然后，它将在与插入/a/b/c同一RTM中验证序列号。如果序列号在验证之前被改变了，那么A将不能验证它，并回滚(重新查找路径)。如果序列号在A验证成功后被改变，那么对这个序列号的修改（B在另一个事务中改变它）将导致A的事务中止。那么A将被回滚并redo。在新一轮的路径查找中，它将发现目录/a/b不存在，其结果与B的整个操作在A之前完成相同，不会造成任何问题。</p>
-<p>​        B也需要在同一个RTM中，验证和修改这个序列号，并删除这个空的目录。一旦成功提交，尚未完成路径行走的插入操作的插入操作将无法找到这个目录（/a/b），其他的操作将无法验证Dseq或者被Dseq的修改所中止，从而保护了的正确性。如果B被A中止了，因为冲突，B将发现目录不是空的。重试，因此返回ENOTEMPTY，就像它正试图删除一个非空的目录，这与A的操作在B之前原子完成是一样的。</p>
-<p>这个Dseq保证这两个操作的结果在这种情况下与串行执行一致。所以它不再需要使用锁来保护其并发的正确性。</p>
-<h2 id="3-4-Other-File-Types"><a href="#3-4-Other-File-Types" class="headerlink" title="3.4    Other File Types"></a>3.4    Other File Types</h2><p>软链接(<strong>Symbolic links</strong>.): 软链接首先被扩展为一个正常的路径，新的路径将被返回给调度器，调度器将重新调度文件请求。其余的操作就像普通的文件一样。</p>
-<h2 id="3-5-The-Timestamps"><a href="#3-5-The-Timestamps" class="headerlink" title="3.5    The Timestamps"></a>3.5    The Timestamps</h2><p>文件系统中记录文件部分信息的时间戳有若干种：</p>
-<ul>
-<li>Access timestamp (atime): the last time the file was accessed.</li>
-<li>Modified timestamp (mtime): the last time the file’s contents were modified.</li>
-<li>Changed timestamp (ctime): the last time the metadata of the file was changed.</li>
-</ul>
-<p>许多文件系统操作会修改一些时间戳。理论上，修改时间戳应该与访问文件同时发生，所以它们需要以原子方式完成。我们需要在同一个事务中如同其他操作那样修改时间戳。在这里我们观察到，把对关键变量的访问和对关键变量的修改放在事务的最后，可以大大降低由于冲突而导致的中止的概率。</p>
-<h2 id="3-6-The-Special-Case-Rename"><a href="#3-6-The-Special-Case-Rename" class="headerlink" title="3.6    The Special Case: Rename"></a>3.6    The Special Case: Rename</h2><p><code>unlink</code>和<code>rmdir</code>都只能从文件系统中删除叶节点（文件和空目录）。然而<code>rename</code>没有这样的限制，它可以将文件系统的子树移动到另一个位置。</p>
-<p>​        重命名是一个特殊的操作，需要从文件系统树上原子化地删除一个目录或一个文件，并将其添加到另一个目录。通常情况下，我们会在两个目录上持有锁以确保其正确性。然而，它可能碰巧的是，两个重命名操作都持有一个锁并等待的锁，从而导致死锁。这个问题可以通过比较两个锁并按一定顺序取锁来解决。然而，只取两个目录的锁，并不能防止循环的发生。如<strong>Figure 6</strong>所示，有两个路径/A/B/C和/X/Y/Z这两个目录树。有两个重命名操作；一个想把/A/B重命名为/X/Y/Z/B，另一个想把/X/Y重命名为/A/B/C/Y。</p>
-<p>​        以第一个操作为例。</p>
-<ol>
-<li><p>首先，它将walk path，找到源目录A/B（锁定父节点A）和目标目录/X/Y/Z（锁定节点Z）</p>
-</li>
-<li><p>然后，它试图从目录A中删除目录条目B，并在目录Z中插入一个新的目录项B。</p>
-</li>
-<li><p>最后，它将释放这两个锁。</p>
-</li>
-</ol>
-<p>​        然而，在步骤1和2之间，另一个操作也可能完成路径行走并获得两个节点（源Y和目标C）。如果没有其他保护措施，这两个操作都可以成功，从而导致导致一个重命名循环。所以我们需要采取额外的措施来避免循环，例如，通过添加一个全局重命名锁来串行化所有重命名操作。</p>
-<p>​        我们仍然采用无锁设计（HOP）来进行重命名过程。在path walking（namex）中，我们记录了我们<strong>traverse的所有目录的序列计数</strong>（如在§ 3.3.1节所述），最后检查所有的序列数是否在一次RTM中发生了变化。如果有变化，namex操作将从变化点开始再次执行；如果没有变化，则继续进行删除目录条目和添加目录条目的操作。由于上述所有的操作(检查路径变化和修改目录条目)都是在同一个RTM中完成的，一个成功的RTM提交保证整个重命名操作以原子方式完成。在前面的例子中，如果两个操作都完成了路径行走并进入目录修改步骤(步骤2)，那么当一个操作完成后，另一个操作会因为其读集被修改而中止，从而重新验证了序列号而失败，因为序列数已经被修改。然后它回滚，重新进行路径行走并发现目录树最终发生了变化。</p>
-<h1 id="4-Implementation"><a href="#4-Implementation" class="headerlink" title="4    Implementation"></a>4    Implementation</h1><p>​        为了说明HTMFS的有效性，我们决定实现基于ZoFS的HTMFS，因为ZoFS中的所有操作都在用户空间，从而避免了由于系统调用而导致的事务中止的可能性。整体架构如<strong>Figure 7</strong>所示。ZoFS由一个内核状态的KernFS和一个（或多个）用户空间的文件系统库。HTMFS也由两部分组成，分别是ZoFS的原始KernFS和一个新的LibFS。在ZoFS中，整个文件系统树根据权限被分为多个区。</p>
-<h2 id="KernFS"><a href="#KernFS" class="headerlink" title="KernFS"></a>KernFS</h2><p>​        KernFS负责维护关于整个文件系统中所有zone的信息，以及所有PM页的归属。每个zone都有一个root page，用来存储该区的元数据。KernFS使用一个持久化的哈希表来存储所有的区，其中，Key是每个区的路径前缀，Value是每个zone相对于root page的相对地址。当一个user-space的文件系统库需要访问一个路径时，KernFS会使用这个哈希表来找到该zone的的root page并进一步访问该zone。</p>
-<p>​        KernFS以页为单位全局管理所有PM空间。ZoFS使用两级分配。KernFS将PM pages分配到各个zone in bulk，每个zone进一步分配其pages，以便存储数据和元数据。KernFS跟踪每个页面的分配情况，即，每个页面属于哪个区，以及哪些页面是空闲的，可以被分配。在这个过程中，ZoFS使用一个全局的易失性红黑树来跟踪分配表中所有的空闲空间，以及另一个红黑树来跟踪所有已分配的空间以及相应区域对应的root page address。这些易失性数据结构可以在系统崩溃后很容易被重新创建。</p>
-<h2 id="LibFS"><a href="#LibFS" class="headerlink" title="LibFS"></a>LibFS</h2><p>​        LibFS负责管理一个区域内的所有元数据和数据，主要包括文件和目录。它包含了§3中所有的设计。文件结构，如Figure 3所示，是一个类似于页表的三层结构，支持最大512GB的文件。当然，它可以很容易地扩展到支持更大的文件。目录结构是一个哈希表，如Figure 5中所示。</p>
-<p>​        由于KernFS使用一个自由列表来管理自由空间，当一个zone向内核发出一个系统调用，以获得更多的自由空间(<code>Coffer_enlarge</code>)时，KernFS会返回一个自由列表。因此，我们的LibFS需要将自由列表转换为HTMFS所识别的版本（如图4所示）。这可以防止对内核方面的修改。</p>
-<p>​        <strong>fallback path回退路径</strong>。当RTM失败时，我们根据返回值选择重试或回退路径。当重试失败的次数超过了阈值（我们在实现中选择了60，因为当最大重试次数从10次到100次不等时，它能提供最好的性能）。在回退路径中，我们使用inode-level读/写锁进行并发控制，并使用RTM来实现崩溃一致性。当RTM在后退路径中仍然失败时。我们使用journal作为最后的手段。</p>
-<p>​        正常路径上的操作将首先检查在RTM开始后，是否有人持有写锁。如果写锁被其他任务持有，该操作将回滚到回退路径，并尝试持有该写锁。如果锁没有被其他人持有，但其他人在RTM提交前获得了写锁，该操作将终止，因为它的读取集已被修改，然后重试RTM操作，并重新检查锁的状态。</p>
-<h2 id="Prevent-RTM-abort"><a href="#Prevent-RTM-abort" class="headerlink" title="Prevent RTM abort"></a>Prevent RTM abort</h2><p>​        导致RTM中止的原因有很多，首先是RTM capacity abort。最简单的实现是将整个文件系统调用包装在一个RTM中，实验后我们发现，大多数目录和文件操作都会产生capacity abort。在使用HOP之后，HTMFS解决了这种类型的问题。</p>
-<p>​        在我们的实现中，我们发现导致RTM中止的一个常见原因是page fault。RTM中止的一个常见原因是page fault，而这是无法预测的。所以我们通过首先访问需要访问的内存来防止页故障并且预装载RTM中止后执行的代码。</p>
-<p>​        最后，失败是由于冲突造成的，它返回一个特定的值。在这种情况下，HTMFS试图先重试，如果竞争不大的话，这可以解决这些冲突。如果重试失败了一定次数，HTMFS会回退到fallback path，即使用锁来保护关键代码的并发控制。在fallback path中，我们将首先采取锁来防止并发访问，然后使用HOP来确保其崩溃的一致性。所以它仍然可以满足强一致性要求。</p>
-<p>​        还有一些其他原因，比如在RTM中混入AVX和SSE指令，REP-MOV指令中的长字符串等，都会导致RTM中止[31]。在实践中，我们发现memcpy使用的REP-MOV指令会很可能导致RTM中止。所以我们使用循环赋值（SSE2-MOV）来代替RTM里面的memcpy。</p>
-<h1 id="5-Evaluation"><a href="#5-Evaluation" class="headerlink" title="5    Evaluation"></a>5    Evaluation</h1><h2 id="5-1-Platform-Setup"><a href="#5-1-Platform-Setup" class="headerlink" title="5.1    Platform Setup"></a>5.1    Platform Setup</h2><ul>
-<li>28 core Xeon Gold 6330，超线程关闭，频率固定到2.0GHz</li>
-<li>PMem 200 series</li>
-<li>ZoFS作为baseline， 比较三种SOTA PM-aware File System(NOVA, SplitFS, Libnvmmio on NOVA).这些FS中使用inode-level 锁。</li>
-<li>把其他文件系统中的clflush， clflushopt， clwb， fence指令都删了以提高他们的性能，因为eADR平台这些都不需要</li>
-<li>使用FxMark， filebench， TPC-C on SQLite， LevelDB来评测HTMFS的性能</li>
-</ul>
-<h2 id="5-2-Micro-benchmarks"><a href="#5-2-Micro-benchmarks" class="headerlink" title="5.2    Micro-benchmarks"></a>5.2    Micro-benchmarks</h2><h2 id="5-3-Macro-benchmarks"><a href="#5-3-Macro-benchmarks" class="headerlink" title="5.3    Macro-benchmarks"></a>5.3    Macro-benchmarks</h2><h2 id="5-4-Crash-Consistency-Correctness"><a href="#5-4-Crash-Consistency-Correctness" class="headerlink" title="5.4    Crash Consistency Correctness"></a>5.4    Crash Consistency Correctness</h2><h2 id="5-5-Application-Benchmarks"><a href="#5-5-Application-Benchmarks" class="headerlink" title="5.5    Application Benchmarks"></a>5.5    Application Benchmarks</h2><h1 id="6-Discussion"><a href="#6-Discussion" class="headerlink" title="6    Discussion"></a>6    Discussion</h1><h1 id="7-Related-Work"><a href="#7-Related-Work" class="headerlink" title="7    Related Work"></a>7    Related Work</h1><h1 id="阅读笔记附录"><a href="#阅读笔记附录" class="headerlink" title="阅读笔记附录"></a>阅读笔记附录</h1><blockquote>
-<p>解释一些本文出现的但我还不了解的名词</p>
-</blockquote>
-<p>Transactional Memory(事务内存)：<a href="https://en.wikipedia.org/wiki/Transactional_memory">WikiPedia</a></p>
-]]></content>
-      <categories>
-        <category>Papers</category>
-        <category>PMem</category>
-      </categories>
-      <tags>
-        <tag>Papers</tag>
-        <tag>PMem</tag>
-        <tag>File System</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux Useful Commands</title>
-    <url>/2022/03/20/Linux-Useful-Commands/</url>
-    <content><![CDATA[<blockquote>
-<p>介绍Linux上常用的指令</p>
-</blockquote>
-<span id="more"></span>
-
-<h3 id="Tmux"><a href="#Tmux" class="headerlink" title="Tmux"></a>Tmux</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tmux new -s &lt;session-name&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux ls</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux a -t session-name</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux detach  <span class="comment"># &lt;ctrl+b d&gt;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tmux kill-session -t &lt;session-name&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="查看服务器有哪些人在用"><a href="#查看服务器有哪些人在用" class="headerlink" title="查看服务器有哪些人在用"></a>查看服务器有哪些人在用</h3><blockquote>
-<p><code>w</code>和<code>who</code>只能查看哪些人登陆了，但是如果是用<a href="https://so.csdn.net/so/search?q=vscode&spm=1001.2101.3001.7020">vscode</a>登陆的就看不到，只有一个node进程。而且如果有人在后台跑程序也看不到。</p>
-<p>所以需要一个可以查看系统中哪些人的进程在跑的命令：</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -e -o uid --no-headers | awk &#x27;$1 &gt;= 1000&#x27; | sort -u | xargs -i id -nu &#123;&#125;			# 显示uid&gt;=1000的用户</span><br></pre></td></tr></table></figure>
-
-<h3 id="查看内核-发行版本"><a href="#查看内核-发行版本" class="headerlink" title="查看内核/发行版本"></a>查看内核/发行版本</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> cat /etc/os-release</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> lsb_release -a</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cat /proc/version</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> uname --<span class="built_in">help</span>		<span class="comment"># select option</span></span></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Paper-Note-Collection</title>
-    <url>/2022/03/20/Paper-Note-Collection/</url>
-    <content><![CDATA[<blockquote>
-<p>本篇集中收录论文笔记（含自己的 / 他人写的好的）</p>
-</blockquote>
-<span id="more"></span>
-
-<p><a href="https://yzouchen.github.io/2022/01/25/Understanding-the-idiosyncrasies-of-real-persistent-memory/">Understanding the idiosyncrasies of real persistent memory</a></p>
-<p><a href="https://yzouchen.github.io/2022/01/22/An-Empirical-Guide-to-the-Behavior-and-Use-of-Scalable-Persistent-Memory/">An Empirical Guide to the Behavior and Use of Scalable Persistent Memory</a></p>
-<p><a href="https://yzouchen.github.io/2022/03/02/HTMFS-Strong-Consistency-Comes-for-Free-with-Hardware-Transactional-Memory-in-Persistent-Memory-File-Systems/">HTMFS: Strong Consistency Comes for Free with Hardware Transactional Memory in Persistent Memory File Systems</a></p>
-<p><a href="https://blog.csdn.net/weixin_44465434/article/details/122508912">PMFS(System software for persistent memory)</a></p>
-<p><a href="https://blog.csdn.net/weixin_44465434/article/details/120885453">NOVA: A Log-structured File System for Hybrid Volatile/Non-volatile Main Memories</a></p>
-]]></content>
-      <categories>
-        <category>Papers</category>
-      </categories>
-      <tags>
-        <tag>Papers</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>科研数据管理</title>
-    <url>/2022/02/04/Research-Data-Management/</url>
-    <content><![CDATA[<blockquote>
-<p>本文整理自SJTU-IPADS-Tutorial第八讲-科研数据管理，后续增加自己的一些笔记</p>
-</blockquote>
-<span id="more"></span>
-
-<h4 id="Systems-Benchmarking-Crimes"><a href="#Systems-Benchmarking-Crimes" class="headerlink" title="Systems Benchmarking Crimes"></a>Systems Benchmarking Crimes</h4><p><a href="https://www.cse.unsw.edu.au/~gernot/benchmarking-crimes.html">Gernot’s List of Systems Benchmarking Crimes (unsw.edu.au)</a></p>
-<p><img src="/Figure1.JPG" alt="Systems Benchmarking Crimes Contents"></p>
-<hr>
-<h4 id="Data-presentation"><a href="#Data-presentation" class="headerlink" title="Data presentation"></a>Data presentation</h4><h5 id="图"><a href="#图" class="headerlink" title="图"></a>图</h5><ul>
-<li>注意<ul>
-<li>Title要有描述和强调，能看图知道的就看图知道（标题里把内容说差不多了）</li>
-<li>Y轴尽量从0开始</li>
-<li>注意单位（对数？）</li>
-</ul>
-</li>
-<li>Tools<ul>
-<li>Excel</li>
-<li>GNUPlot：<a href="http://www.gnuplot.info/">gnuplot homepage</a>，<a href="http://gnuplot.sourceforge.net/demo_5.4/">Demos for gnuplot</a></li>
-<li>Python+matplotlib</li>
-</ul>
-</li>
-<li>图表类型<ul>
-<li>柱状图</li>
-<li>折线图：可拓展性、连续性、时间线、throughput-latency</li>
-<li>箱线图：max、min、median</li>
-</ul>
-</li>
-</ul>
-<h5 id="表"><a href="#表" class="headerlink" title="表"></a>表</h5><p>主要用于定性展示，勾勾叉叉，哭脸笑脸。</p>
-<hr>
-<h4 id="Artifact-Evaluation-AE"><a href="#Artifact-Evaluation-AE" class="headerlink" title="Artifact Evaluation(AE)"></a>Artifact Evaluation(AE)</h4><ul>
-<li><p>组织一些人对源代码和数据进行检验，暂时不是必要，不会影响文章accept</p>
-</li>
-<li><p>三个章：1.开源  2.测试能跑通  3.测试数据可复现</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>ResearchNote</category>
-      </categories>
-      <tags>
-        <tag>ResearchNote</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux File System Arch</title>
-    <url>/2022/03/20/LinuxFSArch/</url>
-    <content><![CDATA[<blockquote>
-<p>Linux上文件系统的的基本体系结构</p>
-</blockquote>
-<span id="more"></span>
-
-<p><img src="/2022/03/20/LinuxFSArch/Figure1.png" alt="Overview"></p>
-<p>对linux文件系统来说，如果将其视作一个整体，那么对上对下他分别需要：</p>
-<ol>
-<li>针对不同的物理硬盘，需要使用不同的驱动支持，而不同的驱动，所提供的IO操作接口是不一样的，那么，文件系统需要统一 的IO操作接口。</li>
-<li>不同的文件系统提供的API不尽相同，对于内核调用来说，需要有统一的API接口。</li>
-</ol>
-<p>于是就将层次结构细分为前面图中所示。</p>
-<h3 id="具体解释如下："><a href="#具体解释如下：" class="headerlink" title="具体解释如下："></a>具体解释如下：</h3><h4 id="1-硬盘驱动"><a href="#1-硬盘驱动" class="headerlink" title="1.硬盘驱动"></a>1.硬盘驱动</h4><blockquote>
-<p>常见的硬盘类型有PATA, SATA和AHCI等，在Linux系统中，对不同硬盘所提供的驱动模块一般都存放在内核目录树drivers/ata中，而对于一般通用的硬盘驱动，也许会直接被编译到内核中，而不会以模块的方式出现</p>
-</blockquote>
-<h4 id="2-General-Block-Device-Layer"><a href="#2-General-Block-Device-Layer" class="headerlink" title="2. General Block Device Layer"></a>2. General Block Device Layer</h4><p>​        这一层的作用，正是解答了上面提出的第一个问题，不同的硬盘驱动，会提供不同的IO接口，内核认为这种杂乱的接口，不利于管理，需要把这些接口抽象一下，形成一个统一的对外接口，这样，不管你是什么硬盘，什么驱动，对外而言，它们所提供的IO接口没什么区别，都一视同仁的被看作<strong>块设备</strong>来处理。</p>
-<p>​        所以，如果在一层做的任何修改，将会直接影响到所有文件系统，不管是ext3,ext4还是其它文件系统，只要在这一层次做了某种修改，对它们都会产生影响。</p>
-<p><strong>注：</strong>由于PMEM(NVM)上文件系统访问粒度小，块级操作不利于充分挖掘性能，故PMEM文件系统中此层会/可重新设计。</p>
-<h4 id="File-System"><a href="#File-System" class="headerlink" title="File System"></a>File System</h4><p>目前大多Linux发行版本默认使用的文件系统一般是ext4。</p>
-<p>任何文件系统，都是由<code>mkfs.xxx</code>命令创建，如：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mkfs.ext4 /dev/sda</span></span><br></pre></td></tr></table></figure>
-
-<p>内核所支持的文件系统类型，可以通过内核目录树 fs 目录中的内容来查看。</p>
-<h4 id="Virtual-File-System（VFS）"><a href="#Virtual-File-System（VFS）" class="headerlink" title="Virtual File System（VFS）"></a>Virtual File System（VFS）</h4><p>​        Virtual File System这一层，正是用来解决上面提出的第二个问题，试想，当我们通过<code>mkfs.xxx</code>系列命令创建了很多不同的文件系统，但这些文件系统都有各自的API接口，而用户想要的是，不管你是什么API，他们只关心mount/umount，或open/close等操作。</p>
-<p>​        所以，VFS就把这些不同的文件系统做一个抽象，提供统一的API访问接口，这样，用户空间就不用关心不同文件系统中不一样的API了。VFS所提供的这些统一的API，再经过System Call包装一下，用户空间就可以经过SCI的系统调用来操作不同的文件系统。</p>
-<p>VFS所提供的常用API有：<code>mount(), umount(), open(),close(), mkdir() ...</code></p>
-<blockquote>
-<p><a href="https://www.cnblogs.com/shijingjing07/p/5666636.html">引用博客</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>xv6-Lab0</title>
     <url>/2022/03/22/xv6-Lab0/</url>
     <content><![CDATA[<p>本文为本人xv6(MIT 6.S081)实验笔记的开篇/汇总篇。</p>
@@ -1614,100 +1349,6 @@
       </tags>
   </entry>
   <entry>
-    <title>xv6 Lab6 Uthread and alarm</title>
-    <url>/2022/03/22/xv6-Lab6/</url>
-    <content><![CDATA[<p>本实验目的是为了了解系统调用的过程。</p>
-<span id="more"></span>
-
-<blockquote>
-<p>感觉这个实验意义不大……先鸽了，等我闲了再写</p>
-</blockquote>
-<p>官方实验指导书：<a href="https://pdos.csail.mit.edu/6.828/2019/labs/syscall.html">Lab: user-level threads and alarm (mit.edu)</a></p>
-<p>我的代码：<a href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/syscall">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at syscall (github.com)</a></p>
-<h3 id="实验介绍："><a href="#实验介绍：" class="headerlink" title="实验介绍："></a>实验介绍：</h3><p>本实验分三个部分：</p>
-<ul>
-<li>回答给出的关于<strong>RISC-V汇编</strong>的几个问题；</li>
-<li>实现<strong>Uthread: switching between threads</strong>，即线程上下文的转换；</li>
-<li>实现<strong>Syscall：Alarm</strong>，即熟悉系统调用方式；</li>
-</ul>
-<h3 id="回答问题"><a href="#回答问题" class="headerlink" title="回答问题"></a>回答问题</h3><ol>
-<li>哪个寄存器用于函数传参？对于本例，那个寄存器将13传给了printf</li>
-</ol>
-<p>答：寄存器 a2，观察user/call.asm得</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">24:	4635                	li	a2,13</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>Labs</category>
-        <category>xv6</category>
-      </categories>
-      <tags>
-        <tag>xv6</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>xv6 Lab7 Lock</title>
-    <url>/2022/03/22/xv6-Lab7/</url>
-    <content><![CDATA[<p>本实验通过内存分配为例，学习锁的使用，重新设计锁以增加并行性。</p>
-<span id="more"></span>
-
-<p>官方实验指导书：<a href="https://pdos.csail.mit.edu/6.828/2019/labs/lock.html">Lab: locks (mit.edu)</a></p>
-<p>我的代码：2019版<a href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/lock">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at lock (github.com)</a></p>
-<p>​            或：2020版<a href="https://github.com/yzouchen/xv6_2020fall/tree/lock">yzouchen/xv6_2020fall at lock (github.com)</a></p>
-<p>本文基本是我从2020版的实验报告上copy的，细节与2020版github上的对应。</p>
-<p>分为两部分，分别是Memory Allocator和Buffer Cache</p>
-<h3 id="Memory-Allocator"><a href="#Memory-Allocator" class="headerlink" title="Memory Allocator"></a>Memory Allocator</h3><ol>
-<li>将freelist转化成per CPU的freelist，设置结构体kmem型的数组kmems[NCPU]</li>
-<li>根据实验指导书增加assemble_get_cpuid()函数在cpuid()前后调用push_off()和pop_off()</li>
-<li> Kinit()初始化中，除了将每个锁都初始化外，因为要将每个块初始均分到每个freelist里，我们需要重构kinit()中调用的freerange()和kfree()函数，但为了防止其他地方调用了上述两个函数，我并没有直接在这两个函数上改，而是仿照他们，添加init_freerange()和init_kfree()。</li>
-<li> Init_freerange()函数与freerange()基本一致，只是需要调用的是init_kfree()函数，且需要通过一个循环计数（NCPU循环）给init_kfree()传参。</li>
-<li> Init_kfree()与kfree()的修改在于，获得/释放锁是需要修改成传参cpu_id对应的锁，添加进的freelist也是如此对应的freelist。</li>
-<li> Kalloc()函数修改了获得/释放锁以及对freelist的操作，都要改成对应cpu_id对应的锁/freelist。同时因为per CPU freelist的局限性，未完全利用memory，故在freelist为空时，还需要增加steal()从其他cpu对应的freelist中窃取内存块。</li>
-<li> 在steal()的设计中。首先，在窃取对象选择上，为了避免重复从一个cpu的freelist中窃取，我采用的是从(cpu_id+1)%NCPU freelist开始搜索。窃取搜索时，需要获取/释放对应队列的锁，如果freelist非空，则窃取之，将对应freelist首的内存块从freelist中取出并返回。</li>
-</ol>
-<h3 id="Buffer-Cache"><a href="#Buffer-Cache" class="headerlink" title="Buffer Cache"></a>Buffer Cache</h3><ol>
-<li>设计简单哈希映射，即对素数13取余，从而将buf近似分成13个hash桶。NBUCKET=13，get_hash_value()由key得hash值。</li>
-<li>将bcache的lock转化成一个per bucket 的 lock数组，buf head也是转化成per bucket 的head数组。</li>
-<li>而后就是对bio.c逐个函数修改lock/head为对应hash值对应的lock/head，因为这个操作重复多次且简单，不多赘述。</li>
-<li>初始化时（binit），与内存分配器类似地将可用空间（buf）均匀分配每个bucket中。</li>
-<li>主要是bget()的修改，如下。首先取块号做hash映射取哈希值，在对应bucket中查找，若已经cache住，则直接返回地址，若没有cache住，则利用前向指针prev逐个查找是否有块应用引用计数为0，则可LRU淘汰出buffer cache，将此块的空间返回用于载入目标块。若上述两步都失败，则需要从其他bucket中窃取一个块用来放到这个bucket中来缓存目标块，窃取的逻辑与内存分配器中的窃取基本一致，不再赘述。</li>
-<li>对brelse()函数，其实原本的释放逻辑就很清晰了，主要是要注意将其插入头部的prev中，方便提升LRU查找效率，其他的就是将lock/head改成块号对应哈希值的对应lock/head项。</li>
-</ol>
-<h3 id="附"><a href="#附" class="headerlink" title="附"></a>附</h3><p><strong>HITsz实验的一些简答题，助理解</strong></p>
-<ol>
-<li>内存分配器</li>
-</ol>
-<p>a. 什么是内存分配器？它的作用是？</p>
-<p>答：就如同其名字一样，分配管理内存，给上层提供一个使用、释放内存的接口，上层只需要关心虚拟地址，对内存分配器发出请求（调用）即kalloc()或kfree()。将内存管理工作封装在内（通过freelist链表实现）。</p>
-<p>b. 内存分配器的数据结构是什么？它有哪些操作（函数），分别完成了什么功能？</p>
-<p>答：核心数据结构是由空闲物理页组成的链表freelist，空闲页链表与一个与其对应的自旋锁组合在一个结构体kmem里。链表的每个元素是一个指向下一个空闲页地址的指针，由于空闲页本身空闲，故将其认为是一个指针元素，信息也有效，无额外开销。</p>
-<p>​    kfree()函数用于释放以所给参数为首地址的物理内存页。</p>
-<p>​    kalloc()函数用于分配一个空闲物理内存页，返回页首地址</p>
-<p>​    kinit()函数完成内存空闲初始化</p>
-<p>​    freerange()函数将指定首位地址的一段地址空间，分页，去页首地址调用kfree()</p>
-<p>c. 为什么指导书提及的优化方法可以提升性能？</p>
-<p>答：（1）每个CPU/进程不会同时使用过多的内存，当其中大部分CPU只需要获取少量内存即可满足时，这个方法才会真正减少冲突情况。即使用内存范围小，则并发冲突不严重。</p>
-<p>（2）上面说法也可以解释为，实际上内存里同时存在诸多空闲页，不必要多个CPU争夺第一个空闲页，可以各自判断使用预先给他分配的那部分内存。有提前预分配的思想。</p>
-<ol start="2">
-<li>磁盘缓存</li>
-</ol>
-<p>a. 什么是磁盘缓存？它的作用是？</p>
-<p>答：磁盘缓存是将磁盘内的数据缓存在内存中。</p>
-<p>作用是平衡CPU/cache与磁盘间速度的不平衡，其中间缓冲作用。</p>
-<p>b. buf结构体为什么有prev和next两个成员，而不是只保留其中一个？请从这样做的优点分析（提示：结合通过这两种指针遍历链表的具体场景进行思考）。</p>
-<p>答：因为实际需求需要双向查找。使用next指针是为了查找目的块是否已经在内存缓存中来使用，而使用prev指针是为了进行LRU替换，换出找到的磁盘块，双向链表可以便于LRU和查找上发挥时间局部性，提升查找效率。</p>
-<p>c. 为什么哈希表可以提升磁盘缓存的性能？可以使用内存分配器的优化方法优化磁盘缓存吗？请说明原因。</p>
-<p>答：哈希表之所以能提升磁盘缓存的性能，是因为这样我们检索数据（块号）时，不需要从头开始扫描所有的块号一一比对，只需要在对应哈希桶内查找即可高命中率查找到，提升查找效率（包括查找对应块数据和查找空闲块两部分）。</p>
-<p>不能用内存分配器的优化方法优化磁盘缓存，即不能将各个CPU使用情况分开，因为磁盘缓存存在多CPU使用同一块数据的情况（体现在引用计数上），如果各个CPU分开可能会出现同一个磁盘块在内存中多次缓存，造成内存资源浪费。</p>
-]]></content>
-      <categories>
-        <category>Labs</category>
-        <category>xv6</category>
-      </categories>
-      <tags>
-        <tag>xv6</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>xv6 Lab4 Lazy allocation</title>
     <url>/2022/03/22/xv6-Lab4/</url>
     <content><![CDATA[<p>本实验要求实现 页表的lazy allocation</p>
@@ -1833,6 +1474,100 @@
 <p>​        根据提示，在kalloc.c处实现引用计数，根据计算得到，kalloc最多可以分配[物理内存大小 / 页大小]个物理页，开个定长数组记录引用计数（这里我原来的代码似乎有点小问题，物理页数算错了，应该是(PHYSTOP-KERNBASE) / PGSIZE = 25600 , 可以通过测试）。在kalloc()中设置引用计数为1， 在kfree()中对引用计数判断，将引用计数减一，若减为0则释放对应物理内存（添加到freelist中）。</p>
 <p><strong>Step4</strong>    修改 copyout() </p>
 <p>首先，为啥要修改copyout呢？因为<code>copyout</code>是将Kernel Page复制给User Page，而用户进程要求页面是可读写的，因此要做出修改。修改方法与usertrap()中处理page fault的方法相同，真实地分配、复制页，并修改标记位。</p>
+]]></content>
+      <categories>
+        <category>Labs</category>
+        <category>xv6</category>
+      </categories>
+      <tags>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>xv6 Lab6 Uthread and alarm</title>
+    <url>/2022/03/22/xv6-Lab6/</url>
+    <content><![CDATA[<p>本实验目的是为了了解系统调用的过程。</p>
+<span id="more"></span>
+
+<blockquote>
+<p>感觉这个实验意义不大……先鸽了，等我闲了再写</p>
+</blockquote>
+<p>官方实验指导书：<a href="https://pdos.csail.mit.edu/6.828/2019/labs/syscall.html">Lab: user-level threads and alarm (mit.edu)</a></p>
+<p>我的代码：<a href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/syscall">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at syscall (github.com)</a></p>
+<h3 id="实验介绍："><a href="#实验介绍：" class="headerlink" title="实验介绍："></a>实验介绍：</h3><p>本实验分三个部分：</p>
+<ul>
+<li>回答给出的关于<strong>RISC-V汇编</strong>的几个问题；</li>
+<li>实现<strong>Uthread: switching between threads</strong>，即线程上下文的转换；</li>
+<li>实现<strong>Syscall：Alarm</strong>，即熟悉系统调用方式；</li>
+</ul>
+<h3 id="回答问题"><a href="#回答问题" class="headerlink" title="回答问题"></a>回答问题</h3><ol>
+<li>哪个寄存器用于函数传参？对于本例，那个寄存器将13传给了printf</li>
+</ol>
+<p>答：寄存器 a2，观察user/call.asm得</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">24:	4635                	li	a2,13</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Labs</category>
+        <category>xv6</category>
+      </categories>
+      <tags>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>xv6 Lab7 Lock</title>
+    <url>/2022/03/22/xv6-Lab7/</url>
+    <content><![CDATA[<p>本实验通过内存分配为例，学习锁的使用，重新设计锁以增加并行性。</p>
+<span id="more"></span>
+
+<p>官方实验指导书：<a href="https://pdos.csail.mit.edu/6.828/2019/labs/lock.html">Lab: locks (mit.edu)</a></p>
+<p>我的代码：2019版<a href="https://github.com/yzouchen/MIT-6.S081-OS-Lab-Summer2021/tree/lock">yzouchen/MIT-6.S081-OS-Lab-Summer2021 at lock (github.com)</a></p>
+<p>​            或：2020版<a href="https://github.com/yzouchen/xv6_2020fall/tree/lock">yzouchen/xv6_2020fall at lock (github.com)</a></p>
+<p>本文基本是我从2020版的实验报告上copy的，细节与2020版github上的对应。</p>
+<p>分为两部分，分别是Memory Allocator和Buffer Cache</p>
+<h3 id="Memory-Allocator"><a href="#Memory-Allocator" class="headerlink" title="Memory Allocator"></a>Memory Allocator</h3><ol>
+<li>将freelist转化成per CPU的freelist，设置结构体kmem型的数组kmems[NCPU]</li>
+<li>根据实验指导书增加assemble_get_cpuid()函数在cpuid()前后调用push_off()和pop_off()</li>
+<li> Kinit()初始化中，除了将每个锁都初始化外，因为要将每个块初始均分到每个freelist里，我们需要重构kinit()中调用的freerange()和kfree()函数，但为了防止其他地方调用了上述两个函数，我并没有直接在这两个函数上改，而是仿照他们，添加init_freerange()和init_kfree()。</li>
+<li> Init_freerange()函数与freerange()基本一致，只是需要调用的是init_kfree()函数，且需要通过一个循环计数（NCPU循环）给init_kfree()传参。</li>
+<li> Init_kfree()与kfree()的修改在于，获得/释放锁是需要修改成传参cpu_id对应的锁，添加进的freelist也是如此对应的freelist。</li>
+<li> Kalloc()函数修改了获得/释放锁以及对freelist的操作，都要改成对应cpu_id对应的锁/freelist。同时因为per CPU freelist的局限性，未完全利用memory，故在freelist为空时，还需要增加steal()从其他cpu对应的freelist中窃取内存块。</li>
+<li> 在steal()的设计中。首先，在窃取对象选择上，为了避免重复从一个cpu的freelist中窃取，我采用的是从(cpu_id+1)%NCPU freelist开始搜索。窃取搜索时，需要获取/释放对应队列的锁，如果freelist非空，则窃取之，将对应freelist首的内存块从freelist中取出并返回。</li>
+</ol>
+<h3 id="Buffer-Cache"><a href="#Buffer-Cache" class="headerlink" title="Buffer Cache"></a>Buffer Cache</h3><ol>
+<li>设计简单哈希映射，即对素数13取余，从而将buf近似分成13个hash桶。NBUCKET=13，get_hash_value()由key得hash值。</li>
+<li>将bcache的lock转化成一个per bucket 的 lock数组，buf head也是转化成per bucket 的head数组。</li>
+<li>而后就是对bio.c逐个函数修改lock/head为对应hash值对应的lock/head，因为这个操作重复多次且简单，不多赘述。</li>
+<li>初始化时（binit），与内存分配器类似地将可用空间（buf）均匀分配每个bucket中。</li>
+<li>主要是bget()的修改，如下。首先取块号做hash映射取哈希值，在对应bucket中查找，若已经cache住，则直接返回地址，若没有cache住，则利用前向指针prev逐个查找是否有块应用引用计数为0，则可LRU淘汰出buffer cache，将此块的空间返回用于载入目标块。若上述两步都失败，则需要从其他bucket中窃取一个块用来放到这个bucket中来缓存目标块，窃取的逻辑与内存分配器中的窃取基本一致，不再赘述。</li>
+<li>对brelse()函数，其实原本的释放逻辑就很清晰了，主要是要注意将其插入头部的prev中，方便提升LRU查找效率，其他的就是将lock/head改成块号对应哈希值的对应lock/head项。</li>
+</ol>
+<h3 id="附"><a href="#附" class="headerlink" title="附"></a>附</h3><p><strong>HITsz实验的一些简答题，助理解</strong></p>
+<ol>
+<li>内存分配器</li>
+</ol>
+<p>a. 什么是内存分配器？它的作用是？</p>
+<p>答：就如同其名字一样，分配管理内存，给上层提供一个使用、释放内存的接口，上层只需要关心虚拟地址，对内存分配器发出请求（调用）即kalloc()或kfree()。将内存管理工作封装在内（通过freelist链表实现）。</p>
+<p>b. 内存分配器的数据结构是什么？它有哪些操作（函数），分别完成了什么功能？</p>
+<p>答：核心数据结构是由空闲物理页组成的链表freelist，空闲页链表与一个与其对应的自旋锁组合在一个结构体kmem里。链表的每个元素是一个指向下一个空闲页地址的指针，由于空闲页本身空闲，故将其认为是一个指针元素，信息也有效，无额外开销。</p>
+<p>​    kfree()函数用于释放以所给参数为首地址的物理内存页。</p>
+<p>​    kalloc()函数用于分配一个空闲物理内存页，返回页首地址</p>
+<p>​    kinit()函数完成内存空闲初始化</p>
+<p>​    freerange()函数将指定首位地址的一段地址空间，分页，去页首地址调用kfree()</p>
+<p>c. 为什么指导书提及的优化方法可以提升性能？</p>
+<p>答：（1）每个CPU/进程不会同时使用过多的内存，当其中大部分CPU只需要获取少量内存即可满足时，这个方法才会真正减少冲突情况。即使用内存范围小，则并发冲突不严重。</p>
+<p>（2）上面说法也可以解释为，实际上内存里同时存在诸多空闲页，不必要多个CPU争夺第一个空闲页，可以各自判断使用预先给他分配的那部分内存。有提前预分配的思想。</p>
+<ol start="2">
+<li>磁盘缓存</li>
+</ol>
+<p>a. 什么是磁盘缓存？它的作用是？</p>
+<p>答：磁盘缓存是将磁盘内的数据缓存在内存中。</p>
+<p>作用是平衡CPU/cache与磁盘间速度的不平衡，其中间缓冲作用。</p>
+<p>b. buf结构体为什么有prev和next两个成员，而不是只保留其中一个？请从这样做的优点分析（提示：结合通过这两种指针遍历链表的具体场景进行思考）。</p>
+<p>答：因为实际需求需要双向查找。使用next指针是为了查找目的块是否已经在内存缓存中来使用，而使用prev指针是为了进行LRU替换，换出找到的磁盘块，双向链表可以便于LRU和查找上发挥时间局部性，提升查找效率。</p>
+<p>c. 为什么哈希表可以提升磁盘缓存的性能？可以使用内存分配器的优化方法优化磁盘缓存吗？请说明原因。</p>
+<p>答：哈希表之所以能提升磁盘缓存的性能，是因为这样我们检索数据（块号）时，不需要从头开始扫描所有的块号一一比对，只需要在对应哈希桶内查找即可高命中率查找到，提升查找效率（包括查找对应块数据和查找空闲块两部分）。</p>
+<p>不能用内存分配器的优化方法优化磁盘缓存，即不能将各个CPU使用情况分开，因为磁盘缓存存在多CPU使用同一块数据的情况（体现在引用计数上），如果各个CPU分开可能会出现同一个磁盘块在内存中多次缓存，造成内存资源浪费。</p>
 ]]></content>
       <categories>
         <category>Labs</category>
@@ -2013,6 +1748,271 @@
       </categories>
       <tags>
         <tag>xv6</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>上手PMIdioBench</title>
+    <url>/2022/02/13/%E4%B8%8A%E6%89%8BPMIdioBench/</url>
+    <content><![CDATA[<p>PMIdioBench: 测试PMem系统性能工具。</p>
+<p>文章发表于VLDB’20: Understanding the idiosyncrasies of real persistent memory</p>
+<p>本文记录配置及使用PMIdioBench的过程</p>
+<span id="more"></span>
+
+<p>Github仓库：<a href="https://github.com/padsys/PMIdioBench">padsys/PMIdioBench</a>PMIdioBench主要代码在<code>PMIdioBench/Bench/</code>目录下。</p>
+<p>论文原文：<a href="https://dl.acm.org/doi/abs/10.14778/3436905.3436921">Understanding the idiosyncrasies of real persistent memory</a></p>
+<blockquote>
+<p>安装环境为CentOS 7，kernel为3.10.0</p>
+<p>如果用的CentOS 8，估计能省去很多包版本的问题</p>
+</blockquote>
+<h1 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h1><ol>
+<li>pmdk: Github: <a href="https://github.com/pmem/pmdk">pmdk</a></li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> autconf</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install autoconf</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> git://anongit.freedesktop.org/pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> pkg-config</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./autogen.sh	<span class="comment"># 检查依赖</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错 没有libtoolize</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> --&gt; 需要安装libtool</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libtool</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 再次运行./autogen.sh 前面的错误过了，再报glib版本过低</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> pkg-config依赖于glib，但是glib也依赖于pkg-config，所以增加一个参数再运行：</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./autogen.sh --with-internal-glib</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 过啦，显示：Now <span class="built_in">type</span> <span class="string">&#x27;make&#x27;</span> to compile pkg-config.</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装ndctl库</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install -y ndctl*</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装pmdk</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> git <span class="built_in">clone</span> https://github.com/pmem/pmdk.git</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错没有 libdaxctl-dev/libdaxctl-devel/daxctl-devel</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 就挺神奇，检查，安装过的是daxctl-libs-65-5.el7.x86_64，不是前面提到的任一个</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install daxctl*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libpmem*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install pandoc</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span>		</span><br><span class="line"><span class="meta">#</span><span class="bash"> 报错rdma/fabric.h: 没有那个文件或目录</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libfabric*</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make		<span class="comment"># 编译终于通过了</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yum install doxygen</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo make install		<span class="comment"># 这个没有root权限过不了</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查pmdk是否安装成功</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> src/<span class="built_in">test</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make <span class="built_in">test</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cp testconfig.sh.example testconfig.sh</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./RUNTESTS</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 一直PASS，ok?</span></span><br><span class="line"><span class="meta">#</span><span class="bash">./RUNTESTS obj_critnib_mt -s TEST0 -t all -f pmem</span></span><br><span class="line"><span class="meta">#</span><span class="bash">obj_critnib_mt/TEST0: PMEM_FS_DIR is not <span class="built_in">set</span></span></span><br><span class="line"><span class="meta">#</span><span class="bash">RUNTESTS: stopping: obj_critnib_mt/TEST0 failed, TEST=all FS=pmem BUILD=debug</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 先忽略。。没指定FS，似乎没问题。</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>libpmemobj++</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo yum install libpmemobj++-devel</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>MongoDB with PMSE commit d8372274a9b3f18dbceb0cfcc0caa496b5940789</li>
+</ol>
+<p><a href="https://github.com/pmem/pmse">pmse</a></p>
+<p><a href="https://github.com/pmem/pmse/commit/d8372274a9b3f18dbceb0cfcc0caa496b5940789">pmse要求的commit</a></p>
+<p><a href="https://github.com/mongodb/mongo">mongodb/mongo: The MongoDB Database</a></p>
+<blockquote>
+<p><a href="https://blog.csdn.net/shirukai/article/details/82152214">CentOS下安装MongoDB</a></p>
+</blockquote>
+<p><a href="https://docs.mongodb.com/manual/installation/">官方安装MongoDB文档</a></p>
+<ol start="4">
+<li>Java</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo yum install jre/java-1.8.0-openjdk			#jre</span><br><span class="line">sudo yum install java-1.8.0-openjdk-devel		#jdk</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>fio</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo yum install fio</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>YCSB</li>
+</ol>
+<ol start="7">
+<li>Intel VTune Profiler</li>
+</ol>
+<p><a href="https://www.intel.com/content/www/us/en/develop/documentation/vtune-install-guide/top.html">Intel VTune Profiler Installation Guide</a></p>
+<p>注意这里用到的<code>ipm watch</code>所处路径为<code>/opt/intel/oneapi/vtune/2022.1.0/ipmwatch</code></p>
+<p>注意<a href="https://blog.csdn.net/buknow/article/details/93617254">error while loading shared libraries: libtest.so: cannot open shared object file: No such file or di-CSDN博客</a></p>
+<ol start="8">
+<li>FlameGraph</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/brendangregg/FlameGraph.git &lt;install path&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="9">
+<li>ipmctl</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">sudo yum install</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>ResearchNote</category>
+        <category>PMem</category>
+      </categories>
+      <tags>
+        <tag>PMem</tag>
+        <tag>ResearchNote</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>上手PMem</title>
+    <url>/2022/02/11/%E4%B8%8A%E6%89%8BPMem/</url>
+    <content><![CDATA[<p>本文记录上手Intel Optane DC Persistent Memory Module的一些背景及指令步骤</p>
+<span id="more"></span>
+
+<blockquote>
+<p>先挖坑，还不完整，慢慢填哈。</p>
+</blockquote>
+<p>首先，说明/记录一个PMem较权威的资源出处：<a href="https://pmem.io/">PMem.io</a>。Github User Name为<code>PMem</code>(Libraries and Examples for Persistent Memory Programming)。网站内含主流PMem软件与文档。其中 -&gt; Learn -&gt; Docs 为Persistent Memory Document，内含三部分：Getting Started Guide、IPMCTL User Guide、NDCTL User Guide，将在下文逐一展开。</p>
+<p>本文每章下均注明原文链接，翻译部分带有主观色彩</p>
+<h1 id="快速上手Intel-Optane-DC-PMM"><a href="#快速上手Intel-Optane-DC-PMM" class="headerlink" title="快速上手Intel Optane DC PMM"></a>快速上手Intel Optane DC PMM</h1><blockquote>
+<p>相当于后面几章的简约版，快速上手</p>
+</blockquote>
+<h2 id="Part-1-Persistent-Memory-Provisioning-Introduction"><a href="#Part-1-Persistent-Memory-Provisioning-Introduction" class="headerlink" title="Part 1 Persistent Memory Provisioning Introduction"></a>Part 1 Persistent Memory Provisioning Introduction</h2><p>参考自：<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Intel的Optane DC Persistent Memory支持两种模式：Memory Mode 和 App Direct Mode(，Mixed Mode)。</p>
+<p>详情<a href="https://itpeernetwork.intel.com/intel-optane-dc-persistent-memory-operating-modes/#gs.n77o95">Intel® Optane™ DC Persistent Memory Operating Modes Explained - IT Peer Network</a></p>
+<ul>
+<li><p><strong>IPMCTL</strong>是intel官方创建并维护的用于配置和管理Optane DCPMM的开源实用程序，用于管理Region。</p>
+</li>
+<li><p><strong>NDCTL</strong>是非易失性设备控制，用于管理Namespace。</p>
+</li>
+</ul>
+<h3 id="持久性内存相关概念"><a href="#持久性内存相关概念" class="headerlink" title="持久性内存相关概念"></a>持久性内存相关概念</h3><h4 id="Region"><a href="#Region" class="headerlink" title="Region"></a>Region</h4><p>Region是指一组一个或多个NVDIMM，也称为交错集，可以以n路交织或非交织的方式创建Region。 在Intel Optane DC PMM上，只能使用 ipmctl 创建或更改区域。</p>
+<p>支持的Region有三种：PMEM，BLK和NVDIMM，Region可以划分为一个或多个namespace（命名空间）。</p>
+<ul>
+<li><p>PMEM：持久化内存设备允许字节可寻址访问。</p>
+</li>
+<li><p>BLK：块设备就像传统的存储设备一样允许扇区原子性。</p>
+</li>
+<li><p>NVDIMM：这些设备可以同时支持PMEM和BLK模式访问。</p>
+</li>
+</ul>
+<blockquote>
+<p>我的理解是，Region就像一个物理磁盘，而其namespace就相当于物理磁盘通过分区划分为多个逻辑磁盘</p>
+</blockquote>
+<h4 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h4><p>Namespace用于定义一个连续寻址的非易失性存储器，其概念类似于硬盘分区，SCSI逻辑单元（LUN）或NVM Express命名空间。 它是持久性存储器的单元，在/dev中作为可用于I/O的设备出现。 英特尔建议使用<strong>非易失性设备控制（ndctl）</strong>为Linux操作系统创建名称空间。</p>
+<h4 id="DAX"><a href="#DAX" class="headerlink" title="DAX"></a>DAX</h4><p>直接访问（DAX）是一种允许应用程序直接从CPU（通过加载和存储）访问持久性介质的机制，绕过传统的I/O堆栈（页面缓存和块层）。</p>
+<h3 id="Namespace-Types"><a href="#Namespace-Types" class="headerlink" title="Namespace Types"></a>Namespace Types</h3><ul>
+<li>Filesystem-DAX(FSDAX)</li>
+<li>Device DAX(DEVDAX)</li>
+<li>Sector</li>
+<li>Raw</li>
+</ul>
+<h3 id="PMem-Provisioning-Overview"><a href="#PMem-Provisioning-Overview" class="headerlink" title="PMem Provisioning Overview"></a>PMem Provisioning Overview</h3><p>使用PMem的准备工作分两步（Memory Mode只需第一步，AppDirect Mode执行下述两步）</p>
+<ol>
+<li>配置Goal(Region)：在这一步骤中，goal会被识别并存储在PMem modules中，并在下次重启时应用。有三种模式：Memory Mode, App Direct mode, or mixed mode.Goal可以通过以下两者之一的方法设置。<ul>
+<li>Bios设置</li>
+<li>操作系统实用程序：<strong>IPMCTL</strong></li>
+</ul>
+</li>
+<li>配置Namespaces：只有App Direct Mode需要。这是 OS-specific 操作。<ul>
+<li>Linux: <strong>ndctl</strong> utility</li>
+<li>Windows: Powershell</li>
+</ul>
+</li>
+</ol>
+<h3 id="IPMCTL工具"><a href="#IPMCTL工具" class="headerlink" title="IPMCTL工具"></a>IPMCTL工具</h3><p>Ipmctl可以从统一可扩展固件接口（UEFI）shell或操作系统中的终端窗口启动。 两个版本的ipmctl都支持相同的功能，通过从命令行运行<code>ipmctl help 或者 man ipmctl</code>，可以看到完整的命令列表。Linux和Windows环境下的Commands相同。</p>
+<blockquote>
+<p>具体在后面的<strong>Part 2</strong>中介绍</p>
+</blockquote>
+<h3 id="NDCTL工具"><a href="#NDCTL工具" class="headerlink" title="NDCTL工具"></a>NDCTL工具</h3><blockquote>
+<p> 因为是OS(Linux)专用，在后面的<strong>Part 2</strong>中介绍</p>
+</blockquote>
+<h3 id="Appendixes"><a href="#Appendixes" class="headerlink" title="Appendixes"></a>Appendixes</h3><h4 id="Appendix-A-Provisioning常问问题"><a href="#Appendix-A-Provisioning常问问题" class="headerlink" title="Appendix A: Provisioning常问问题"></a>Appendix A: Provisioning常问问题</h4><p>见<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
+<h4 id="Appendix-B-ipmctl-指令列表"><a href="#Appendix-B-ipmctl-指令列表" class="headerlink" title="Appendix B: ipmctl 指令列表"></a>Appendix B: ipmctl 指令列表</h4><p><img src="/2022/02/11/%E4%B8%8A%E6%89%8BPMem/Figure1.JPG" alt="ipmctl指令列表"></p>
+<h4 id="Appendix-C-配置-管理"><a href="#Appendix-C-配置-管理" class="headerlink" title="Appendix C: 配置 - 管理"></a>Appendix C: 配置 - 管理</h4><h5 id="修改配置了的Goal"><a href="#修改配置了的Goal" class="headerlink" title="修改配置了的Goal"></a>修改配置了的Goal</h5><p>创建新的goal时，ipmctl会检查NVDIMMs是否已经配置了，会提示在创建新的goal之前要先delete旧的goal。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl create -goal MemoryMode=100</span></span><br><span class="line"></span><br><span class="line">Create region configuration goal failed: Error (115) - A requested DIMM already has a configured goal. Delete this existing goal before creating a new one</span><br></pre></td></tr></table></figure>
+
+<h5 id="删除配置"><a href="#删除配置" class="headerlink" title="删除配置"></a>删除配置</h5><p>配置新的goal前要删除旧的goal。为了删除namespace，需要使用<strong>ndctl</strong>来管理，详见Part 2。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl delete -goal</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Dump-转储-当前Goal"><a href="#Dump-转储-当前Goal" class="headerlink" title="Dump(转储)当前Goal"></a>Dump(转储)当前Goal</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> ipmctl dump -destination testfile -system -config</span></span><br><span class="line">Successfully dumped system configuration to file: testfile</span><br></pre></td></tr></table></figure>
+
+<h5 id="基于配置文件创建Goal"><a href="#基于配置文件创建Goal" class="headerlink" title="基于配置文件创建Goal"></a>基于配置文件创建Goal</h5><p>Goals可以基于配置文件配置，也可以存储当前配置为一个文件，这使得相同配置可以被应用于不同系统/复用于同一系统。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 将转储到testfile中</span></span><br><span class="line">ipmctl dump -destination testfile -system -config</span><br><span class="line"><span class="meta">#</span><span class="bash"> 从myPath或testfile中载入配置</span></span><br><span class="line">ipmctl load -source myPath/testfile –goal</span><br></pre></td></tr></table></figure>
+
+<h5 id="检查模式修改"><a href="#检查模式修改" class="headerlink" title="检查模式修改"></a>检查模式修改</h5><p>注：配置后需要reboot</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ipmctl show –memoryresources</span><br></pre></td></tr></table></figure>
+
+<h5 id="Show-Regions"><a href="#Show-Regions" class="headerlink" title="Show Regions"></a>Show Regions</h5><p>模式从Memory Mode修改为App Direct Mode时，重启后每个socket会创建一个Region。</p>
+<p>模式从App Direct Mode修改为Memory Mode时，重启后不会创建有Region。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ipmctl show -region</span><br></pre></td></tr></table></figure>
+
+<h4 id="Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode"><a href="#Appendix-D-Sector-Mode-PMem-Disk-storage-over-App-Direct-Mode" class="headerlink" title="Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)"></a>Appendix D: Sector Mode PMem Disk (storage over App Direct Mode)</h4><p>见<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-intro-to-provisioning-pmem.html">QSG Part 1 Provisioning with Intel® Optane™ PMEM</a></p>
+<h2 id="Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory"><a href="#Part-2-Linux-Provisioning-for-Intel-Optane-Persistent-Memory" class="headerlink" title="Part 2 Linux Provisioning for Intel Optane Persistent Memory"></a>Part 2 Linux Provisioning for Intel Optane Persistent Memory</h2><blockquote>
+<p>基于Linux OS环境介绍，Windows用的少，详见Intel QSG Part3</p>
+</blockquote>
+<p>参考自：<a href="https://www.intel.com/content/www/us/en/developer/articles/technical/qsg-part2-linux-provisioning-with-optane-pmem.html">QSG Part 2 Provisioning with Intel® Optane™ PMEM - Linux*</a></p>
+<h3 id="Linux-Support-for-Intel-Optane-Persistent-Memory"><a href="#Linux-Support-for-Intel-Optane-Persistent-Memory" class="headerlink" title="Linux Support for Intel Optane Persistent Memory"></a>Linux Support for Intel Optane Persistent Memory</h3><h4 id="Kernel-Support"><a href="#Kernel-Support" class="headerlink" title="Kernel Support"></a>Kernel Support</h4><p>The Linux NVDIMM/PMem drivers are enabled by default, starting with Linux mainline kernel 4.2. We recommend mainline kernel version 4.19 or later to deliver Reliability, Availability and Serviceability (RAS) features required by the Persistent Memory Development Kit (PMDK).  </p>
+<h4 id="Custom-Kernel-Support"><a href="#Custom-Kernel-Support" class="headerlink" title="Custom Kernel Support"></a>Custom Kernel Support</h4><p>自定义Kernel Support</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">egrep -i &quot;zone_device|hugepage|nfit|nvdimm|pmem|_nd_|btt|dax|memory_hotplug&quot; /boot/config-$(uname -r)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Software-Non-volatile-Device-Control-NDCTL"><a href="#Software-Non-volatile-Device-Control-NDCTL" class="headerlink" title="Software: Non-volatile Device Control (NDCTL)"></a>Software: Non-volatile Device Control (NDCTL)</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo [apt|dnf|yum|zypper] install ndctl libndctl6 libndctl-dev</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查是否已经安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> ndctl</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Software-IPMCTL"><a href="#Software-IPMCTL" class="headerlink" title="Software: IPMCTL"></a>Software: IPMCTL</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo [apt|dnf|yum|zypper] install ipmctl</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 检查是否已经安装</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> ipmctl</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Tutorial-PMem预备"><a href="#Tutorial-PMem预备" class="headerlink" title="Tutorial: PMem预备"></a>Tutorial: PMem预备</h3><h4 id="Prerequisites"><a href="#Prerequisites" class="headerlink" title="Prerequisites"></a>Prerequisites</h4><ul>
+<li>Intel Optane DC PMem Modules</li>
+<li>ipmctl</li>
+<li>ndctl</li>
+</ul>
+<h4 id="Step1-PMem-Discovery"><a href="#Step1-PMem-Discovery" class="headerlink" title="Step1: PMem Discovery"></a>Step1: PMem Discovery</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -dimm</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -topology</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl show -memoryresources</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Step2-Determine-a-Configuration-Goal"><a href="#Step2-Determine-a-Configuration-Goal" class="headerlink" title="Step2: Determine a Configuration Goal"></a>Step2: Determine a Configuration Goal</h4><p>决定要配置成什么模式</p>
+<h4 id="Step-3-Configure-your-Platform"><a href="#Step-3-Configure-your-Platform" class="headerlink" title="Step 3: Configure your Platform"></a>Step 3: Configure your Platform</h4><p>所有配置后都需要重启一下才能生效。</p>
+<h5 id="Memory-Mode"><a href="#Memory-Mode" class="headerlink" title="Memory Mode"></a>Memory Mode</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal memorymode=100</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="App-Direct"><a href="#App-Direct" class="headerlink" title="App Direct"></a>App Direct</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal persistentmemorytype=appdirect</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Mixed-Mode"><a href="#Mixed-Mode" class="headerlink" title="Mixed Mode"></a>Mixed Mode</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 以60%PMem容量设置为MemoryMode为例</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ipmctl create -goal Memorymode=60</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces"><a href="#Step-4-Provisioning-of-Intel-Optane-Persistent-Memory-Namespaces" class="headerlink" title="Step 4: Provisioning of Intel Optane Persistent Memory Namespaces"></a>Step 4: Provisioning of Intel Optane Persistent Memory Namespaces</h4><h5 id="预备条件"><a href="#预备条件" class="headerlink" title="预备条件"></a>预备条件</h5><p>AppDirect Mode/Mixed Mode</p>
+<h5 id="Tutorial-如何创建namespace"><a href="#Tutorial-如何创建namespace" class="headerlink" title="Tutorial: 如何创建namespace"></a>Tutorial: 如何创建namespace</h5><ol>
+<li>首先需要确定我们是要配置系统全部的PMem容量还是其中的一部分。<ul>
+<li>如果要对全部region创建单一namespace，直接使用：<code>sudo ndctl create-namespace</code></li>
+<li>如果只用到PMem容量的一部分，则指令如：<code>sudo ndctll create-namespace -m fsdax -s 54G</code>这个指令的参数解释如下：<ul>
+<li>Argument Details<ul>
+<li>fsdax: Namespace mode</li>
+<li>54G: capacity(G!=GiB)</li>
+</ul>
+</li>
+<li>Argument Results<ul>
+<li>创建了一个新的<code>/dev/pmem&#123;X[.Y]&#125;</code>设备</li>
+<li>X.Y代表这是第X个Region上的第Y个namespace</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>输入指令<code>ls -l /dev/pmem*</code>来确定namespace成功被创建</li>
+<li>（略）使用指令<code> ndctl create-namespace -n &quot;MyApp&quot;</code>将namespace标记为”MyApp”</li>
+<li>使用指令<code>sudo ndctl create-namespace</code>来指定剩余全部PMem容量为一个namespace</li>
+<li>使用指令<code>ndctl list -N</code>列出全部创建的namespace</li>
+<li>使用指令如<code>mkfs.ext4 -f /dev/pmem1</code>来创建文件系统并挂载到PMem设备上</li>
+<li>使用指令如<code> mkdir /mnt/myPMem</code>来创造挂载点</li>
+<li>使用指令如<code>mount -o dax /dev/pmem1 /mnt/myPMem </code>来挂载文件系统，通过<code>-o dax</code>选项。</li>
+</ol>
+<h3 id="Appendix-如何将PMem恢复出厂设置"><a href="#Appendix-如何将PMem恢复出厂设置" class="headerlink" title="Appendix: 如何将PMem恢复出厂设置"></a>Appendix: 如何将PMem恢复出厂设置</h3><h4 id="Quick-Method"><a href="#Quick-Method" class="headerlink" title="Quick Method"></a>Quick Method</h4><ol>
+<li><code>sudo ndctl destroy-namespace -f all </code></li>
+<li>OS&gt; <code>ipmctl delete -f -dimm -pcd&#39;</code><ol>
+<li>Deletes the Goal aka PCD (Platform Config Data) </li>
+</ol>
+</li>
+<li>Reboot the system</li>
+</ol>
+<h4 id="Long-Method"><a href="#Long-Method" class="headerlink" title="Long Method"></a>Long Method</h4><ol>
+<li>sudo登录</li>
+<li><code>ndctl list -N</code>: Get a list of namespaces</li>
+<li>Unmount the file system from the namespace needing to be removed</li>
+<li><code>ndctl disable-namespace</code>: Disable namespaces (repeat steps for all namespaces required)</li>
+<li><code>ndctl destroy-namespace</code></li>
+<li><code>ipmctl delete -f -dimm -pcd</code>: Delete the Goal aka PCD (Platform Config Data)</li>
+<li>Reboot</li>
+</ol>
+<h1 id="Getting-Started-Guide"><a href="#Getting-Started-Guide" class="headerlink" title="Getting Started Guide"></a>Getting Started Guide</h1><p>参考自：<a href="https://docs.pmem.io/persistent-memory/getting-started-guide">Getting Started Guide - Persistent Memory Documentation (pmem.io)</a></p>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><h3 id="PMem综述"><a href="#PMem综述" class="headerlink" title="PMem综述"></a>PMem综述</h3><p>Persistent Memory(Non-Volatile Memory)出现的背景是：CPU一直越来越快，core/thread数也越来越多，尽力维持Moore定律，但是DRAM和传统非易失性存储(NAND SSDs， HDD)的容量、价格、速度进步缓慢，成为系统和应用性能的瓶颈。</p>
+<p>PMem位于存储结构中DRAM和NAND SSD之间，容量比DRAM大，性能比SSD好，应用可以像对DRAM访问那样访问PMem，<em>消除了在内存和存储器之间来回分页数据块的需要。</em>(?)</p>
+<h3 id="PMem对application-developers意味着什么？"><a href="#PMem对application-developers意味着什么？" class="headerlink" title="PMem对application developers意味着什么？"></a>PMem对application developers意味着什么？</h3><ul>
+<li>数据的持久性<ul>
+<li>数据需要flush后才能持久化，一直以来都是这样，但flush的问题过去没被programmers重视。虽然调用标准API也可以work，但更多种的flush，(where the application flushes stores from the CPU caches directly, instead of calling into the kernel, is also possible.</li>
+<li>CPUs有乱序执行和cache访问/刷回</li>
+</ul>
+</li>
+<li>数据的一致性<ul>
+<li>PMem可以使得8-byte store to pmem是powerfail atomic。对传统的保证一致性方法（transactions/logging/recovery）带来变革。</li>
+</ul>
+</li>
+<li>内存泄露<ul>
+<li>对传统持久化存储来说，重启不会改变内存泄露，泄露了的内容重启还是泄露。对目前的易失性内存，重启后会释放掉泄露的内存。</li>
+</ul>
+</li>
+<li>字节级寻址</li>
+<li>Error Handling</li>
+</ul>
+<h1 id="IPMCTL-User-Guide"><a href="#IPMCTL-User-Guide" class="headerlink" title="IPMCTL User Guide"></a>IPMCTL User Guide</h1><p>参考自：<a href="https://docs.pmem.io/ipmctl-user-guide">IPMCTL User Guide - IPMCTL User Guide (pmem.io)</a></p>
+<h1 id="NDCTL-User-Guide"><a href="#NDCTL-User-Guide" class="headerlink" title="NDCTL User Guide"></a>NDCTL User Guide</h1><p>参考自：<a href="https://docs.pmem.io/ndctl-user-guide">NDCTL User Guide - NDCTL User Guide (pmem.io)</a></p>
+]]></content>
+      <categories>
+        <category>ResearchNote</category>
+        <category>PMem</category>
+      </categories>
+      <tags>
+        <tag>PMem</tag>
+        <tag>ResearchNote</tag>
       </tags>
   </entry>
   <entry>
